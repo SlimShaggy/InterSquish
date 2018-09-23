@@ -14,15 +14,28 @@ AnsiString __fastcall DecodeBase64New(AnsiString value)
     AnsiString result;
     AnsiString input;
 
+    TStringList *stringList = new TStringList;
+    stringList->Delimiter = '\t';
+    stringList->Clear();
+    stringList->DelimitedText=value;
+
     TIdBase64Decoder *decoder;
     decoder=new TIdBase64Decoder(NULL); //.Create
-    input=value.SubString(12,value.Length()-13);
-    if(input.Pos("==")==0) input+="==";
-    decoder->CodeString(input);
-    result=decoder->CompletedInput();
-    KOI2OEM(result.c_str(),result.c_str());
+
+    for (int i = 0; i < stringList->Count; i++)
+    {
+        AnsiString encodedString=stringList->Strings[i];
+        input=encodedString.SubString(12,encodedString.Length()-13);
+        decoder->CodeString(input);
+        AnsiString decodedString=decoder->CompletedInput();
+        result+=decodedString.SubString(3,decodedString.Length());
+    }
 
     delete decoder;
-    return result.SubString(3,result.Length());
+    delete stringList;
+
+    KOI2OEM(result.c_str(),result.c_str());
+
+    return result;
 }
 
