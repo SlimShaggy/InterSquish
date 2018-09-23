@@ -35,10 +35,10 @@
     <DEFFILE value=""/>
     <RESDEPEN value="$(RESFILES) isNNTP.dfm isControlWindow.dfm isSMTP.dfm isPOP3.dfm"/>
     <LIBFILES value=""/>
-    <LIBRARIES value="iuScripts.lib iuFTN.lib indy.lib vcldbx.lib vclx.lib bdertl.lib vcldb.lib 
+    <LIBRARIES value="indy.lib vcldbx.lib vclx.lib bdertl.lib vcldb.lib 
       dbrtl.lib vcl.lib rtl.lib"/>
     <SPARELIBS value="rtl.lib vcl.lib dbrtl.lib vcldb.lib bdertl.lib vclx.lib vcldbx.lib 
-      indy.lib iuFTN.lib iuScripts.lib"/>
+      indy.lib"/>
     <PACKAGES value="rtl.bpi vcl.bpi dbrtl.bpi vcldb.bpi bdertl.bpi"/>
     <PATHCPP value=".;..\..\comp\iuFTN;..\..\comp\iuFTN;..\..\comp\iuFTN;..\..\comp\iuFTN;..\..\comp\iuFTN;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\iuFTNPlus;..\..\comp\iuLogs;..\..\comp\iuMisc;..\..\comp\iuMisc;..\..\comp\iuMisc;..\..\comp\iuMisc;..\..\comp\iuMisc;..\..\comp\iuMisc;..\..\comp\iuMisc;..\..\comp\iuMisc;..\..\comp\iuNet;..\..\comp\iuNet;..\..\comp\iuNet;..\..\comp\iuNet;..\..\comp\iuNet;..\..\comp\iuNet;..\..\comp\iuNet;..\..\comp\iuNet;..\..\comp\iuNet;..\..\comp\iuNet;..\..\comp\iuScript;..\..\comp\iuScript;..\..\comp\iuScript;..\..\comp\iuScript;..\..\comp\iuRSA;..\..\comp\iuRSA;..\..\comp\iuRSA;..\..\comp\iuRSA;..\..\comp\iuRSA;..\..\comp\iuRSA;..\..\comp\iuRSA;..\..\comp\iuRSA;..\..\comp\iuRSA;..\..\comp\iuRSA;..\..\comp\iuRSA;..\..\comp\iuRSA"/>
     <PATHPAS value=".;"/>
