@@ -1,0 +1,2 @@
+# InterSquish
+FTN/NNTP gate
