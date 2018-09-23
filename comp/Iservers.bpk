@@ -29,7 +29,7 @@
     <USERDEFINES value="NO_PROMPT_ON_HRCHECK_FAILURE;NO_PROMPT_ON_ASSERTE_FAILURE"/>
     <SYSDEFINES value="NO_STRICT;_RTLDLL;USEPACKAGES"/>
     <MAINSOURCE value="Iservers.cpp"/>
-    <INCLUDEPATH value="iuMisc;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuRSA;iuScript;iuLogs;C:\WORK\Builder\is\comp\iuFTN"/>
+    <INCLUDEPATH value="iuMisc;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuRSA;iuScript;iuLogs;iuFTN"/>
     <LIBPATH value="iuMisc;$(BCB)\Projects\Lib;$(BCB)\lib;$(BCB)\lib\obj;iunet;iuFTN;&quot;D:\Program Files\Borland\CBuilder4\Projects\Lib&quot;"/>
     <WARNINGS value="-w-par -w-8027 -w-8026"/>
     <WARNOPTSTR value=""/>
@@ -37,10 +37,10 @@
   </MACROS>
   <OPTIONS>
     <IDLCFLAGS value="-IiuMisc -Iiunet -I$(BCB)\include -I$(BCB)\include\vcl -IINCLUDE -IiuRSA 
-      -IiuScript -IiuLogs -IC:\WORK\Builder\is\comp\iuFTN -src_suffix cpp 
-      -DNO_PROMPT_ON_HRCHECK_FAILURE -DNO_PROMPT_ON_ASSERTE_FAILURE -boa"/>
-    <CFLAG1 value="-vGc -vGt -vGd -Od -H=t:\S1.csm -Vx -Ve -Tkh30000 -ff -X- -a8 -5 -b- -d 
-      -k- -y -v -vi -c -tWM"/>
+      -IiuScript -IiuLogs -IiuFTN -src_suffix cpp -DNO_PROMPT_ON_HRCHECK_FAILURE 
+      -DNO_PROMPT_ON_ASSERTE_FAILURE -boa"/>
+    <CFLAG1 value="-vGc -vGt -vGd -Od -H=$(BCB)\lib\vcl60.csm -Vx -Ve -Tkh30000 -ff -X- -a8 
+      -5 -b- -d -k- -y -v -vi -c -tWM"/>
     <PFLAGS value="-$Y- -$O- -$A8 -v -M -JPHNE"/>
     <RFLAGS value=""/>
     <AFLAGS value="/mx /w2 /zn /la"/>
@@ -49,7 +49,7 @@
     <OTHERFILES value=""/>
   </OPTIONS>
   <LINKER>
-    <ALLOBJ value="c0pkg32.obj iuFTN\cfg.obj $(PACKAGES) Memmgr.Lib sysinit.obj $(OBJFILES)"/>
+    <ALLOBJ value="c0pkg32.obj $(PACKAGES) Memmgr.Lib iuFTN\cfg.obj sysinit.obj $(OBJFILES)"/>
     <ALLRES value="$(RESFILES)"/>
     <ALLLIB value="cg32.lib $(LIBFILES) $(LIBRARIES) import32.lib cp32mti.lib"/>
     <OTHERFILES value=""/>
@@ -108,22 +108,23 @@ ProductVersion=1.0.2.0
 Comments=
 
 [HistoryLists\hlIncludePath]
-Count=15
-Item0=iuMisc;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuRSA;iuScript;iuLogs;C:\WORK\Builder\is\comp\iuFTN
-Item1=iuMisc;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuRSA;iuScript;iuLogs;uiFTN
-Item2=iuMisc;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuRSA;iuScript;iuLogs
-Item3=iuMisc;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuRSA;iuScript
-Item4=iuMisc;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuRSA
-Item5=iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuRSA
-Item6=D:\Program Files\Borland\CBuilder4\Projects\;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;..\modules\cripto\RSA
-Item7=D:\Program Files\Borland\CBuilder4\Projects\;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;E:\SOURCE\Cpp\modules\cripto\RSA
-Item8=D:\Program Files\Borland\CBuilder4\Projects;D:\Program Files\Borland\CBuilder4\Projects\;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE
-Item9=D:\Program Files\Borland\CBuilder4\Projects\;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE
-Item10=D:\Program Files\Borland\CBuilder4\Projects;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE
-Item11=iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE
-Item12=iunet;$(BCB)\include;$(BCB)\include\vcl;E:\SOURCE\CPP\comp\INCLUDE
-Item13=iunet;$(BCB)\include;$(BCB)\include\vcl
-Item14=$(BCB)\include;$(BCB)\include\vcl
+Count=16
+Item0=iuMisc;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuRSA;iuScript;iuLogs;iuFTN
+Item1=iuMisc;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuRSA;iuScript;iuLogs;C:\WORK\Builder\is\comp\iuFTN
+Item2=iuMisc;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuRSA;iuScript;iuLogs;uiFTN
+Item3=iuMisc;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuRSA;iuScript;iuLogs
+Item4=iuMisc;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuRSA;iuScript
+Item5=iuMisc;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuRSA
+Item6=iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuRSA
+Item7=D:\Program Files\Borland\CBuilder4\Projects\;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;..\modules\cripto\RSA
+Item8=D:\Program Files\Borland\CBuilder4\Projects\;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;E:\SOURCE\Cpp\modules\cripto\RSA
+Item9=D:\Program Files\Borland\CBuilder4\Projects;D:\Program Files\Borland\CBuilder4\Projects\;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE
+Item10=D:\Program Files\Borland\CBuilder4\Projects\;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE
+Item11=D:\Program Files\Borland\CBuilder4\Projects;iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE
+Item12=iunet;$(BCB)\include;$(BCB)\include\vcl;INCLUDE
+Item13=iunet;$(BCB)\include;$(BCB)\include\vcl;E:\SOURCE\CPP\comp\INCLUDE
+Item14=iunet;$(BCB)\include;$(BCB)\include\vcl
+Item15=$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
 Count=30

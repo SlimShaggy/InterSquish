@@ -27,7 +27,7 @@
     <USERDEFINES value="NO_PROMPT_ON_HRCHECK_FAILURE;NO_PROMPT_ON_ASSERTE_FAILURE"/>
     <SYSDEFINES value="NO_STRICT;_RTLDLL;USEPACKAGES"/>
     <MAINSOURCE value="iuFTNPlus.cpp"/>
-    <INCLUDEPATH value="$(BCB)\include;$(BCB)\include\vcl;..\Projects\InterSquish;iunet;iuftnplus;iuFTN;iuMisc;INCLUDE;iuRSA;iuScript;iuLogs;C:\WORK\Builder\is\comp\msgapi\include"/>
+    <INCLUDEPATH value="$(BCB)\include;$(BCB)\include\vcl;..\Projects\InterSquish;iunet;iuftnplus;iuFTN;iuMisc;INCLUDE;iuRSA;iuScript;iuLogs;msgapi\include"/>
     <LIBPATH value="&quot;d:\program files\borland\cbuilder4\lib\release&quot;;&quot;D:\Program Files\Borland\CBuilder4\Projects\Lib&quot;;..\Projects\InterSquish;&quot;D:\Program Files\Borland\CBuilder4\Projects&quot;;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc"/>
     <WARNINGS value="-w-par -w-8027 -w-8026"/>
     <WARNOPTSTR value=""/>
@@ -36,10 +36,10 @@
   <OPTIONS>
     <IDLCFLAGS value="-I$(BCB)\include -I$(BCB)\include\vcl -I..\Projects\InterSquish -Iiunet 
       -Iiuftnplus -IiuFTN -IiuMisc -IINCLUDE -IiuRSA -IiuScript -IiuLogs 
-      -IC:\WORK\Builder\is\comp\msgapi\include -src_suffix cpp 
-      -DNO_PROMPT_ON_HRCHECK_FAILURE -DNO_PROMPT_ON_ASSERTE_FAILURE -boa"/>
-    <CFLAG1 value="-Od -H=t:\S1.csm -Hc -Vx -Ve -Tkh30000 -ff -X- -a8 -5 -b- -d -k- -y -v -vi 
-      -c -tWM"/>
+      -Imsgapi\include -src_suffix cpp -DNO_PROMPT_ON_HRCHECK_FAILURE 
+      -DNO_PROMPT_ON_ASSERTE_FAILURE -boa"/>
+    <CFLAG1 value="-Od -H=$(BCB)\lib\vcl60.csm -Hc -Vx -Ve -Tkh30000 -ff -X- -a8 -5 -b- -d 
+      -k- -y -v -vi -c -tWM"/>
     <PFLAGS value="-$Y- -$L- -$D- -$A8 -v -M -JPHNE"/>
     <RFLAGS value=""/>
     <AFLAGS value="/mx /w2 /zn"/>
@@ -81,7 +81,7 @@ AutoIncBuild=1
 MajorVer=1
 MinorVer=0
 Release=1
-Build=241
+Build=252
 Debug=0
 PreRelease=0
 Special=0
@@ -93,7 +93,7 @@ CodePage=1251
 [Version Info Keys]
 CompanyName=
 FileDescription=
-FileVersion=1.0.1.241
+FileVersion=1.0.1.252
 InternalName=
 LegalCopyright=
 LegalTrademarks=
@@ -103,55 +103,57 @@ ProductVersion=1.0.0.0
 Comments=
 
 [HistoryLists\hlIncludePath]
-Count=17
-Item0=$(BCB)\include;$(BCB)\include\vcl;..\Projects\InterSquish;iunet;iuftnplus;iuFTN;iuMisc;INCLUDE;iuRSA;iuScript;iuLogs;C:\WORK\Builder\is\comp\msgapi\include
-Item1=$(BCB)\include;$(BCB)\include\vcl;..\Projects\InterSquish;iunet;iuftnplus;iuFTN;iuMisc;INCLUDE;iuRSA;iuScript;iuLogs
-Item2=$(BCB)\include;$(BCB)\include\vcl;..\Projects\InterSquish;iunet;iuftnplus;iuFTN;iuMisc;INCLUDE;iuRSA;iuScript;E:\SOURCE\Cpp\comp\iuLogs
-Item3=$(BCB)\include;$(BCB)\include\vcl;..\Projects\InterSquish;iunet;iuftnplus;iuFTN;iuMisc;INCLUDE;iuRSA;iuScript
-Item4=$(BCB)\include;$(BCB)\include\vcl;..\Projects\InterSquish;iunet;iuftnplus;iuFTN;iuMisc;INCLUDE;iuRSA
-Item5=..\Projects\InterSquish;D:\Program Files\Borland\CBuilder4\Projects\;iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN;iuMisc;INCLUDE;..\modules\cripto\RSA
-Item6=..\Projects\InterSquish;D:\Program Files\Borland\CBuilder4\Projects\;iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN;iuMisc;INCLUDE;E:\SOURCE\Cpp\modules\cripto\RSA
-Item7=D:\Program Files\Borland\CBuilder4\Projects\;iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN;iuMisc;INCLUDE;..\modules\cripto\RSA
-Item8=D:\Program Files\Borland\CBuilder4\Projects;D:\Program Files\Borland\CBuilder4\Projects\;iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN;iuMisc;INCLUDE;..\modules\cripto\RSA
-Item9=D:\Program Files\Borland\CBuilder4\Projects;iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN;iuMisc;INCLUDE;..\modules\cripto\RSA
-Item10=iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN;iuMisc;INCLUDE;..\modules\cripto\RSA
-Item11=iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN;iuMisc;INCLUDE;E:\SOURCE\CPP\modules\cripto\RSA
-Item12=iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN;iuMisc;INCLUDE
-Item13=iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN;iuMisc;E:\SOURCE\CPP\comp\INCLUDE
-Item14=iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN;iuMisc
-Item15=iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN
-Item16=iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl
+Count=18
+Item0=$(BCB)\include;$(BCB)\include\vcl;..\Projects\InterSquish;iunet;iuftnplus;iuFTN;iuMisc;INCLUDE;iuRSA;iuScript;iuLogs;msgapi\include
+Item1=$(BCB)\include;$(BCB)\include\vcl;..\Projects\InterSquish;iunet;iuftnplus;iuFTN;iuMisc;INCLUDE;iuRSA;iuScript;iuLogs;C:\WORK\Builder\is\comp\msgapi\include
+Item2=$(BCB)\include;$(BCB)\include\vcl;..\Projects\InterSquish;iunet;iuftnplus;iuFTN;iuMisc;INCLUDE;iuRSA;iuScript;iuLogs
+Item3=$(BCB)\include;$(BCB)\include\vcl;..\Projects\InterSquish;iunet;iuftnplus;iuFTN;iuMisc;INCLUDE;iuRSA;iuScript;E:\SOURCE\Cpp\comp\iuLogs
+Item4=$(BCB)\include;$(BCB)\include\vcl;..\Projects\InterSquish;iunet;iuftnplus;iuFTN;iuMisc;INCLUDE;iuRSA;iuScript
+Item5=$(BCB)\include;$(BCB)\include\vcl;..\Projects\InterSquish;iunet;iuftnplus;iuFTN;iuMisc;INCLUDE;iuRSA
+Item6=..\Projects\InterSquish;D:\Program Files\Borland\CBuilder4\Projects\;iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN;iuMisc;INCLUDE;..\modules\cripto\RSA
+Item7=..\Projects\InterSquish;D:\Program Files\Borland\CBuilder4\Projects\;iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN;iuMisc;INCLUDE;E:\SOURCE\Cpp\modules\cripto\RSA
+Item8=D:\Program Files\Borland\CBuilder4\Projects\;iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN;iuMisc;INCLUDE;..\modules\cripto\RSA
+Item9=D:\Program Files\Borland\CBuilder4\Projects;D:\Program Files\Borland\CBuilder4\Projects\;iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN;iuMisc;INCLUDE;..\modules\cripto\RSA
+Item10=D:\Program Files\Borland\CBuilder4\Projects;iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN;iuMisc;INCLUDE;..\modules\cripto\RSA
+Item11=iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN;iuMisc;INCLUDE;..\modules\cripto\RSA
+Item12=iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN;iuMisc;INCLUDE;E:\SOURCE\CPP\modules\cripto\RSA
+Item13=iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN;iuMisc;INCLUDE
+Item14=iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN;iuMisc;E:\SOURCE\CPP\comp\INCLUDE
+Item15=iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN;iuMisc
+Item16=iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl;iuFTN
+Item17=iunet;iuftnplus;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
-Count=28
+Count=29
 Item0=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;..\Projects\InterSquish;D:\Program Files\Borland\CBuilder4\Projects;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc
-Item1=d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;..\Projects\InterSquish;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc
-Item2=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;..\Projects\InterSquish;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc
-Item3=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;..\Projects\InterSquish;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
-Item4=d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;..\Projects\InterSquish;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
-Item5=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;..\Projects\InterSquish;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
-Item6=..\Projects\InterSquish;d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
-Item7=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
-Item8=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;D:\Program Files\Borland\CBuilder4\Projects\;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
-Item9=D:\Program Files\Borland\CBuilder4\Projects;d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
-Item10=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
-Item11=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;D:\Program Files\Borland\CBuilder4\Projects\Lib\;d:\program files\borland\cbuilder4\lib\release\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
-Item12=D:\Program Files\Borland\CBuilder4\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
-Item13=d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;v:\obj\;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
-Item14=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;v:\obj\;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
-Item15=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;v:\obj\;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
-Item16=v:\obj;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
-Item17=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;D:\Program Files\Borland\CBuilder4\Projects\Lib\;D:\Program Files\Borland\CBuilder4\Projects\;d:\program files\borland\cbuilder4\lib\release\;iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
-Item18=D:\Program Files\Borland\CBuilder4\Projects\Lib;D:\Program Files\Borland\CBuilder4\Projects;d:\program files\borland\cbuilder4\lib\release;d:\program files\borland\cbuilder4\lib\release\;iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
-Item19=d:\program files\borland\cbuilder4\lib\release;d:\program files\borland\cbuilder4\lib\release\;iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
-Item20=d:\program files\borland\cbuilder4\lib\release;iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
-Item21=iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
-Item22=iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;E:\SOURCE\CPP\modules\cripto\RSA
-Item23=iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc
-Item24=$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc
-Item25=d:\program files\borland\cbuilder3\lib\release;..\comp;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc
-Item26=..\comp;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc
-Item27=..\comp;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib
+Item1=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;..\Projects\InterSquish;D:\Program Files\Borland\CBuilder4\Projects;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;iuScript
+Item2=d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;..\Projects\InterSquish;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc
+Item3=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;..\Projects\InterSquish;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc
+Item4=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;..\Projects\InterSquish;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
+Item5=d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;..\Projects\InterSquish;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
+Item6=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;..\Projects\InterSquish;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
+Item7=..\Projects\InterSquish;d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
+Item8=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
+Item9=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;D:\Program Files\Borland\CBuilder4\Projects\;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
+Item10=D:\Program Files\Borland\CBuilder4\Projects;d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
+Item11=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
+Item12=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;D:\Program Files\Borland\CBuilder4\Projects\Lib\;d:\program files\borland\cbuilder4\lib\release\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
+Item13=D:\Program Files\Borland\CBuilder4\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;iuFTN;$(BCB)\Projects\Lib;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
+Item14=d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;v:\obj\;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
+Item15=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;v:\obj\;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
+Item16=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;v:\obj\;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
+Item17=v:\obj;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;D:\Program Files\Borland\CBuilder4\Projects\;iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
+Item18=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;D:\Program Files\Borland\CBuilder4\Projects\Lib\;D:\Program Files\Borland\CBuilder4\Projects\;d:\program files\borland\cbuilder4\lib\release\;iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
+Item19=D:\Program Files\Borland\CBuilder4\Projects\Lib;D:\Program Files\Borland\CBuilder4\Projects;d:\program files\borland\cbuilder4\lib\release;d:\program files\borland\cbuilder4\lib\release\;iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
+Item20=d:\program files\borland\cbuilder4\lib\release;d:\program files\borland\cbuilder4\lib\release\;iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
+Item21=d:\program files\borland\cbuilder4\lib\release;iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
+Item22=iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;..\modules\cripto\RSA
+Item23=iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc;E:\SOURCE\CPP\modules\cripto\RSA
+Item24=iuFTN;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc
+Item25=$(BCB)\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc
+Item26=d:\program files\borland\cbuilder3\lib\release;..\comp;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc
+Item27=..\comp;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib;iumisc
+Item28=..\comp;iunet;iuftnplus;$(BCB)\lib\obj;$(BCB)\lib
 
 [HistoryLists\hlDebugSourcePath]
 Count=1

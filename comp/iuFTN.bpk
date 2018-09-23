@@ -26,7 +26,7 @@
     <USERDEFINES value="NO_PROMPT_ON_HRCHECK_FAILURE;NO_PROMPT_ON_ASSERTE_FAILURE;_DEBUG"/>
     <SYSDEFINES value="NO_STRICT;_RTLDLL;USEPACKAGES"/>
     <MAINSOURCE value="iuFTN.cpp"/>
-    <INCLUDEPATH value="&quot;D:\Program Files\Borland\CBuilder6\Projects&quot;;iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs;C:\WORK\Builder\is\comp\msgapi\include"/>
+    <INCLUDEPATH value="&quot;D:\Program Files\Borland\CBuilder6\Projects&quot;;iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs;msgapi\include"/>
     <LIBPATH value="&quot;D:\Program Files\Borland\CBuilder6\Projects&quot;;iuScript;iuMisc;$(BCB)\Projects\Lib;&quot;d:\program files\borland\cbuilder4\lib\release&quot;;&quot;D:\Program Files\Borland\CBuilder4\Projects\Lib&quot;;iuutils;iuftn;$(BCB)\lib\obj;$(BCB)\lib"/>
     <WARNINGS value="-w-par -w-8027 -w-8026"/>
     <WARNOPTSTR value=""/>
@@ -35,10 +35,10 @@
   <OPTIONS>
     <IDLCFLAGS value="-I&quot;D:\Program Files\Borland\CBuilder6\Projects&quot; -IiuScript -IiuMisc 
       -Iiuutils -Iiuftn -I$(BCB)\include -I$(BCB)\include\vcl -IINCLUDE -IiuLogs 
-      -IC:\WORK\Builder\is\comp\msgapi\include -src_suffix cpp 
-      -DNO_PROMPT_ON_HRCHECK_FAILURE -DNO_PROMPT_ON_ASSERTE_FAILURE -D_DEBUG -boa"/>
-    <CFLAG1 value="-Od -H=t:\IS1.csm -Hc -Vx -Ve -Tkh30000 -ff -X- -r- -a8 -5 -b- -d -k- -y 
-      -v -vi -c -tWM"/>
+      -Imsgapi\include -src_suffix cpp -DNO_PROMPT_ON_HRCHECK_FAILURE 
+      -DNO_PROMPT_ON_ASSERTE_FAILURE -D_DEBUG -boa"/>
+    <CFLAG1 value="-Od -H=$(BCB)\lib\vcl60.csm -Hc -Vx -Ve -Tkh30000 -ff -X- -r- -a8 -5 -b- 
+      -d -k- -y -v -vi -c -tWM"/>
     <PFLAGS value="-$Y+ -$W -$O- -$A8 -v -M -JPHNE"/>
     <RFLAGS value=""/>
     <AFLAGS value="/mx /w2 /zi"/>
@@ -79,7 +79,7 @@ AutoIncBuild=1
 MajorVer=0
 MinorVer=1
 Release=1
-Build=230
+Build=234
 Debug=0
 PreRelease=0
 Special=0
@@ -91,7 +91,7 @@ CodePage=1251
 [Version Info Keys]
 CompanyName=
 FileDescription=
-FileVersion=0.1.1.230
+FileVersion=0.1.1.234
 InternalName=
 LegalCopyright=
 LegalTrademarks=
@@ -101,18 +101,19 @@ ProductVersion=1.0.0.0
 Comments=
 
 [HistoryLists\hlIncludePath]
-Count=11
-Item0=D:\Program Files\Borland\CBuilder6\Projects;iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs;C:\WORK\Builder\is\comp\msgapi\include
-Item1=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs;C:\WORK\Builder\is\comp\msgapi\include
-Item2=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs
-Item3=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;E:\SOURCE\Cpp\comp\iuLogs
-Item4=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE
-Item5=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;E:\SOURCE\Cpp\comp\INCLUDE
-Item6=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl
-Item7=iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl
-Item8=iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl
-Item9=iuutils;..\..\..\program files\borland\cbuilder3\projects;iuftn;$(BCB)\include;$(BCB)\include\vcl
-Item10=iuftn;$(BCB)\include;$(BCB)\include\vcl
+Count=12
+Item0=D:\Program Files\Borland\CBuilder6\Projects;iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs;msgapi\include
+Item1=D:\Program Files\Borland\CBuilder6\Projects;iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs;C:\WORK\Builder\is\comp\msgapi\include
+Item2=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs;C:\WORK\Builder\is\comp\msgapi\include
+Item3=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs
+Item4=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;E:\SOURCE\Cpp\comp\iuLogs
+Item5=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE
+Item6=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;E:\SOURCE\Cpp\comp\INCLUDE
+Item7=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl
+Item8=iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl
+Item9=iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl
+Item10=iuutils;..\..\..\program files\borland\cbuilder3\projects;iuftn;$(BCB)\include;$(BCB)\include\vcl
+Item11=iuftn;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
 Count=26

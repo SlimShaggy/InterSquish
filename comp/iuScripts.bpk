@@ -13,8 +13,8 @@
     <DEFFILE value=""/>
     <RESDEPEN value="$(RESFILES)"/>
     <LIBFILES value=""/>
-    <LIBRARIES value=""/>
-    <SPARELIBS value="rtl.lib vcl.lib"/>
+    <LIBRARIES value="dbrtl.lib iuFTN.lib"/>
+    <SPARELIBS value="rtl.lib vcl.lib iuFTN.lib dbrtl.lib"/>
     <PACKAGES value="rtl.bpi vcl.bpi"/>
     <PATHCPP value=".;iuScript;iuScript;iuScript;iuScript"/>
     <PATHPAS value=".;"/>
@@ -26,18 +26,16 @@
     <USERDEFINES value="NO_PROMPT_ON_HRCHECK_FAILURE;NO_PROMPT_ON_ASSERTE_FAILURE"/>
     <SYSDEFINES value="_RTLDLL;NO_STRICT;USEPACKAGES"/>
     <MAINSOURCE value="iuScripts.cpp"/>
-    <INCLUDEPATH value="&quot;C:\Program Files\Borland\CBuilder5\Projects\&quot;;iuScript;$(BCB)\include;$(BCB)\include\vcl;INCLUDE"/>
-    <LIBPATH value="&quot;C:\Program Files\Borland\CBuilder5\Projects\&quot;;iuScript;$(BCB)\lib\obj;$(BCB)\lib"/>
+    <INCLUDEPATH value="&quot;C:\Program Files\Borland\CBuilder5\Projects&quot;;iuScript;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuMisc"/>
+    <LIBPATH value="$(BCB)\Projects\Lib;&quot;C:\Program Files\Borland\CBuilder5\Projects&quot;;iuScript;$(BCB)\lib\obj;$(BCB)\lib"/>
     <WARNINGS value="-w-par"/>
     <OTHERFILES value=""/>
   </MACROS>
   <OPTIONS>
-    <IDLCFLAGS value="-src_suffix cpp -DNO_PROMPT_ON_HRCHECK_FAILURE 
-      -DNO_PROMPT_ON_ASSERTE_FAILURE 
-      -I&quot;C:\Program Files\Borland\CBuilder5\Projects\.&quot; -IiuScript 
-      -I$(BCB)\include -I$(BCB)\include\vcl -IINCLUDE -boa"/>
-    <CFLAG1 value="-O2 -H=d:\PROGRA~1\borland\CBUILD~1\lib\vcl60.csm -Hc -Vx -Ve -X- -a8 -5 
-      -b- -k- -vi -c -tWM"/>
+    <IDLCFLAGS value="-I&quot;C:\Program Files\Borland\CBuilder5\Projects&quot; -IiuScript 
+      -I$(BCB)\include -I$(BCB)\include\vcl -IINCLUDE -IiuMisc -src_suffix cpp 
+      -DNO_PROMPT_ON_HRCHECK_FAILURE -DNO_PROMPT_ON_ASSERTE_FAILURE -boa"/>
+    <CFLAG1 value="-O2 -H=$(BCB)\lib\vcl60.csm -Hc -Vx -Ve -X- -a8 -5 -b- -k- -vi -c -tWM"/>
     <PFLAGS value="-$Y- -$L- -$D- -$A8 -v -JPHNE -M"/>
     <RFLAGS value=""/>
     <AFLAGS value="/mx /w2 /zn"/>
@@ -92,22 +90,19 @@ ProductName=
 ProductVersion=1.0.0.0
 Comments=
 
-[Excluded Packages]
-C:\PROGRA~1\Borland\CBUILD~1\Projects\Bpl\IUFTN.BPL=FTN-technology
-C:\PROGRA~1\Borland\CBUILD~1\Projects\Bpl\IUSCRIPTS.BPL=c:\program files\borland\cbuilder5\Projects\Bpl\iuScripts
-C:\PROGRA~1\Borland\CBUILD~1\Projects\Bpl\ISERVERS.BPL=components contained simple SMTP-, POP3-, NNTP-servers
-d:\program files\borland\cbuilder6\Projects\Bpl\iuFTNPlus.bpl=Advanced FTN technologies
-
 [HistoryLists\hlIncludePath]
-Count=3
-Item0=C:\Program Files\Borland\CBuilder5\Projects\;iuScript;$(BCB)\include;$(BCB)\include\vcl;INCLUDE
-Item1=C:\Program Files\Borland\CBuilder5\Projects;iuScript;$(BCB)\include;$(BCB)\include\vcl;E:\SOURCE\Cpp\comp\INCLUDE
-Item2=C:\Program Files\Borland\CBuilder5\Projects;iuScript;$(BCB)\include;$(BCB)\include\vcl
+Count=5
+Item0=C:\Program Files\Borland\CBuilder5\Projects;iuScript;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuMisc
+Item1=C:\Program Files\Borland\CBuilder5\Projects\;iuScript;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuMisc
+Item2=C:\Program Files\Borland\CBuilder5\Projects\;iuScript;$(BCB)\include;$(BCB)\include\vcl;INCLUDE
+Item3=C:\Program Files\Borland\CBuilder5\Projects;iuScript;$(BCB)\include;$(BCB)\include\vcl;E:\SOURCE\Cpp\comp\INCLUDE
+Item4=C:\Program Files\Borland\CBuilder5\Projects;iuScript;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
-Count=2
-Item0=C:\Program Files\Borland\CBuilder5\Projects\;iuScript;$(BCB)\lib\obj;$(BCB)\lib
-Item1=C:\Program Files\Borland\CBuilder5\Projects;iuScript;$(BCB)\lib\obj;$(BCB)\lib
+Count=3
+Item0=$(BCB)\Projects\Lib;C:\Program Files\Borland\CBuilder5\Projects;iuScript;$(BCB)\lib\obj;$(BCB)\lib
+Item1=C:\Program Files\Borland\CBuilder5\Projects\;iuScript;$(BCB)\lib\obj;$(BCB)\lib
+Item2=C:\Program Files\Borland\CBuilder5\Projects;iuScript;$(BCB)\lib\obj;$(BCB)\lib
 
 [HistoryLists\hlDebugSourcePath]
 Count=1
