@@ -1,0 +1,46 @@
+93-07-01
+
+This archive contains the entire JAM C API and includes make and
+project files for Turbo C, Borland C++, Microsoft C++, Zortech C++,
+JPI TopSpeed C, and GNU C on SPARC. The API should compile under
+almost any ANSI compliant C/C++ compiler, though your mileage may
+vary.
+
+The file WINDOWS.ARJ contains all necessary files to produce a .DLL
+for Windows 3.x using BC++ 3.1, MSC++ 7.0, and ZTC++ 3.1. A list of
+files included in this archive follows (not including README.1ST).
+
+Filename       Original Compressed Ratio DateTime modified CRC-32
+------------ ---------- ---------- ----- ----------------- --------
+JAMCRC32.C         5344       2568 0.481 93-07-01 01:00:00 2213EE91
+JAMFETCH.C         5854       1491 0.255 93-07-01 01:00:00 E8864897
+JAMFIELD.C         3004       1090 0.363 93-07-01 01:00:00 A22336FC
+JAMHINFO.C         2260        755 0.334 93-07-01 01:00:00 17BF1BCC
+JAMLOCK.C          2392        783 0.327 93-07-01 01:00:00 8735FF6B
+JAMLREAD.C         3325       1053 0.317 93-07-01 01:00:00 163DED55
+JAMMBINI.C        15093       2562 0.170 93-07-01 01:00:00 05B3926A
+JAMSCAN.C          8821       1845 0.209 93-07-01 01:00:00 F6D25470
+JAMSTORE.C         6373       1542 0.242 93-07-01 01:00:00 4F267A40
+JAMSYS.C          24132       5391 0.223 93-07-01 01:00:00 2004AA13
+JAM.H              7194       2227 0.310 93-07-01 01:00:00 F8213249
+JAMMB.H            6952       1961 0.282 93-07-01 01:00:00 D09C564F
+JAMPROT.H          3497       1075 0.307 93-07-01 01:00:00 9798E40F
+JAMSYS.H           9161       1788 0.195 93-07-01 01:00:00 5B9FF408
+MAKEFILE.BC        1289        535 0.415 93-07-01 01:00:00 F1C552B7
+MAKEFILE.GCC        662        359 0.542 93-07-01 01:00:00 0108D233
+MAKEFILE.MSC       1225        483 0.394 93-07-01 01:00:00 1459E493
+MAKEFILE.TC        1152        458 0.398 93-07-01 01:00:00 D4895B60
+MAKEFILE.ZTC       1173        487 0.415 93-07-01 01:00:00 A4571733
+JAMCAPIC.PRJ        735        356 0.484 93-07-01 01:00:00 BC4244F6
+WINDOWS.ARJ       16015      15985 0.998 93-07-01 01:00:00 F541B5B7
+------------ ---------- ---------- -----
+
+A short reminder: ALL FILES IN THE JAM(mbp) API COME WITHOUT
+WARRANTIES OF ANY KIND, EXPRESSED OR IMPLIED. BY USING THE API, OR
+ANY WORK DERIVED FROM IT, YOU ASSUME ALL RESPONSIBILITIES. IF YOU
+CANNOT ACCEPT THESE CONDITIONS, DON'T USE THE API.
+
+Copyright 1993 Joaquim Homrighausen, Andrew Milner, Mats Birch, and
+               Mats Wallin. ALL RIGHTS RESERVED.
+
+// end of file "readme.1st"

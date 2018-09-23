@@ -1,0 +1,24 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#pragma hdrstop
+USERES("iuScripts.res");
+USEPACKAGE("vcl50.bpi");
+USEUNIT("iuScript\MSScriptControl_OCX.cpp");
+USERES("iuScript\MSScriptControl_OCX.dcr");
+USEUNIT("iuScript\MSScriptControl_TLB.cpp");
+USEUNIT("iuScript\iuScriptControl.cpp");
+USEUNIT("iuScript\ScriptUtils.cpp");
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+//---------------------------------------------------------------------------
+
+//   Package source.
+//---------------------------------------------------------------------------
+
+#pragma argsused
+int WINAPI DllEntryPoint(HINSTANCE hinst, unsigned long reason, void*)
+{
+  return 1;
+}
+//---------------------------------------------------------------------------

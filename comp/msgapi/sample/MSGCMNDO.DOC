@@ -1,0 +1,35 @@
+                          The Message Commando
+                          컴컴컴컴컴컴컴컴컴컴
+
+Usage:
+
+        MSGCMNDO <config_file> <area_name>
+
+<config_file> should be the name of the Message Commando configuration
+file.  This is a flat text file, with one "nuke" name to a line.
+MSGCMNDO will search and destroy any messages containing any of the
+names you specify, anywhere in the message header or message body.
+
+<area_name> is the path to the message area to scan.  By default,
+MSGCMNDO will scan a *.MSG area, but if you add a "$" just before
+the area's path, MSGCMNDO will also scan a Squish-format area.
+
+Example:
+
+    C:\MSGCMNDO> msgcmndo msgcmndo.cfg c:\msg\sysop249
+
+        - Tells MSGCMNDO to scan for names listed in MSGCMNDO.CFG,
+          nuking any matching messages in the SYSOP249 (*.MSG) area.
+
+    C:\MSGCMNDO> msgcmndo altcmndo.cfg $e:\max\msg\sysop249
+
+        - Tells MSGCMNDO to scan for names listed in ALTCMNDO.CFG,
+          nuking any matching messages in the E:\MAX\MSG\SYSOP249
+          (Squish) area.
+
+Legal stuff
+컴컴컴컴컴�
+
+Copyright 1991 by Scott J. Dudley.  All rights reserved.  This program
+comes with absolutely NO warranty.  Void where prohibited.  Et cetera.
+

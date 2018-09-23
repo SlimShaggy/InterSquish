@@ -1,0 +1,36 @@
+    InterSquish Frequently Asked Questions
+
+Q.1: Will it ever post?
+A:   It already does. :) Contact me, register and off you go.
+
+Q.2: Will JAM messagebase format be supported?
+A:   It supports 'em. You forced me :)
+
+Q.3: I installed InterSquish, everything seems to be OK, but a user cannot 
+     get the newsgroups list. What's wrong?
+A:   Most likely, groups are not indicated in squish.cfg. InterSquish does 
+     publish the newsgroups, which are not assigned a group. You can do it
+     like this:
+     EchoArea IS.TEST f:\msg\echos\IS.TEST -$gA <другие ключи и адресаты>
+
+Q.4: How do I register InterSquish?
+A:   Contact me.
+
+Q.5: Can I get the registered version for free?
+A:   You can't get it absolutely for free. Currently you can get registered
+     without paying anything, just do something useful for InterSquish,
+     for example, that's how I got:
+         -English documentation;
+         -web-design for the InterSquish site;
+         -place for the mirror.
+
+Q.6: Where can I find InterSquish in the Internet?
+A:  http://www.interdacom.ru/~citousers/ or just http://intersquish.da.ru,
+    http://www.brs.ru/intersquish,
+    ftp://212.19.67.58/pub/nftn
+
+Q.7: What is the proper way to write the return address in OutlookExpress?
+A:  I recommend doing it like this: ivan_uskov@p0.f114.n5055.z2.fidonet.org,
+   It is possible to use your Internet address (ivus@geocities.com)
+   but responses to your netmail messages will come via the gate..
+     

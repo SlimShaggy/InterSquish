@@ -1,0 +1,268 @@
+                 ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+                 ³ Squish MsgAPI, revision 0.0 ³
+                 ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+This file contains the source and object code for the Squish/Maximus
+message API.  This code can be used to access the Squish<tm> message
+format, in addition to the FidoNet-standard *.MSG format.
+
+Legal Stuff
+ÄÄÄÄÄÄÄÄÄÄÄ
+
+Copyright 1991 by Scott J. Dudley.  All rights reserved.
+"Squish", "SquishMail" and "Maximus" are trademarks of Scott J. Dudley.
+
+Although MsgAPI is copyrighted, you have been granted a limited
+licence modify or to use MsgAPI in your applications.  The only
+restrictions on the use of MsgAPI are:
+
+1) This code must not be sold.  Permission to post this file on "pay
+   BBSes" is granted, as long as no extra fee (above and beyond the
+   normal access charges) is required to download or access this code.
+
+2) If you use this code in your application, you are required to give
+   credit for the MsgAPI code, and you must also indicate that
+   "Squish" is a trademark of Scott J. Dudley.
+
+3) If you modify this code, you must keep the message format
+   compatible.  If my original MsgAPI code cannot read from AND write
+   to message areas created by your modified code, you may not label
+   your application as being compatible with the Squish message formt.
+
+Aside from the above, there are few resitrictions on the use of
+this code.  As long as the above two conditions are followed,
+MsgAPI may be incorporated into any type of application, commercial
+or freeware.  If you make any modifications to this code which you
+feel the author might be interested in, please forward source
+code snippets to one of the addresses listed below.
+
+
+Supported compilers
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+As of this writing, MsgAPI supports TC2, TC++, BC++, MSC6 and WC80/85.
+It may be possible to use MsgAPI with other compilers, but some work
+will be necessary.
+
+If you wish to recompile the MsgAPI for another compiler or memory
+model, you will also require an assembler.  Both TASM and MASM
+are supported.
+
+
+How to unpack MsgAPI
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+This package contains five nested archives:
+
+        SRC.LZH         MsgAPI source code
+        INCLUDE.LZH     Header files
+        LIB.LZH         Libraries for TC2, TC++/BC++, MSC6 and WC8x
+        OS2.LZH         MSGAPI.DLL and import library
+        SAMPLE.LZH      Two sample programs which use MsgAPI
+
+If you have no need to recompile MsgAPI, you only need LIB.LZH and
+INCLUDE.LZH.  The files in LIB.LZH should be decompressed into your
+compiler's standard library directory, and the files in INCLUDE.LZH
+should be placed in a directory on your compiler's "Include Path".  If
+you're compiling under OS/2, you will need OS2.LZH instead of LIB.LZH.
+
+If you wish to recompile MsgAPI, you will also need all of the files
+in SRC.LZH.  The source includes a makefile that runs under several
+different compilers and make utilities.
+
+In addition, two examples have been included in SAMPLE.LZH.  The
+first is SQCONVER, the source for the Squish conversion utility
+from Squish 1.00, and the second is "Message Commando", a
+hunt'n'kill utility for Squish and *.MSG areas.  These are not
+required to use the MsgAPI, but these files allow you to see the
+MsgAPI in action.
+
+
+Compiling your application
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+Any code which uses the MsgAPI must include the following line at the
+top of each source file:
+
+        #include "msgapi.h"
+
+If msgapi.h will not always be in the current directory, you should
+add the MsgAPI directory to your compiler's "include path" before
+trying to compile an application.
+
+For information on using the MsgAPI function calls, please see
+MSGAPI.DOC. This contains a complete list of function calls which are
+part of the API, including formal parameters, notes on operation, and
+return codes.
+
+If you are using TC++ or BC++, make sure that your application is
+compiled in "C mode".  MsgAPI was not designed for use with C++.  In
+the TC++ IDE, set Options/Compiler/C++ to "CPP extension only".  For
+the command-line compiler, make sure that you are NOT using the "-P"
+switch.
+
+Also, the distribution TC++/BC++ and WC libraries have been compiled
+without overlay support.  If you wish to use VROOMM or WHOOSH, you
+will have to recompile the MsgAPI source with overlay support.
+
+When compiling your application for use with the .LIBs distributed
+with this package, make sure to select the LARGE memory model
+when compiling your application.  If you wish to create an
+application using a different memory model, you will have to
+recompile the MsgAPI code.
+
+
+Linking your application
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+This package already includes pre-made libraries, using the large
+memory model, for TC, TC++/BC++, WC and MSC.  If you are using
+a different compiler, or if you require a different memory model,
+you will need to recompile and create your own libraries.
+
+  DOS Linking
+  ÄÄÄÄÄÄÄÄÄÄÄ
+
+  Under DOS, the MsgAPI library is statically linked with each
+  application.  To link with the MsgAPI routines, simply specify the
+  required library file when linking.  For example:
+
+  TLINK:
+
+          tlink \tc\lib\c0l myapp,myapp,nul,tc_mapil \tc\lib\cl
+
+  WLINK:
+          wlink file myapp lib wc_mapil name myapp
+
+  LINK:
+          link myapp,myapp,nul,mc_mapil;
+
+  If using the TC++ or BC++ IDE, simply declare the required library
+  as part of your project file.  If you are using TC++ or BC++ from
+  the command line, you can specify the name of the library after your
+  source module, like this:
+
+        tcc -ml myapp.c tc_mapil.lib
+
+  Under all compilers, the library filename will look like this:
+
+  xx_MAPIm.LIB
+
+  where 'xx' is a two-letter abbreviation for your compiler (as set
+  by 'PREFIX'), and 'm' is the library's memory model.
+
+  For example, the following library names could be used for the
+  specified compilers and memory models:
+
+        Name            Compiler        Model
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+        TC_MAPIS.LIB    TC2             Small
+        BC_MAPIM.LIB    TC++/BC++       Medium
+        MC_MAPIL.LIB    MSC             Large
+        WC_MAPIC.LIB    WC              Compact
+
+  Note that this package already includes large-model libraries
+  for all of the above compilers.  However, since MsgAPI can be
+  compiled in any memory model, you are free to create your own
+  libraries by modifying the makefile, for any of the supported
+  compilers.
+
+
+  OS/2 Linking
+  ÄÄÄÄÄÄÄÄÄÄÄÄ
+
+  Under OS/2, the MsgAPI code is distributed as a DLL (dynamic link
+  library).  To use this code in your application, simply link with
+  the MSGAPIP.LIB import library, and then ensure that MSGAPI.DLL
+  is on your LIBPATH before running your application.
+
+If you only wish to use the default libraries and/or memory models,
+you do not need any of the *.c source code or *.obj files.  However,
+you must still retain all *.h header files, since they are required
+when compiling your application.
+
+
+
+
+Compiling the MsgAPI
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+The makefile included in this package should work with almost any make
+utility.  This makefile has been successfully used under Borland's
+MAKE, Microsoft's NMAKE, and Vadura's DMAKE.
+
+If you wish to compile this code under a compiler which is not
+supported, you will have to make certain changes.  An "#error"
+directive is used to alert you to the locations which need to be
+modified.  However, you will need to change at least the following
+files:
+
+- compiler.h contains most of the compiler-specific declarations,
+  including memory model differences, keywords for defining
+  functions, interrupts, and fast calling conventions.
+
+- ffind.c contains the FindOpen/FindNext/FindClose code.  You
+  will have to map these onto the findfirst/findnext functions
+  specific to your compiler.  (The MSC code will work for most
+  DOS-based systems.)
+
+- prog.h also contains some compiler-specific code at the
+  beginning, dealing with mixed memory models and far memory
+  allocation.
+
+Most of this code can be compiled in environments with either
+16 or 32-bit integers.  32-bit mode has not been extensively tested,
+but I have the tosser portion of the SquishMail processor working
+as a 32-bit DOS-extended application.  In other words, little effort
+should be required to make this code 32-bit.  The biggest portability
+hurdle may be ffind.c; my suggestion is that you remap it to the POSIX
+opendir/readdir/closedir calls, if available on your system.
+
+As distributed, the makefile is set up to compile with TC2 or TC++,
+using the large memory model.  To use a different compiler, comment
+out the TC-specific directives and uncomment the directives pertaining
+to your compiler.  If you're using a compiler not listed here, you'll
+have to add your own definitions.
+
+
+Closing Notes
+ÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+If you looked at the version number, you'll notice that MsgAPI is
+still at "level 0".  In the future, I plan to add a second layer to
+the API, allowing for area management features, a more consistent
+method of passing function parameters, and so forth.  Right now,
+each application has to separately enumerate all of the areas it
+wishes to access, which provides for a lot of redundancy.  The area
+manager will fix all of that, but I ran out of steam before getting
+to that point.
+
+It is my intent to keep the API backwards compatible.  Under OS/2, a
+new set of message code can be swapped in WITHOUT recompiling the
+application, allowing old code to be used with new message base
+formats.  This makes MsgAPI the equivalent of a "Message FOSSIL" for
+OS/2, since the application itself knows nothing about the physical
+structure of the message base.  To date, both Maximus (a BBS) and
+SquishMail (a FidoNet mail processor) use this message API, along with
+a myraid of smaller utilities.  If you use this code, you are preparing
+yourself for the future, and making it much easier to add new message
+base types as they are invented.
+
+
+Getting in touch with the author
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+If you have any comments about this package, feel free to contact
+the author in the MAXDEV echomail area, by netmail, or by leaving
+a message on his BBS.
+
+Scott J. Dudley
+
+FidoNet:    1:249/106
+Internet:   sjd@f106.n249.z1.fidonet.org
+CServe:     >INTERNET:sjd@f106.n249.z1.fidonet.org
+BBS:        (613) 389-8315, 14.4K/HST
+
+November 16th, 1991
+
+

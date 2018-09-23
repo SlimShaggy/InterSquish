@@ -1,0 +1,126 @@
+#############################################################################
+##                         MsgAPI "generic makefile"                       ##
+#############################################################################
+
+# If the LIB-making stuff doesn't work with NDMAKE and TLIB, take your
+# MAKE.INI and edit out the ".RESPONSE_LIB:" line.
+
+#
+# Turbo C, TC++
+#
+
+MODEL=l
+PREFIX=tc
+COMP=tcc
+LIBIT=tlib
+FLAGS=-c -m$(MODEL)
+LIB_TRAIL=
+
+#
+# Borland C++
+#
+
+#MODEL=l
+#PREFIX=bc
+#COMP=bcc
+#LIBIT=tlib
+#FLAGS=-c -m$(MODEL)
+#LIB_TRAIL=
+
+#
+# WATCOM C 8.x
+#
+
+#MODEL=l
+#PREFIX=wc
+#COMP=wccp
+#LIBIT=wlib
+#FLAGS=/d0/oals/s/j/zp1 /m$(MODEL)
+#LIB_TRAIL=
+
+#
+# Microsoft C 6.0
+#
+
+#MODEL=L
+#PREFIX=mc
+#COMP=cl
+#LIBIT=lib
+#FLAGS=/nologo /c /W4 /Gs /Gr # (Who's crazy enough to use MSC's "optimizer"?)
+#LIB_TRAIL=;
+
+# Default assembler.  Use "ASM=masm /mx" for Microsoft's assembler.
+
+ASM=tasm /t/mx
+
+LIBNAME=$(PREFIX)_mapi$(MODEL).lib
+
+$(LIBNAME):     1stchar.obj     msgapi.obj      api_sdm.obj     api_sq.obj   \
+                sqasm.obj       cvtdate.obj     date2bin.obj    dosdate.obj  \
+                fexist.obj      ffind.obj       flush.obj       flusha.obj   \
+                months.obj      parsenn.obj     qksort.obj      strftim.obj  \
+                stristr.obj     strocpy.obj     trail.obj       weekday.obj
+        $(LIBIT) $(LIBNAME),
+        $(LIBIT) $(LIBNAME) -+1stchar -+msgapi -+api_sdm -+api_sq -+sqasm -+cvtdate -+date2bin -+dosdate -+fexist -+ffind $(LIB_TRAIL)
+        $(LIBIT) $(LIBNAME) -+flush -+flusha -+months -+parsenn -+qksort -+strftim -+stristr -+strocpy -+trail -+weekday $(LIB_TRAIL)
+
+1stchar.obj: 1stchar.c
+        $(COMP) $(FLAGS) 1stchar.c
+
+msgapi.obj: msgapi.c
+        $(COMP) $(FLAGS) msgapi.c
+
+api_sdm.obj: api_sdm.c
+        $(COMP) $(FLAGS) api_sdm.c
+
+api_sq.obj: api_sq.c
+        $(COMP) $(FLAGS) api_sq.c
+
+sqasm.obj: sqasm.asm
+        $(ASM) sqasm.asm
+
+cvtdate.obj: cvtdate.c
+        $(COMP) $(FLAGS) cvtdate.c
+
+date2bin.obj: date2bin.c
+        $(COMP) $(FLAGS) date2bin.c
+
+dosdate.obj: dosdate.c
+        $(COMP) $(FLAGS) dosdate.c
+
+fexist.obj: fexist.c
+        $(COMP) $(FLAGS) fexist.c
+
+ffind.obj: ffind.c
+        $(COMP) $(FLAGS) ffind.c
+
+flush.obj: flush.c
+        $(COMP) $(FLAGS) flush.c
+
+flusha.obj: flusha.asm
+        $(ASM) flusha.asm
+
+months.obj: months.c
+        $(COMP) $(FLAGS) months.c
+
+parsenn.obj: parsenn.c
+        $(COMP) $(FLAGS) parsenn.c
+
+qksort.obj: qksort.c
+        $(COMP) $(FLAGS) qksort.c
+
+strftim.obj: strftim.c
+        $(COMP) $(FLAGS) strftim.c
+
+stristr.obj: stristr.c
+        $(COMP) $(FLAGS) stristr.c
+
+strocpy.obj: strocpy.c
+        $(COMP) $(FLAGS) strocpy.c
+
+trail.obj: trail.c
+        $(COMP) $(FLAGS) trail.c
+
+weekday.obj: weekday.c
+        $(COMP) $(FLAGS) weekday.c
+

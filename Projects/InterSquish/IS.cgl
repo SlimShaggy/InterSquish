@@ -1,0 +1,13 @@
+Error 00052. 0x820000 (Thread 0x0768):
+Function failure:
+sscanf(0x02CB7474, 0x00544F47 ["%u:%u/%u.%u"], ...)=0x0 [0]
+
+Call Tree:
+   0x00415E93(=IS.exe:0x01:014E93) C:\work\builder\is\comp\iuFTN\FTNBasics.cpp#143
+   0x00414C06(=IS.exe:0x01:013C06) C:\work\builder\is\comp\iuFTN\FTNBasics.cpp#14
+   0x0043801C(=IS.exe:0x01:03701C) C:\work\builder\is\comp\iuFTNPlus\iuInterSquishServer.cpp#1513
+   0x00439B80(=IS.exe:0x01:038B80) C:\work\builder\is\comp\iuFTNPlus\iuInterSquishServer.cpp#1664
+   0x0045B179(=IS.exe:0x01:05A179) C:\work\builder\is\comp\iuNet\iuSMTPServerThread.cpp#245
+   0x00459D80(=IS.exe:0x01:058D80) C:\work\builder\is\comp\iuNet\iuSMTPServerThread.cpp#107
+
+------------------------------------------

@@ -1,0 +1,36 @@
+#
+#   JAM(mbp) - The Joaquim-Andrew-Mats Message Base Proposal
+#
+#   C API
+#
+#   Written by Mats Wallin
+#
+#   ----------------------------------------------------------------------
+#
+#   makefile (JAMmb)
+#
+#   Make file for JAM(mbp) C API library and Zortech C++ 3.x
+#
+#   Copyright 1993 Joaquim Homrighausen, Andrew Milner, Mats Birch, and
+#   Mats Wallin. ALL RIGHTS RESERVED.
+#
+CMDL    = c
+CC      = ztc
+CFLAGS  = -f- -cpp -w- -c -m$(CMDL) -o+all -r -a -D__MSDOS__
+
+OBJS    = jamfetch.obj jamfield.obj jamhinfo.obj jamlock.obj\
+          jamlread.obj jammbini.obj jamscan.obj  jamstore.obj\
+          jamcrc32.obj jamsys.obj
+
+.c.obj:
+    $(CC) $(CFLAGS) $*.c
+
+jamcapi$(CMDL).lib:     $(OBJS)
+    echo $@ /N /B /C                                               >  $*.rsp
+    echo +jamfetch.obj +jamfield.obj +jamhinfo.obj +jamlock.obj  & >> $*.rsp
+    echo +jamlread.obj +jammbini.obj +jamscan.obj  +jamstore.obj & >> $*.rsp
+    echo +jamcrc32.obj +jamsys.obj                                 >> $*.rsp
+    echo $*.lst                                                    >> $*.rsp
+    if exist $@ del $@
+    zorlib @$*.rsp
+    del $*.rsp

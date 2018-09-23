@@ -1,0 +1,37 @@
+--
+--  JAM(mbp) - The Joaquim-Andrew-Mats Message Base Proposal
+--
+--  C API
+--
+--  Written by Mats Wallin
+--
+--  ----------------------------------------------------------------------
+--
+--  jamcapic.prj
+--
+--      TopSpeed C project file for JAM(mbp) C API library
+--      Compact model
+--
+--
+--  Copyright 1993 Joaquim Homrighausen, Andrew Milner, Mats Birch, and
+--  Mats Wallin. ALL RIGHTS RESERVED.
+--
+
+make library
+
+option +case -fixed +map +pack +check -vid
+
+override *.c /a- /b- /e+ /op0 /ot+ /ox+ /v0 /w* 
+
+model compact
+
+include jamfetch
+include jamfield
+include jamhinfo
+include jamlock
+include jamlread
+include jammbini
+include jamscan
+include jamstore
+include jamcrc32
+include jamsys

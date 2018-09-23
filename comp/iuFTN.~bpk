@@ -1,0 +1,203 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!-- C++Builder XML Project -->
+<PROJECT>
+  <MACROS>
+    <VERSION value="BCB.06.00"/>
+    <PROJECT value="iuFTN.bpl"/>
+    <OBJFILES value="iuFTN.obj iuFTN\Cfg.obj iuFTN\FTNMsg.obj iuFTN\FTNDataSet.obj 
+      iuFTN\Kludges.obj iuFTN\FTNBasics.obj iuFTN\FTNPKT.obj"/>
+    <RESFILES value="iuFTN.res iuFTN.dcr"/>
+    <IDLFILES value=""/>
+    <IDLGENFILES value=""/>
+    <DEFFILE value=""/>
+    <RESDEPEN value="$(RESFILES)"/>
+    <LIBFILES value=""/>
+    <LIBRARIES value="IURSA.lib vclx.lib"/>
+    <SPARELIBS value="rtl.lib vcl.lib vclx.lib dbrtl.lib vcldb.lib bdertl.lib IUSCRIPTS.lib 
+      IURSA.lib IUUTILS.lib"/>
+    <PACKAGES value="iuScripts.bpi iuUtils.bpi rtl.bpi vcl.bpi dbrtl.bpi vcldb.bpi bdertl.bpi"/>
+    <PATHCPP value=".;iuFTN;iuFTN;iuFTN;iuFTN;iuFTN;iuFTN"/>
+    <PATHPAS value=".;"/>
+    <PATHRC value=".;"/>
+    <PATHASM value=".;"/>
+    <DEBUGLIBPATH value="$(BCB)\lib\debug"/>
+    <RELEASELIBPATH value="$(BCB)\lib\release"/>
+    <LINKER value="ilink32"/>
+    <USERDEFINES value="NO_PROMPT_ON_HRCHECK_FAILURE;NO_PROMPT_ON_ASSERTE_FAILURE;_DEBUG"/>
+    <SYSDEFINES value="NO_STRICT;_RTLDLL;USEPACKAGES"/>
+    <MAINSOURCE value="iuFTN.cpp"/>
+    <INCLUDEPATH value="&quot;D:\Program Files\Borland\CBuilder6\Projects&quot;;iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs;C:\WORK\Builder\is\comp\msgapi\include"/>
+    <LIBPATH value="&quot;D:\Program Files\Borland\CBuilder6\Projects&quot;;iuScript;iuMisc;$(BCB)\Projects\Lib;&quot;d:\program files\borland\cbuilder4\lib\release&quot;;&quot;D:\Program Files\Borland\CBuilder4\Projects\Lib&quot;;iuutils;iuftn;$(BCB)\lib\obj;$(BCB)\lib"/>
+    <WARNINGS value="-w-par -w-8027 -w-8026"/>
+    <WARNOPTSTR value=""/>
+    <OTHERFILES value=""/>
+  </MACROS>
+  <OPTIONS>
+    <IDLCFLAGS value="-I&quot;D:\Program Files\Borland\CBuilder6\Projects&quot; -IiuScript -IiuMisc 
+      -Iiuutils -Iiuftn -I$(BCB)\include -I$(BCB)\include\vcl -IINCLUDE -IiuLogs 
+      -IC:\WORK\Builder\is\comp\msgapi\include -src_suffix cpp 
+      -DNO_PROMPT_ON_HRCHECK_FAILURE -DNO_PROMPT_ON_ASSERTE_FAILURE -D_DEBUG -boa"/>
+    <CFLAG1 value="-Od -H=t:\IS1.csm -Hc -Vx -Ve -Tkh30000 -ff -X- -r- -a8 -5 -b- -d -k- -y 
+      -v -vi -c -tWM"/>
+    <PFLAGS value="-$Y+ -$W -$O- -$A8 -v -M -JPHNE"/>
+    <RFLAGS value=""/>
+    <AFLAGS value="/mx /w2 /zi"/>
+    <LFLAGS value="-D&quot;FTN-technology&quot; -aa -Tpp -x -Gl -Gi -v"/>
+    <OTHERFILES value=""/>
+  </OPTIONS>
+  <LINKER>
+    <ALLOBJ value="c0pkg32.obj $(PACKAGES) Memmgr.Lib sysinit.obj $(OBJFILES)"/>
+    <ALLRES value="$(RESFILES)"/>
+    <ALLLIB value="$(LIBFILES) $(LIBRARIES) import32.lib cp32mti.lib"/>
+    <OTHERFILES value=""/>
+  </LINKER>
+  <FILELIST>
+      <FILE FILENAME="iuFTN.cpp" FORMNAME="" UNITNAME="iuFTN" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="iuFTN.res" FORMNAME="" UNITNAME="iuFTN" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="iuFTN.dcr" FORMNAME="" UNITNAME="iuFTN" CONTAINERID="DcrTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="iuFTN\Cfg.cpp" FORMNAME="" UNITNAME="Cfg" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="iuFTN\FTNMsg.cpp" FORMNAME="" UNITNAME="FTNMsg" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="iuFTN\FTNDataSet.cpp" FORMNAME="" UNITNAME="FTNDataSet" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="iuFTN\Kludges.cpp" FORMNAME="" UNITNAME="Kludges" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="iuFTN\FTNBasics.cpp" FORMNAME="" UNITNAME="FTNBasics" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="iuFTN\FTNPKT.cpp" FORMNAME="" UNITNAME="FTNPKT" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="d:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\iuScripts.bpi" FORMNAME="" UNITNAME="iuScripts" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="d:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\iuUtils.bpi" FORMNAME="" UNITNAME="iuUtils" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="d:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\rtl.bpi" FORMNAME="" UNITNAME="rtl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="d:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\vcl.bpi" FORMNAME="" UNITNAME="vcl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="d:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\dbrtl.bpi" FORMNAME="" UNITNAME="dbrtl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="d:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\vcldb.bpi" FORMNAME="" UNITNAME="vcldb" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="d:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\bdertl.bpi" FORMNAME="" UNITNAME="bdertl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+  </FILELIST>
+  <BUILDTOOLS>
+  </BUILDTOOLS>
+
+  <IDEOPTIONS>
+[Version Info]
+IncludeVerInfo=1
+AutoIncBuild=1
+MajorVer=0
+MinorVer=1
+Release=1
+Build=230
+Debug=0
+PreRelease=0
+Special=0
+Private=0
+DLL=0
+Locale=1049
+CodePage=1251
+
+[Version Info Keys]
+CompanyName=
+FileDescription=
+FileVersion=0.1.1.230
+InternalName=
+LegalCopyright=
+LegalTrademarks=
+OriginalFilename=
+ProductName=
+ProductVersion=1.0.0.0
+Comments=
+
+[HistoryLists\hlIncludePath]
+Count=11
+Item0=D:\Program Files\Borland\CBuilder6\Projects;iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs;C:\WORK\Builder\is\comp\msgapi\include
+Item1=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs;C:\WORK\Builder\is\comp\msgapi\include
+Item2=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs
+Item3=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;E:\SOURCE\Cpp\comp\iuLogs
+Item4=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE
+Item5=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;E:\SOURCE\Cpp\comp\INCLUDE
+Item6=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl
+Item7=iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl
+Item8=iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl
+Item9=iuutils;..\..\..\program files\borland\cbuilder3\projects;iuftn;$(BCB)\include;$(BCB)\include\vcl
+Item10=iuftn;$(BCB)\include;$(BCB)\include\vcl
+
+[HistoryLists\hlLibraryPath]
+Count=26
+Item0=D:\Program Files\Borland\CBuilder6\Projects;iuScript;iuMisc;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;iuutils;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item1=iuScript;iuMisc;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;iuutils;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item2=iuScript;iuMisc;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;iuutils;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item3=iuMisc;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;iuutils;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item4=$(BCB)\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;iuutils;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item5=$(BCB)\Projects\Lib;d:\program files\borland\cbuilder4\lib\release;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;iuutils;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item6=d:\program files\borland\cbuilder4\lib\release;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;iuutils;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item7=d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;iuutils;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item8=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib\;d:\program files\borland\cbuilder4\lib\release\;iuutils;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item9=D:\Program Files\Borland\CBuilder4\Projects\Lib;d:\program files\borland\cbuilder4\lib\release;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;iuutils;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item10=d:\program files\borland\cbuilder4\lib\release;d:\program files\borland\cbuilder4\lib\release\;v:\obj\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;d:\program files\borland\cbuilder3\lib\release\;iuutils;..\..\..\program files\borland\cbuilder3\projects;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item11=d:\program files\borland\cbuilder4\lib\release;v:\obj\;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;d:\program files\borland\cbuilder3\lib\release\;iuutils;..\..\..\program files\borland\cbuilder3\projects;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item12=v:\obj;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;d:\program files\borland\cbuilder3\lib\release\;iuutils;..\..\..\program files\borland\cbuilder3\projects;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item13=v:\obj;d:\program files\borland\cbuilder4\lib\release;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;d:\program files\borland\cbuilder3\lib\release\;iuutils;..\..\..\program files\borland\cbuilder3\projects;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item14=d:\program files\borland\cbuilder4\lib\release;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;d:\program files\borland\cbuilder3\lib\release\;iuutils;..\..\..\program files\borland\cbuilder3\projects;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item15=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib\;d:\program files\borland\cbuilder4\lib\release\;d:\program files\borland\cbuilder3\lib\release\;iuutils;..\..\..\program files\borland\cbuilder3\projects;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item16=D:\Program Files\Borland\CBuilder4\Projects\Lib;d:\program files\borland\cbuilder4\lib\release;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;d:\program files\borland\cbuilder3\lib\release\;iuutils;..\..\..\program files\borland\cbuilder3\projects;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item17=d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib\;d:\program files\borland\cbuilder3\lib\release\;iuutils;..\..\..\program files\borland\cbuilder3\projects;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item18=D:\Program Files\Borland\CBuilder4\Projects\Lib\;d:\program files\borland\cbuilder3\lib\release\;iuutils;..\..\..\program files\borland\cbuilder3\projects;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item19=D:\Program Files\Borland\CBuilder4\Projects\Lib;D:\Program Files\Borland\CBuilder4\Projects\Lib\;d:\program files\borland\cbuilder3\lib\release\;iuutils;..\..\..\program files\borland\cbuilder3\projects;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item20=D:\Program Files\Borland\CBuilder4\Projects\Lib;d:\program files\borland\cbuilder3\lib\release\;iuutils;..\..\..\program files\borland\cbuilder3\projects;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item21=d:\program files\borland\cbuilder3\lib\release\;iuutils;..\..\..\program files\borland\cbuilder3\projects;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item22=d:\program files\borland\cbuilder3\lib\release;..\comp;iuutils;..\..\..\program files\borland\cbuilder3\projects;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item23=..\comp;iuutils;..\..\..\program files\borland\cbuilder3\projects;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item24=iuutils;..\..\..\program files\borland\cbuilder3\projects;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item25=iuftn;$(BCB)\lib\obj;$(BCB)\lib
+
+[HistoryLists\hlDebugSourcePath]
+Count=1
+Item0=$(BCB)\source\vcl
+
+[HistoryLists\hlConditionals]
+Count=5
+Item0=NO_PROMPT_ON_HRCHECK_FAILURE;NO_PROMPT_ON_ASSERTE_FAILURE;_DEBUG
+Item1=NO_PROMPT_ON_HRCHECK_FAILURE;NO_PROMPT_ON_ASSERTE_FAILURE
+Item2=_DEBUG;NO_PROMPT_ON_HRCHECK_FAILURE;NO_PROMPT_ON_ASSERTE_FAILURE
+Item3=_DEBUG
+Item4=_RTLDLL;USEPACKAGES
+
+[HistoryLists\hlIntOutputDir]
+Count=7
+Item0=v:\objItem1=v:\objItem1=v:\objItem1=v:\objItem1=v:\obj
+Item1=
+Item2=
+Item3=
+Item4=
+Item5=v:\obj;
+Item6=v:\tempobj
+
+[Debugging]
+DebugSourceDirs=$(BCB)\source\vcl
+
+[Parameters]
+RunParams=
+Launcher=
+UseLauncher=0
+DebugCWD=
+HostApplication=
+RemoteHost=
+RemotePath=
+RemoteLauncher=
+RemoteCWD=
+RemoteDebug=0
+
+[Compiler]
+ShowInfoMsgs=0
+LinkDebugVcl=0
+LinkCGLIB=0
+
+[CORBA]
+AddServerUnit=1
+AddClientUnit=1
+PrecompiledHeaders=1
+
+[Language]
+ActiveLang=
+ProjectLang=
+RootDir=
+
+[Linker]
+LibPrefix=
+LibSuffix=
+LibVersion=
+  </IDEOPTIONS>
+</PROJECT>

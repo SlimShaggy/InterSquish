@@ -1,0 +1,25 @@
+//---------------------------------------------------------------------------
+#include <vcl.h>
+#pragma hdrstop
+USERES("iuRSA.res");
+USEUNIT("iuRSA\Digit.cpp");
+USEUNIT("iuRSA\Md2c.cpp");
+USEUNIT("iuRSA\Md5c.cpp");
+USEUNIT("iuRSA\Nn.cpp");
+USEUNIT("iuRSA\Prime.cpp");
+USEUNIT("iuRSA\R_dh.cpp");
+USEUNIT("iuRSA\R_encode.cpp");
+USEUNIT("iuRSA\R_keygen.cpp");
+USEUNIT("iuRSA\R_random.cpp");
+USEUNIT("iuRSA\Rsa.cpp");
+USEPACKAGE("vcl50.bpi");
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+//---------------------------------------------------------------------------
+//   Package source.
+//---------------------------------------------------------------------------
+int WINAPI DllEntryPoint(HINSTANCE hinst, unsigned long reason, void*)
+{
+  return 1;
+}
+//---------------------------------------------------------------------------

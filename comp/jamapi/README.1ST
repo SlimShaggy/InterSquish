@@ -1,0 +1,26 @@
+93-07-01
+
+This archive contains the entire JAM API and related documentation.
+A list of files included in this archive follows (not including
+README.1ST).
+
+Filename       Original Compressed Ratio DateTime modified CRC-32
+------------ ---------- ---------- ----- ----------------- --------
+CAPI.ARJ          47227      47023 0.996 93-07-01 01:00:00 3545ADA1
+HMB2JAM.ARJ       29417      29276 0.995 93-07-01 01:00:00 426DB8F3
+JAMUTIL.ARJ       26092      26001 0.997 93-07-01 01:00:00 4FA5C41D
+JAMUTILW.ARJ      22194      22048 0.993 93-07-01 01:00:00 D2B68DA5
+TPAPI.ARJ         17409      17409 1.000 93-07-01 01:00:00 880EC115
+JAM.DOC           28699       8325 0.290 93-07-01 01:00:00 B148BEED
+LICENSE.TXT        2780       1041 0.374 93-07-01 01:00:00 DE637698
+------------ ---------- ---------- -----
+
+A short reminder: ALL FILES IN THE JAM(mbp) API COME WITHOUT
+WARRANTIES OF ANY KIND, EXPRESSED OR IMPLIED. BY USING THE API, OR
+ANY WORK DERIVED FROM IT, YOU ASSUME ALL RESPONSIBILITIES. IF YOU
+CANNOT ACCEPT THESE CONDITIONS, DON'T USE THE API.
+
+Copyright 1993 Joaquim Homrighausen, Andrew Milner, Mats Birch, and
+               Mats Wallin. ALL RIGHTS RESERVED.
+
+// end of file "readme.1st"

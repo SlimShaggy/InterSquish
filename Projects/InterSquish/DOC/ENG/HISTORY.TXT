@@ -1,0 +1,192 @@
+InterSquish NNTP Server
+
+22.10.1999  Version 1.3.3
+           -New parameter: TwitIPAddr, using wildcards allowed.
+            The remote systems which IP addresses match the wildcards will 
+            be denied.
+            Changes in TwitIPAddr are applied immediately.  No service
+            restart is necessary.
+            -The removal procedure for the messages handed out with POP3
+            has been changed: if the POP3TrashFolder is commented out, the 
+            *.msg files will be completely removed.  Also it should now
+            work OK under Win9X.
+            -When run under Win9x InterSquish wouldn't let Windows shutdown.
+            Finally fixed.
+            -Users.cfg, Areas.cfg are re-read on-fly when need arises.
+            -If the JAM messagebase described in areas.cfg is absent, an empty
+            one is created..
+
+27.09.1999  Version 1.3.2
+            -All the commands are now not case sensitive.
+            -Some fixes for log file processing.
+            -Attack protection feature added - using the parameters
+                SMTPNumSameConnections,
+                NNTPNumSameConnections,
+                POP3NumSameConnections
+            you can indicate the allowed number of simultaneous sessions with
+            one IP address. 
+            -Using the ForceINTL parameter in IS.CFG, makes IS insert the INTL
+            kluge into netmail messages.
+            -No more traps after executing the NNTP "QUIT" command.
+           
+
+02.09.1999  Version 1.3.1
+            -Trap doesn't occur when trying to select an area, which does
+            not have a flag ('-$' or '-j') in areas.cfg. Now such areas
+            are ignored, and the action is logged.
+            
+31.08.1999  Version 1.3.0
+            -JAM support added. use the '-j' flag instead of '-$' to indicate
+            "JAM".
+            -Address parsing code changed. Addresses of the following form:
+            "account@host (User Name)" are now parsed more correctly.
+            -Messagebase working code changed.
+            -Messagebase are now opened in "DenyNone" mode (was "DenyWrite").
+            Seemengly, most of the hang-ups disappeared.
+            -The infinite loop when opening a messagebase bug fixed. The
+            ThreadTimeOut parameter was not parsed.
+            -The exceptions log is in the working directory.  It's called
+            "is_debug.log"
+            -"SquishCfg" changed to "AreasCfg". "SquishCfg" is still correctly
+            parsed for compatibility reasons.
+            -The 'NEWGROUPS' NNTP command is now interpreted differntly: a 
+            blank list is sent.  (In earlier versions it would send ALL
+            groups).  I hope to make it work according to RFC some time.
+
+19.08.1999  Version 1.2.4
+            -New parameter - "DefaultInternetGate". See cfg file for details.
+            -Messages, addressed to an Internet e-mail are now sent to the
+            address indicated in "DefaultInternetGate".
+            -Fixed bug in SMTP server, it would appear when a user would send
+            a message to several addressees.
+            -Instead of group list in DefaultGroups and DefaultROGroups
+            you can now use '*' (asterisk), meaning "all groups"
+            
+
+17.08.1999  Version 1.2.3
+            -Mail can be routed in both directions. Messages are selected
+            according to users.cfg records.  If an address, indicated in
+            users.cfg, is identical to tha of the gate, then all the
+            netmail messages whose "ToName:" field equals to the account
+            name will be selected.  Otherwise messages will be selected
+            according to FTN addresses.
+            -The "Subj" and "From" are now transferred to the client as
+            quoted printable by default, if someone needs PlainText,
+            uncomment PlainTextInHeaders in the cfg file.
+            -Another attempt to fix the month name bug when posting a
+            *.pkt.  Hopefully, this time it's successful.
+            -Fixed bug with a thread being trapped when an invalid date is 
+            encountered in the messagebase (the attempt to fix the bug in
+            version 1.02 failed).
+            -The remote host name is no longer resolved and logged -
+            it could take a long (10-20 sec.) time when a new connection had
+            to be established.
+            -Addresses used in the mail and newsreader are now put into
+            the "From" field (in previous version the gate address or the
+            address indicated in Users.cfg would be used).
+            The addresses should look like: "Ivan_Uskov@p0.f114.n5055.z2.fidonet.org",
+            if it is not so, the gate address is used.
+            -Fixed bugs when converting MSGID->MessageID (could be noticed in
+            Internet addresses).
+            -Some cosmetic fixes.
+
+13.08.1999  Version 1.2.2
+            -SMTP server wouldn't create the flag when posting. Fixed.
+            -When using NNTPTryFoundTo, wrong encoding was used for
+            Russian names (1251 instead of 866). Fixed.
+
+10.08.1999  Version 1.2.1
+            -You can now send netmail (SMTP->FTN), it works in
+            unregistered versions as well.  Fetching mail (FTN->POP3),
+            most likely, will be implemented in the next version.
+            -Some parameter names in the cfg file have changed! Instead of
+            LogFileName use NNTPLogFileName and SMTPLogFileName, the same
+            applies to LogLevel (use NNTPLogLevel and SMTPLogLevel).
+            -WindowsNT service name has also changed. I recommend running
+            "IS -uninstall" for the previous version of the program if it
+            was used as a service.
+            -If you run the server with the "-Win95" parameter, you get a
+            "face", which is hidden in the system tray :)
+            -An alternative to "X-Comment-To" implemented:
+            When "NNTPTryFoundTo" is uncommented, InterSquish tries to
+            find the original message we are replying to.  if the message
+            is found, the sender's name is put into the "To" field.
+            Otherwise "All" is used.
+            -Fixed bugs with converting FTN addresses. It would use
+            "p3.f101.n5055.z2.fidonet.org" or even
+            "p3.f101.n5055.z2@fidonet.org" instead of
+            "Ivan_Uskov@p3.f101.n5055.z2.fidonet.org".
+            -Fixed the PKT posting bug - the structure was not reinitialized
+            and the "FromDate" and "To" field could be trashed.
+            -Using only English month names for outgoing messages.
+            
+23.07.1999  Version 1.2.0
+            -Posting is finally available :)
+            -The program is now distributed as shareware.
+            -New cfg file parameters to support posting.
+            -Remote host's IP address is now logged.
+            -Fixed the old bug when the headers of manually deleted messages
+            would still be sent to the client.
+            -Fixed address conversion bugs, which were not evident before.
+
+23.05.1999  Version 1.1.1 
+            -Text files used for configuration. ISSetup removed.
+            -Now InterSquish supports user authorization.
+            -Imposing access limits for different echo groups is implemented.
+            -Time-out exit code (when a messagebase is locked by an external
+            application) changed.
+            -Code prepared for posting implementation.
+            -InterSquish mailing list created.          
+
+04.05.1999  Version 1.1.0
+            -Using Borland C++ Builder 4.0 for compilation (not 3.0)
+            -Windows NT service code improved. Hang-ups in the Control
+            Panel eliminated.
+            -You can now use command prompt for service (un)installation
+            IS /install and IS /uninstall
+            An empty window is no longer displayed.
+            -To run under Win95 and Win98 use IS /Win9x
+            -IS is now more conformant to applicable RFCs, Message-ID and
+            References added, now you can use Netscape.
+            -Version numbering policy changed.
+            -Other fixes.
+            
+22.02.1999  Version 1.05
+            -Fixed problems with cached threads - some thread objects
+            wouldn't reinitialize correctly, which lead to a trap.
+            -New parameter "ThreadCacheSize".
+
+19.02.1999  Version 1.04
+            -Fixed the bug when ISS was trying to find squish.cfg in
+            d:\fidonet\partoss\
+            -ISS CONFIGURATION IS NOW STORED IN THE REGISTRY:
+            HKLM\Software\IvUs\InterSquish. ISS.CFG is not used any longer.
+            -Added handlers for exceptions occurring when reading from a
+            squish messagebase.
+            -Server algorithm changed - upon disconnection a thread is not
+            killed, it remains in the cache.
+            -NEWGROUPS command from RFC 977 was not implemented. Fixed (it
+            doesn't conform to the standard, though - all the groups are
+            listed instead of only the new ones)
+
+14.02.1999  Version 1.03
+            -All the files now have short (8.3) names. Just in case.
+            -Passthru areas are not listed as available for subscription.
+            -Kluged and SEEN-BY's are hidden, they are moved to the header
+            of the article.
+            -Date and timestamps in the log file.
+            -ISSetup changes.
+            
+12.02.1999  Version 1.02
+            -Fixed bug which lead to a trap, when a user tried to cancel
+            header download.
+            -Fixed bug with incorrect timestamp in a Squish message.
+            -The server wouldn't shutdown if at least one connection was
+            active. Fixed
+            -Less conflict with other applications which open the
+            messagebase for writing (tossers, editors).
+            -Message upload speed up. Less CPU load.
+            -IS and ISSETUP interface changes.
+
+11.02.1999  Version 1.01
+            -Service installation bug fixed..

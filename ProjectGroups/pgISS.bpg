@@ -1,0 +1,36 @@
+#------------------------------------------------------------------------------
+VERSION = BWS.01
+#------------------------------------------------------------------------------
+!ifndef ROOT
+ROOT = $(MAKEDIR)\..
+!endif
+#------------------------------------------------------------------------------
+MAKE = $(ROOT)\bin\make.exe -$(MAKEFLAGS) -f$**
+DCC = $(ROOT)\bin\dcc32.exe $**
+BRCC = $(ROOT)\bin\brcc32.exe $**
+#------------------------------------------------------------------------------
+PROJECTS = iuUtils.bpl iuRSA.bpl iuFTN.bpl Iservers.bpl iuFTNPlus.bpl IS.exe
+#------------------------------------------------------------------------------
+default: $(PROJECTS)
+#------------------------------------------------------------------------------
+
+IS.exe: ..\Projects\InterSquish\IS.bpr
+  $(MAKE)
+
+iuRSA.bpl: ..\comp\iuRSA.bpk
+  $(MAKE)
+
+iuFTN.bpl: ..\comp\iuFTN.bpk
+  $(MAKE)
+
+iuFTNPlus.bpl: ..\comp\iuFTNPlus.bpk
+  $(MAKE)
+
+Iservers.bpl: ..\comp\Iservers.bpk
+  $(MAKE)
+
+iuUtils.bpl: ..\comp\iuUtils.bpk
+  $(ROOT)\bin\bpr2mak $**
+  $(ROOT)\bin\make -$(MAKEFLAGS) -f$*.mak
+
+
