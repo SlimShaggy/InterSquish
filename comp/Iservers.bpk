@@ -66,15 +66,15 @@
       <FILE FILENAME="iuNet\iuNNTPServer.cpp" FORMNAME="" UNITNAME="iuNNTPServer" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="iuNet\iuNNTPServerThread.cpp" FORMNAME="" UNITNAME="iuNNTPServerThread" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="iuNet\iuIPAddr.cpp" FORMNAME="" UNITNAME="iuIPAddr" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="iuFTN\iuFTN\Projects\Projects\InterSquish\Projects\InterSquish\iuFTN.bpi" FORMNAME="" UNITNAME="iuFTN" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\Projects\InterSquish\iuFTN\iuFTN\Projects\Projects\InterSquish\Projects\InterSquish\iuFTN.bpi" FORMNAME="" UNITNAME="iuFTN" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="iuNet\iuEncoders.cpp" FORMNAME="" UNITNAME="iuEncoders" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="iuFTN\iuFTN\Projects\Projects\InterSquish\Projects\InterSquish\iuRSA.bpi" FORMNAME="" UNITNAME="iuRSA" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\Projects\InterSquish\iuFTN\iuFTN\Projects\Projects\InterSquish\Projects\InterSquish\iuRSA.bpi" FORMNAME="" UNITNAME="iuRSA" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="iuMisc\Utils.cpp" FORMNAME="" UNITNAME="Utils" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="iuFTN\iuFTN\Projects\Projects\InterSquish\Projects\InterSquish\iuScripts.bpi" FORMNAME="" UNITNAME="iuScripts" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="iuFTN\iuFTN\Projects\Projects\InterSquish\Projects\InterSquish\iuUtils.bpi" FORMNAME="" UNITNAME="iuUtils" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="iuFTN\iuFTN\Projects\Projects\InterSquish\Projects\InterSquish\rtl.bpi" FORMNAME="" UNITNAME="rtl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="iuFTN\iuFTN\Projects\Projects\InterSquish\Projects\InterSquish\vcl.bpi" FORMNAME="" UNITNAME="vcl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="iuFTN\dbrtl.bpi" FORMNAME="" UNITNAME="dbrtl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\Projects\InterSquish\iuFTN\iuFTN\Projects\Projects\InterSquish\Projects\InterSquish\iuScripts.bpi" FORMNAME="" UNITNAME="iuScripts" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\Projects\InterSquish\iuFTN\iuFTN\Projects\Projects\InterSquish\Projects\InterSquish\iuUtils.bpi" FORMNAME="" UNITNAME="iuUtils" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\Projects\InterSquish\iuFTN\iuFTN\Projects\Projects\InterSquish\Projects\InterSquish\rtl.bpi" FORMNAME="" UNITNAME="rtl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\Projects\InterSquish\iuFTN\iuFTN\Projects\Projects\InterSquish\Projects\InterSquish\vcl.bpi" FORMNAME="" UNITNAME="vcl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\Projects\InterSquish\iuFTN\dbrtl.bpi" FORMNAME="" UNITNAME="dbrtl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>
   </BUILDTOOLS>

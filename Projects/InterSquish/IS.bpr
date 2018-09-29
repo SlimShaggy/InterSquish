@@ -229,7 +229,7 @@ Item29=
 
 [HistoryLists\hlDebugSourcePath]
 Count=1
-Item0=D:\Program Files\Borland\CBuilder6\Source\Indy\;C:\Program Files\Borland\CBuilder6\Source\Indy\
+Item0=$(BCB)\Source\Indy\;C:\Program Files\Borland\CBuilder6\Source\Indy\
 
 [HistoryLists\hlConditionals]
 Count=1
@@ -240,7 +240,7 @@ Count=1
 Item0=t:\
 
 [Debugging]
-DebugSourceDirs=D:\Program Files\Borland\CBuilder6\Source\Indy\;C:\Program Files\Borland\CBuilder6\Source\Indy\
+DebugSourceDirs=$(BCB)\Source\Indy\
 
 [Parameters]
 RunParams=-Win9x -debuglog -notimer

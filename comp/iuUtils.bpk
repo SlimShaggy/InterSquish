@@ -85,7 +85,7 @@ ProductVersion=1.0.0.0
 Comments=
 
 [Excluded Packages]
-d:\program files\borland\cbuilder6\Projects\Bpl\iuFTNPlus.bpl=Advanced FTN technologies
+$(BCB)\Projects\Bpl\iuFTNPlus.bpl=Advanced FTN technologies
 
 [Debugging]
 DebugSourceDirs=$(BCB)\source\vcl

@@ -5,7 +5,7 @@
     <VERSION value="BCB.06.00"/>
     <PROJECT value="iuFTN.bpl"/>
     <OBJFILES value="iuFTN.obj iuFTN\Cfg.obj iuFTN\FTNMsg.obj iuFTN\FTNDataSet.obj 
-      iuFTN\Kludges.obj iuFTN\FTNBasics.obj iuFTN\FTNPKT.obj"/>
+      iuFTN\Kludges.obj iuFTN\FTNBasics.obj iuFTN\FTNPKT.obj iuLogs\log.obj"/>
     <RESFILES value="iuFTN.res iuFTN.dcr"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
@@ -16,7 +16,7 @@
     <SPARELIBS value="rtl.lib vcl.lib vclx.lib dbrtl.lib vcldb.lib bdertl.lib IUSCRIPTS.lib 
       IURSA.lib IUUTILS.lib"/>
     <PACKAGES value="iuScripts.bpi iuUtils.bpi rtl.bpi vcl.bpi dbrtl.bpi vcldb.bpi bdertl.bpi"/>
-    <PATHCPP value=".;iuFTN;iuFTN;iuFTN;iuFTN;iuFTN;iuFTN"/>
+    <PATHCPP value=".;iuFTN;iuFTN;iuFTN;iuFTN;iuFTN;iuFTN;iuLogs"/>
     <PATHPAS value=".;"/>
     <PATHRC value=".;"/>
     <PATHASM value=".;"/>
@@ -26,17 +26,16 @@
     <USERDEFINES value="NO_PROMPT_ON_HRCHECK_FAILURE;NO_PROMPT_ON_ASSERTE_FAILURE;_DEBUG"/>
     <SYSDEFINES value="NO_STRICT;_RTLDLL;USEPACKAGES"/>
     <MAINSOURCE value="iuFTN.cpp"/>
-    <INCLUDEPATH value="&quot;D:\Program Files\Borland\CBuilder6\Projects&quot;;iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs;msgapi\include"/>
-    <LIBPATH value="&quot;D:\Program Files\Borland\CBuilder6\Projects&quot;;iuScript;iuMisc;$(BCB)\Projects\Lib;&quot;d:\program files\borland\cbuilder4\lib\release&quot;;&quot;D:\Program Files\Borland\CBuilder4\Projects\Lib&quot;;iuutils;iuftn;$(BCB)\lib\obj;$(BCB)\lib"/>
+    <INCLUDEPATH value="&quot;$(BCB)\Projects&quot;;iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs;msgapi\include"/>
+    <LIBPATH value="iuLogs;$(BCB)\Projects;iuScript;iuMisc;$(BCB)\Projects\Lib;&quot;d:\program files\borland\cbuilder4\lib\release&quot;;&quot;D:\Program Files\Borland\CBuilder4\Projects\Lib&quot;;iuutils;iuftn;$(BCB)\lib\obj;$(BCB)\lib"/>
     <WARNINGS value="-w-par -w-8027 -w-8026"/>
     <WARNOPTSTR value=""/>
     <OTHERFILES value=""/>
   </MACROS>
   <OPTIONS>
-    <IDLCFLAGS value="-I&quot;D:\Program Files\Borland\CBuilder6\Projects&quot; -IiuScript -IiuMisc 
-      -Iiuutils -Iiuftn -I$(BCB)\include -I$(BCB)\include\vcl -IINCLUDE -IiuLogs 
-      -Imsgapi\include -src_suffix cpp -DNO_PROMPT_ON_HRCHECK_FAILURE 
-      -DNO_PROMPT_ON_ASSERTE_FAILURE -D_DEBUG -boa"/>
+    <IDLCFLAGS value="-I&quot;$(BCB)\Projects&quot; -IiuScript -IiuMisc -Iiuutils -Iiuftn -I$(BCB)\include 
+      -I$(BCB)\include\vcl -IINCLUDE -IiuLogs -Imsgapi\include -src_suffix cpp 
+      -DNO_PROMPT_ON_HRCHECK_FAILURE -DNO_PROMPT_ON_ASSERTE_FAILURE -D_DEBUG -boa"/>
     <CFLAG1 value="-Od -H=$(BCB)\lib\vcl60.csm -Hc -Vx -Ve -Tkh30000 -ff -X- -r- -a8 -5 -b- 
       -d -k- -y -v -vi -c -tWM"/>
     <PFLAGS value="-$Y+ -$W -$O- -$A8 -v -M -JPHNE"/>
@@ -61,13 +60,14 @@
       <FILE FILENAME="iuFTN\Kludges.cpp" FORMNAME="" UNITNAME="Kludges" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="iuFTN\FTNBasics.cpp" FORMNAME="" UNITNAME="FTNBasics" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="iuFTN\FTNPKT.cpp" FORMNAME="" UNITNAME="FTNPKT" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="d:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\iuScripts.bpi" FORMNAME="" UNITNAME="iuScripts" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="d:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\iuUtils.bpi" FORMNAME="" UNITNAME="iuUtils" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="d:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\rtl.bpi" FORMNAME="" UNITNAME="rtl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="d:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\vcl.bpi" FORMNAME="" UNITNAME="vcl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="d:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\dbrtl.bpi" FORMNAME="" UNITNAME="dbrtl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="d:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\vcldb.bpi" FORMNAME="" UNITNAME="vcldb" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="d:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\bdertl.bpi" FORMNAME="" UNITNAME="bdertl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="c:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\iuScripts.bpi" FORMNAME="" UNITNAME="iuScripts" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="c:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\iuUtils.bpi" FORMNAME="" UNITNAME="iuUtils" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="c:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\rtl.bpi" FORMNAME="" UNITNAME="rtl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="c:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\vcl.bpi" FORMNAME="" UNITNAME="vcl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="c:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\dbrtl.bpi" FORMNAME="" UNITNAME="dbrtl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="c:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\vcldb.bpi" FORMNAME="" UNITNAME="vcldb" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="c:\program files\borland\cbuilder6\Lib\Projects\Projects\Projects\Projects\Projects\Projects\InterSquish\Projects\InterSquish\bdertl.bpi" FORMNAME="" UNITNAME="bdertl" CONTAINERID="BPITool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="iuLogs\log.cpp" FORMNAME="" UNITNAME="log" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>
   </BUILDTOOLS>
@@ -102,8 +102,8 @@ Comments=
 
 [HistoryLists\hlIncludePath]
 Count=12
-Item0=D:\Program Files\Borland\CBuilder6\Projects;iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs;msgapi\include
-Item1=D:\Program Files\Borland\CBuilder6\Projects;iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs;C:\WORK\Builder\is\comp\msgapi\include
+Item0=$(BCB)\Projects;iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs;msgapi\include
+Item1=$(BCB)\Projects;iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs;C:\WORK\Builder\is\comp\msgapi\include
 Item2=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs;C:\WORK\Builder\is\comp\msgapi\include
 Item3=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;iuLogs
 Item4=iuScript;iuMisc;iuutils;iuftn;$(BCB)\include;$(BCB)\include\vcl;INCLUDE;E:\SOURCE\Cpp\comp\iuLogs
@@ -117,7 +117,7 @@ Item11=iuftn;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
 Count=26
-Item0=D:\Program Files\Borland\CBuilder6\Projects;iuScript;iuMisc;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;iuutils;iuftn;$(BCB)\lib\obj;$(BCB)\lib
+Item0=$(BCB)\Projects;iuScript;iuMisc;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;iuutils;iuftn;$(BCB)\lib\obj;$(BCB)\lib
 Item1=iuScript;iuMisc;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder4\lib\release;D:\Program Files\Borland\CBuilder4\Projects\Lib;iuutils;iuftn;$(BCB)\lib\obj;$(BCB)\lib
 Item2=iuScript;iuMisc;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;iuutils;iuftn;$(BCB)\lib\obj;$(BCB)\lib
 Item3=iuMisc;$(BCB)\Projects\Lib;d:\program files\borland\cbuilder4\lib\release\;D:\Program Files\Borland\CBuilder4\Projects\Lib\;iuutils;iuftn;$(BCB)\lib\obj;$(BCB)\lib
