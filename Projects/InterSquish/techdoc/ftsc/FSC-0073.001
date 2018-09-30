@@ -1,0 +1,106 @@
+
+
+  | Document: FSC-0073
+  | Version:  001
+  | Date:     28th July 1993
+  | Author:   John Mudge
+
+
+                ENCRYPTED MESSAGE IDENTIFICATION FOR FIDONET
+                                *DRAFT I* 
+                        FIDONET TECHNICAL COMMENT
+
+                           Author :  John Mudge
+                           Fido   :  1:352/111
+                           Date   :  25FEB1993
+
+ABSTRACT:
+
+The following document proposes a standard for encrypted message 
+identification for Fidonet and Fidonet-based electronic mail
+systems.
+
+The proposed standard will assist in encrypted-message detection.
+The standard consists of mandatory and suggested portions; however 
+the term "mandatory" does not mean that any Fidonet product must 
+implement this standard; it simply means that those that do claim
+to implement this standard must do so in the way described.
+
+STATUS OF THIS DOCUMENT:
+
+This FSC suggests a proposed protocol for the Fidonet(R) 
+community, and requests discussion and suggestions for 
+improvements.  Distribution of this document is unlimited.
+
+Fido and Fidonet are registered marks of Tom Jennings and Fido 
+Software.
+
+BACKGROUND:
+
+Currently, Fidonet encrypted messages are not uniquely identified.  
+A variety of schemes are in place to determine whether a message 
+received by a Fidonet node has been encrypted, but all of them 
+involve encryption method specific tests.  Current Fido Policy 
+(Policy4) prohibits routing encrypted material through systems which
+have not given specific prior approval.  This FSC proposes a method
+of identifying such traffic, but makes no effort to determine what
+action should be taken after the identification.
+
+IFNA KLUDGE LINES:
+
+Fidonet supports a general method for sending additional information 
+embedded in a message known as the "IFNA kludge line".  This is a 
+line of text beginning with the ASCII SOH character (^A).  The 
+characters following SOH are a word indicating the type of kludge 
+line, and the remainder of the line contains information specific 
+to that type.  This standard introduces a new type of kludge line,
+the ENC.
+
+FORMAT OF A MESSAGE ID - MANDATORY:
+
+The mandatory portion of the ^AENC line shall consist of the Ascii SOH 
+character immediately followed by the uppercase characters ENC and a 
+colon and one space.
+
+FORMAT OF A MESSAGE ID - SUGGESTED:
+
+It is suggested, though not required, that the unique part of all 
+^AENC lines consist of a unique product identifier following the 
+same format as specified in FSC-0046 for ^APID kludge lines and
+identifying the program used for encryption.  This product identifier
+will allow message editors to invoke the appropriate decryption 
+software.
+
+EXAMPLE:
+
+^AENC: PGP2.1
+with PGP21 to be replaced with a two digit hex identifier at such
+time as a central product registry exists.
+
+IMPLEMENTATIONS:
+
+As of this writing, several products are being written, notably by 
+Fredric Rice and GK Pace, to implement this proposal.  Examples of
+currently available programs are GENMSG V1.30 and PGP-TOSS.
+
+SUMMARY:
+
+As of this date, no public repository exists for encryption/decryption
+product registration, but the FTSC is suggested as is the application 
+form presented in FSC-0022.
+
+I am publishing this information as a Fidonet technical comment in hopes
+that other Fidonet products will eventually incorporate all or part of 
+this standard as well, and that it will eventually form part of a 
+Fidonet Technical Standard.
+
+CREDITS:
+
+I would like to thank all of the pioneers of Fidonet for making all of 
+this possible.  The ^AENC proposal is the result of the collective 
+efforts of many of the participants of the Fido PUBLIC_KEYS echo.  Much
+of the wording and structure for this document I stole from authors of
+previous FSC authors.  Special thanks go to GK Pace and Fredric Rice for
+their ongoing programming efforts in support of public-key encryption 
+systems.
+

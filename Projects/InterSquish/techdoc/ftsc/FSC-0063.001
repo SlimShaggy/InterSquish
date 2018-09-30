@@ -1,0 +1,279 @@
+Document: FSC-0063
+Version:  001
+Date:     10-May-1992
+
+
+
+
+                      A Proposal for FidoNet style messages
+                                   Jem Miller
+                               1:147/33.0 @FidoNet
+
+
+
+
+Status of this document:
+
+        This FSC suggests a proposed protocol for the FidoNet(r) community,
+        and requests discussion and suggestions for improvements.
+        Distribution of this document is unlimited.
+
+        Fido and FidoNet are registered marks of Tom Jennings and Fido
+        Software.
+
+
+
+
+        I. Introduction
+
+             The current message strucures that are  transmitted  between
+        systems is fast becoming outdated.  Dupe checking, path checking,
+        and zone aware routing are all areas of weekness in  the  current
+        format.  This  proposal  both  simplifies  the current processing
+        needed of mail tossers,  and eliminates the worst  problem  areas
+        and limitations of the current methods.
+
+             Currently,  Seen-By  lines  and  Path lines are appended and
+        maintained in all EchoMail type message sent into FidoNet technol-
+        ogy networks.  The original intention of Seen-By's  was  to  help
+        eliminate  duplicate messages,  and give a sort of "tracking his-
+        tory" of each piece of EchoMail.  Path lines tell us what systems
+        have  actually  processed the mail and sent it on to another sys-
+        tem, and offer some audit checking in case of problems.
+
+             Unfortunately,  these systems can not reliably detect and/or
+        correct duplicate messges,  or point to the offending system with
+        any surity. In recent times, a MSGID kludge has been used, requir-
+        ing the maintaining of databases (one per echo usually)  to  test
+        each message for duplication.  While this procedure cures much of
+        the duplication problems,  it does nothing for the audit trail of
+        each  message.  Further,  it needlessly slows the tossing/packing
+        process, and promotes disk fragmentation problems further.
+
+             Yet another consideration as we enter wider  acceptance  and
+        useage  of  our  electronic  media  is overhead.  Overhead can be
+        viewed in many ways,  two of the most important are Cost per mes-
+        sage  to transmit,  and disk space used for needless information.
+        The proposed changes outlined below address all  of  these  items
+        and more, giving a means of expanding into the future.
+
+        II. Proposed Changes
+
+             Seen-By lines will be greatly changed as compared to the cur-
+        rent  structure,  Path  lines  will be eliminated,  and the MSGID
+        kludge will also be eliminated.  Tear lines and origin lines will
+        remain unchanged.  INTL kludges, FMPT kludges, and others will be
+        eliminated.
+
+             This audit system is not new in concept.  In fact it is cur-
+        rently used in a similar manner in the popular TICK and FLEA file
+        echo processors.  Each system that processes a piece of mail adds
+        its node number into an audit list.  The audit list is similar to
+        current Seen-By's only in that node numbers are listed at the end
+        of each message.
+
+             Node  numbers added to the audit list are FULL node numbers,
+        ie.
+
+        Zone:Net/Node.Point
+
+                                        1
+
+
+             A system ALWAYS adds itself to the  Audit  list,  but  NEVER
+        adds  any  other  system address to the list.  The mail processor
+        must be capable of automatically zone matching its own  node  ad-
+        dress to that of the system it is currently sending a message to.
+        For  example:  If I am sending an echo to zone 1 AND zone 42,  my
+        mail processor would add the following Audit entries:
+
+        For each zone 1 message:
+        1:147/33.0
+        For each zone 42 message:
+        42:1036/33.0
+
+             My system then sends the message to the  correct  receivers.
+        If  the receiver is at the end of a line (not sending the area to
+        any other systems),  it simply checks the audit  list  to  ensure
+        that the senders address is listed only once, and tosses that mes-
+        sage to the correct area.
+
+             ONLY  SYSTEMS  THAT  RE-SEND A MESSAGE add themselves to the
+        Audit list.  A system NEVER adds itself to the Audit list if  its
+        sending system is listed more than once.  In this case,  the mes-
+        sage is a duplicate, and is killed.
+
+             The Audit list is NEVER sorted,  or disturbed in any way ex-
+        cept to add a new node to the end of the list.
+
+             There are no databases to maintain,  no path lines to check,
+        and best of all,  only SENDING systems are  listed.  In  national
+        echos,  it is not uncommon to see 5 to 8 lines of Seen-By's and 2
+        or 3 path lines in EACH message.  Even though including the  full
+        zone  address  (including points) adds to the length of node num-
+        bers,  far fewer node numbers  are  listed.  In  the  case  of  a
+        problem,   the   offending  system  can  be  quickly  and  easily
+        idetified, and the problem corrected.
+
+             Security is also enhanced by allowing the mail processor  to
+        check  the  sending  system against its send-to list in the areas
+        file to determine that it was received from the correct node  ad-
+        dress (the senders address can be cross checked by the Audit list
+        as well as the packet header).
+
+
+
+        III. Implementation
+
+
+
+        A. Packet Header
+
+             The  current  packet  header  needs  no  changes (except the
+        packet type identifier). This allows full backward compatibility.
+
+
+
+        B. Packed Messages
+
+             No change to packed message structures or procedures.
+
+
+
+        C. MSGID Line
+             Eliminated.
+
+
+                                        2
+
+
+        D. Message Body
+
+             Unchanged.
+
+
+
+        E. Tear Lines
+
+             Unchanged.
+
+
+
+        F. Origin Lines
+
+             Unchanged.
+
+
+
+
+        G. Seen-By's
+
+             Replaced by Audit list.  The Audit line begins with a unique
+        tag:
+
+        AUDIT:
+
+        followed by a space (ASCII #32). Each node number is seperated by
+        a  space.  Each Audit line is terminated by a carriage return and
+        optionally a linefeed (ASCII #13 and #10).  The  length  of  each
+        Audit  line  follows  current  Seen-By  line  specifications  (79
+        characters).
+
+             Node numbers in the Audit list are full  Zone:Net/Node.Point
+        numbering. The maximum feild length per entry is 23 characters of
+        text up to and including:
+
+        65535:65535/65535.65535
+
+
+
+        H. Path Lines
+
+             Eliminated.
+
+
+
+
+        IV. Operations
+
+
+
+        A. Sender
+
+             The originating system begins the Audit sequence by creating
+        the  initial  Audit  line  and  adding  his node number after the
+        AUDIT: tag.
+
+        AUDIT: 1:147/33.0
+
+             Then packs the message to the receiving system  as  it  nor-
+        mally would.
+
+
+
+                                        3
+
+             A  system  that  is  re-sending the message to other systems
+        first completes the Receiver requirements in step B  below.  Then
+        the  system  adds  its own node number (zone matched) to the LAST
+        Audit line of the message (or creates a new line if needed).  The
+        sender then packs the message as it normally would.  This process
+        is repeated for each message,  and each system  that  recieves  a
+        copy  of the message.  Zone gates may or may not be listed in the
+        Audit list to correctly identify any problems (open to ruling).
+
+ 
+
+        B. Receiver
+
+             Upon processing a packet,  the receiver scans for the  Audit
+        lines as it currently does for a Seen-By line for each message it
+        processes.  Each  entry  in the Audit list is checked against the
+        LAST entry, as well as its own address, for duplication. Addition-
+        ally,  the LAST address is checked against the receivers list  of
+        valid  systems  for  that message area to insure that security is
+        not breeched.  Optionally,  the receiver may check the address of
+        the  packet header against that of the senders Audit entry to en-
+        sure correct addressing.
+
+             After all tests are made,  the message is tossed to the cor-
+        rect message area.  If the receiver is to send the message to any
+        other systems, it then becomes the sender and procedes as in step
+        A above.
+
+
+
+        V. Qualifications
+
+             I am a programmer by trade,  and hold a degree in Electronic
+        Engineering.  I attended Oklahoma State University, and MIT. I am
+        the author of the SuperComm bulletin board system which includes:
+
+        SCBBS     The BBS program
+        SCMAIL    The Mail processor
+        SCED      The offline Message editor
+        SCSET     Set-up utility
+        SCNET     Network interface (Front-end mailer).
+
+             The SuperComm system holds a current FidoNet  product  code,
+        and  is fully compliant in its mail handling.  A working model of
+        ScMail including these changes is available  for  review.  Source
+        code ideas are also available for the proposed changes, either in
+        C or Turbo Pascal.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        4
+

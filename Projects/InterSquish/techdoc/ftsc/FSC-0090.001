@@ -1,0 +1,81 @@
+ | Document: FSC-0090
+ | Version:  001
+ | Date:     9 December, 1995
+ |
+ | Author:   David Nugent, 3:632/348@fidonet
+
+
+ FTSC Issued Product Codes
+ by David Nugent, December 9, 1995.
+
+
+    For many years, the FidoNet Technical Standards Committee has been
+    issuing product codes for use in FidoNet products used on the
+    network (specifically those products responsible for creation and
+    exchange of data over the network; products creating FidoNet type-2
+    packets described in FTS-0001 and mailers talking together using
+    FidoNet protocols described in FTS-0001, FTS-0006, FTS-0007 and
+    FSC-0056. The primary purpose of using these product codes was not
+    to create a registry of FidoNet related products, but to facilitate
+    the identification of products responsible for network problems and
+    providing a means by which authors might be contacted by the
+    Committee should problems with a specific product be brought to its
+    attention. Products issued with FTSC codes
+
+    In respect to this objective, the results have only been partially
+    successful. True, the product code list has been used from time to
+    time both to identify aberrant products and also to contact authors
+    and is still occasionally used for this purpose by both Committee
+    members and others.
+
+    The number of products which can be allocated FTSC product codes had
+    some years ago exceeded expectation. Since FTS-0001 "type-2" FidoNet
+    packets allocate a mere 8 bit field for the product code, that set
+    the effective maximum number of products which could be allocated a
+    product code to 256. All numbers had been allocated or reserved by
+    early 1991.
+
+    The issue was discussed at some length by the FTSC which debated
+    first the worth of continuing to issue product codes, and secondly
+    if the practice was to be continued, to effect changes in the
+    FTS-0001 packet header format to accommodate at least a 16-bit (two-
+    octet) product code. The first issue was resolved in favour of
+    retaining the product codes, but as yet, now in 1995, the second
+    issue has not been resolved by Committee members. Two of the later
+    FSC documents submitted to the Committee had indeed allocated an
+    additional byte for the product code, but had elected to reuse the
+    existing product code byte as the 'lower' half of the new product
+    code, which would cause existing products to be incorrectly 
+    identified by existing FTS-0001 compatible FidoNet implementations.
+    The behaviour of this incorrect identification has an undefined
+    effect. Both proposals were rejected by the Committee on that
+    basis.
+
+    FidoNet product codes are used in the following circumstances:
+
+     a) by mailers during FTS-0001 sessions; session negotiation is
+        the exchange of FTS-0001 packet headers,
+     b) by products which create type-2 packets,
+     c) by mailers during negotiation of FTS-0006 (YooHoo) and 
+        FSC-0056 (EMSI) sessions.
+
+    FTS-0006 sessions allocate 16-bits for a product code, and
+    FSC-0056 places no specific limits on size (although a 16-bit or
+    32-bit limitation might be implied and used in implementations).
+    The conclusion from this is that FidoNet product codes are still
+    useful to FidoNet mailers during session negotiation using FidoNet
+    enhanced handshaking protocols. Therefore, product codes are now
+    being issued only for mailer products with FTS-0006 and/or
+    FSC-0056 capability.
+
+    FidoNet products without an allocated product code which either
+    create type-2 packets, or negotiate FTS-0001 sessions must use a
+    product code x'fe or 254 in type-2 compatible packet headers. This
+    code as been reserved for that purpose (use by product without a
+    product code). The product code x'ff or 255 has been reserved to
+    indicate that the product code is stored elsewhere in the packet
+    header at an as yet unallocated offset (please do not use this as
+    yet - this FSC will be modified accordingly when FTS-0001 is
+    updated to designate the correct offset).
+
+                                                                    

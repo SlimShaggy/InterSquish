@@ -1,0 +1,69 @@
+FSC-0016
+
+                       FidoNet mail session startup
+                                    by
+                          Bob Hartman, 1:132/101
+
+     Presently, FSC001  contains no  provisions for  what actually  happens
+when a  call is received.  All it says is that the baud rate is determined,
+and a netmail session starts.  Currently, this is one of the most difficult
+sections of  a netmail program to get working.  All programs have different
+timeouts, different ways of determining baud rates, not to mention the fact
+that MNP  modems talking  to non-MNP  modems can cause problems.  For these
+reasons, I  propose the following "standard" for netmail programs that deal
+with the beginning of a netmail session:
+
+1. When  carrier is  detected, all  input should be deleted by the receiver
+     for a period of 2 seconds (I would even be comfortable with 5 seconds,
+     but it  makes human  callers a  bit unhappy).   This  enables most MNP
+     modems to  send their  string of  MNP "garbage" and not cause spurious
+     characters to impact the netmail startup logic.
+
+2. The  sender should  send ONLY  carriage return  and space  characters as
+     "whacking return"  until the receiver acknowledges by sending a string
+     containing a carriage return or space character.
+
+3. The  sender should whack return at the rate of one character per second.
+     This gives Fido 11w and other implementations time to purge buffers if
+     line noise  is received  which would  screw up the baud rate detection
+     logic.
+
+4. After  recognizing the  "whack"  of  the  sender,  the  receiver  should
+     disregard all characters except the following:
+
+     TSYNC -  start of  an FSC001  session (a  delay of at least one second
+          should appear  here so  the sender  can recognize  a valid  NAK -
+          otherwise, it  could still  be the  banner file being displayed).
+          WaZOO mailers  should disregard the first TSYNC in the hopes that
+          a YooHoo  will appear.   If  a YooHoo  is not  received within  2
+          seconds, or  a second  TSYNC appears, an FSC001 session should be
+          started.
+
+     YooHoo - signals the start of a WaZOO netmail session.  FSC001 mailers
+          should just ignore this character as noise.
+
+     Carriage return,  space -  Send  message  containing  carriage  return
+          and/or space.   The  sender may  have missed  it the  first  time
+          around and is still "whacking return".
+
+     Line feed  - This  is probably a user, and a message explaining things
+          to him/her should be sent out.
+
+     Escape - This character is currently used by at least one front end as
+          a quick  method for users to enter the BBS.  If received in "mail
+          mode", it  should always  be ignored.    (I  propose  this  as  a
+          "standard" so that all front-ends can use this feature.  If it is
+          not  standardized  now,  all  front-ends  could  conceivably  use
+          different characters  and  further  muddle  the  picture  when  a
+          netmail session is starting.)
+
+5. After  the sender has started sending TSYNC and/or YooHoo, the responses
+     must be  looked at  very carefully.   A  line with  no activity for at
+     least .5  seconds must  be seen.   Otherwise,  it is  possible that  a
+     banner file is still being displayed and a 'C' is meaningless.
+
+     If  all   FidoNet  compatible  mail  programs  were  to  follow  these
+conventions, I  believe that  the start  of a netmail session would be much
+more reliable  than it  is right  now.  Too often we see front end packages
+fall through  to the  underlying BBS because of MNP negotiation, or one end
+taking longer than the other to give a connect message.

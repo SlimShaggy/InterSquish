@@ -1,0 +1,465 @@
+Document: FTS-0008
+Version:  003
+Date:     15-Oct-1990
+Updates:  FTS-0001
+
+
+
+                  An Enhanced FidoNet(r) Technical Standard
+                 Extending FTS-0001 to include Bark requests
+
+                            October 15, 1990
+
+
+
+
+Status of this document:
+
+    This document specifies an optional standard for the FidoNet community.
+    Implementation of the protocols defined in this document is not mandatory,
+    but all implementations of these protocols are expected to adhere to this
+    standard.  Distribution of this document is subject to the limitations of
+    the copyright notice displayed below.
+
+
+    Copyright 1989-90 by Philip L. Becker.  Portions of this document are
+    copyright 1986-90 by Randy Bush and are incorporated with his consent.
+    All rights reserved.  A right to distribute only without modification and
+    only at no charge is granted.  Under no circumstances is this document to
+    be reproduced or distributed as part of or packaged with any product or
+    other sales transaction for which any fee is charged.  Any and all other
+    reproduction or excerpting requires the explicit written consent of the
+    copyright holders.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A. Introduction
+
+ 1. This Document
+
+    This document describes the standard for "Bark" type FidoNet file
+    request operation.  Bark file requests are an extension to the basic
+    FTS-0001 mail session, and this document presents these requests as a
+    modification to that document.
+
+ 2. What are File Requests?
+
+    File Requests are a way of requesting that a specific file be sent during
+    a FidoNet mail session.  This has many advantages over simply logging on to
+    a BBS and downloading a file:
+
+       o  You need not be a validated user
+
+       o  You don't have to spend time searching for the file on the BBS
+
+       o  You can schedule the file request to take place at any time without
+          your being near your computer.
+
+    There are two commonly used types of file requests on FidoNet today, WaZOO
+    and Bark requests.  WaZOO requests are used by Opus and BinkleyTerm, and
+    are not documented here.  See the document FTS-0006 by V. Perriello for a
+    description of these.   Bark requests were the first file request extension
+    to the FTS-0001 protocol, and are supported (at least partially) by many
+    mailers, including SEAdog, Dutchie, BinkleyTerm, and to a certain extent
+    Opus.  This document describes how to implement Bark-type file requests.
+
+
+ B. Terms Used in this Document
+
+ 1. The diagrams and notations used in this document are the same as those used
+    in the FTS-0001 document.  Please see FTS-0001 for a description of these.
+    This document should be considered as an extension to the FTS-0001 session
+    layer protocol, and you will require FTS-0001 in addition to this document
+    to fully understand what is presented here.
+  
+    In addition to the data description language described in FTS-0001 section
+    A.4, one extra terminal used in this notation:
+  
+    (* terminals *)
+    someName<max> - String of up to max chars, NOT null terminated
+ C. Performing File Requests
+
+ 1. Introduction
+
+    A Bark request consists of transmitting a special Bark Request packet which
+    contains a filename, a date (used for update requests), and optionally a
+    password.  The system receiving the request then decides if it can send the
+    requested file or not, and if it can does so using the same protocol used
+    to send attached files.  Bark request handling is always controlled by the
+    answering system, and consists of two phases.  In phase one, the receiving
+    system asks the calling system to honor requests it may have to ask for
+    files from the caller.  In phase two, the receiving system allows the
+    calling system to request files from it.
+
+    Update file requests are the same as normal file requests, with one
+    exception.  If the date in the Bark Request packet (described below) is
+    greater than or equal to the date of the actual file requested, the file
+    will not be sent.  The requestor should set the date to the date of the
+    the actual file on its own end if an update request is desired.
+
+
+ D. The Bark Request Packet
+
+ 1. Data Link Layer Data Definition.
+ 
+    The Bark Request packet is a variable-sized packet containing a header, a
+    filename, a date (which is used only for update requests - in a normal file
+    request it's 0) and an optional password. When receiving a Bark Request
+    packet, the ETX may be used to determine the end of the data portion. Note
+    that the CRC is sent in the reverse byte order of a normal CRC XMODEM data
+    block (see FTS-0001 section G.1).
+
+    Note: some systems will send a password in the data block even if none is
+    needed.  Incoming passwords should be ignored unless the other system is
+    trying to request a passworded file.
+
+  
+
+                          Bark File Request Packet
+      Offset
+      dec hex
+              ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+        0   0 ³       ACK - Start of Bark Request - 06H       ³
+              ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+        1   1 ³     Filename - Packed DOS file format         ³
+              ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+        n   n ³              SPACE - 20H                      ³
+              ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+        n   n ³              Date (0 if not Update Request)   ³
+              ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+        n   n ³      SPACE - 20H  (only if pswd follows)      ³
+              ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+        n   n ³         Password (optional)                   ³
+              ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+        n   n ³       ETX -  End of RESYNC packet  - 03H      ³
+              ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+        n   n ³     (*1)     CRC  low order byte              ³
+              ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+        n   n ³     (*1)     CRC high order byte              ³
+              ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+              *1 - CRC does not include the ACK or ETX and is
+                   in the reverse byte order from the CRC in a
+                   normal XMODEM data packet.
+ 2. Data Description Notation of Bark Request Packet
+
+    DataBlock (no password) = ACK
+                              Filename<12>
+                              Space
+                              Date<11>
+                              ETX
+                              CRC
+  
+    DataBlock (with password) = ACK
+                                Filename<12>
+                                Space
+                                Date<11>
+                                Space
+                                Password<6|8>
+                                ETX
+                                CRC
+  
+    ACK   = 06H       (* Header for file request block *)
+    Space = 20H       (* Space character *)
+    ETX   = 03H       (* End of block *)
+  
+    Filename          (* Name of file requested *)
+    Date              (* ASCII string; the number of seconds
+                         since midnight, January 1, 1970 *)
+    Password          (* The password needed to request this
+                         file, if any.  Maximum length is 6 for
+                         BinkleyTerm and Opus, 8 for SEAdog
+                         and Dutchie. *)
+  
+    CRC = crc[2]      (* CCITT Cyclic Redundancy Check.  The
+                         same algorithm as used for XModem
+                         CRCs.  The CRC is calculated on
+                         all data in the block between but
+                         not including the ACK and the ETX *)
+ E. Session Layer Protocol:
+
+    This section describes the modified FTS-0001 session layer protocol.  This
+    is the only area of FTS-0001 which is modified to implement Bark style file
+    requests.  File Requests are performed at the end of the normal FidoNet
+    mail session, after any mail pickup is performed.
+
+    The diagrams below desribe the session level protocol with Bark file
+    requests implemented.  The state tables have been broken into subroutines
+    but the FTS-0001 portion is not functionally changed.  FTS-0001 sender
+    states S4 through S7 are now table "Send Mail SM0".  FTS-0001 receiver
+    states R3 through R6 are now table "Receive Mail RM0".  They are not
+    functionally changed in any way from FTS-0001, they are just broken out
+    to allow them to be used as subroutines.  Finally Sender states S0 through
+    S3 are unchanged, as are Receiver states R0 through R2.
+
+    The remaining FTS-0001 states are enhanced to implement the Bark file
+    request protocol. In addition, the subroutine state tables "Send Bark SB0"
+    and "Receive Bark RB0" have been added to handle the actual file requests.
+ 
+    The following diagrams fully replace the Session Layer protocol state
+    tables in FTS-0001.  No other changes to FTS-0001 are required to implement
+    the Bark File request feature.
+    Sender  (Top level)
+
+    ÚÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄ¿
+    ³State³ State    ³ Predicate(s)            ³ Action(s)               ³ Next³
+    ³  #  ³ Name     ³                         ³                         ³ St  ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ S0  ³ SendInit ³                         ³ dial modem              ³ S1  ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ S1  ³ WaitCxD  ³1³ carrier detected      ³ delay 1-5 seconds       ³ S2  ³
+    ³     ³  (*1)    ³ ³                       ³ Set SLO if > 2400bps,   ³     ³
+    ³     ³          ³ ³                       ³ Reset SLO if <= 2400bps ³     ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ busy, etc.            ³ report no connection    ³ exit³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³3³ voice                 ³ report no carrier       ³ exit³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³4³ carrier not detected  ³ report no connection    ³ exit³
+    ³     ³          ³ ³ within 60 seconds     ³                         ³     ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ S2  ³ WhackCRs ³1³ over 30 seconds       ³ report no response <cr> ³ exit³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ ?? <cr>s received     ³ delay 1 sec             ³ S3  ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³3³ <cr>s not received    ³ send <cr> <sp> <cr> <sp>³ S2  ³
+    ³     ³          ³ ³                       ³   delay ??? secs        ³     ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ S3  ³ WaitClear³1³ no input for 0.5 secs ³ send TSYNCH = AEH       ³ S4  ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ over 60 seconds       ³ hang up, report garbage ³ exit³
+    ³     ³          ³ ³ and line not clear    ³                         ³     ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ S4  ³ SendMail ³                         ³ (Send Mail SM0)         ³ S5  ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ S5  ³ TryPickup³1³ Rcv TSYNC             ³ (Receive Mail RM0)      ³ S5  ³
+    ³     ³   (*2)   ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ Rcv SYN               ³ (Receive Bark Req RB0)  ³ S5  ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³3³ Rcv ENQ               ³ (Do Bark Requests SB0)  ³ S5  ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³4³ Rcv 'C' or NAK        ³ Send EOT                ³ S5  ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³5³ Rcv Other Char        ³ Send SUB                ³ S5  ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³6³ No Data for 45 secs   ³ Hang Up                 ³ exit³
+    ÀÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÙ
+
+    *1 - This state is shown for the extended SEAlink protocol.  Omit the
+         set/reset SLO actions if adding Bark to a strict FTS-0001 protocol
+         implementation, or if not implementing overdrive in SEAdog.
+   
+    *2 - To refuse to pickup mail (S5.1) may send a CAN and stay in (S5).
+
+    Note: Although the above shows the sender emitting only one TSYNCH, it is
+    recommended that a timeout of 5-20 seconds should initiate another TSYNCH.
+    The receiver should tolerate multiple TSYNCHs.
+    Receiver (Top Level)
+
+    The  receiving FSM is given  an external timer, the expiration of  which
+    will cause termination with a result of 'no calls' (R0.2).
+    ÚÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄ¿
+    ³State³ State    ³ Predicate(s)            ³ Action(s)               ³ Next³
+    ³  #  ³ Name     ³                         ³                         ³ St  ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ R0  ³ WaitCxD  ³1³ carrier detected      ³                         ³ R1  ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ external timer expires³ report no calls         ³ exit³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ R1  ³ WaitBaud ³1³ baud rate detected    ³ send signon with <cr>s  ³ R2  ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ no detect in ?? secs  ³ hang up, report no baud ³ exit³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ R2  ³ WaitTsync³1³ TSYNCH received       ³ ignore input not TSYNCH ³ R3  ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ 60 seconds timeout    ³ hang up, report not Fido³ exit³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ R3  ³ RecMail  ³                         ³ (Receive Mail RM0)      ³ R4  ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ R4  ³ AllowPkup³1³ Have pickup for sender³ Send Tsync,             ³ R5  ³
+    ³     ³          ³ ³                       ³   Set T1=1 sec          ³     ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ No pickup for sender  ³                         ³ R6  ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ R5  ³ WtPickup ³1³ Rcv NAK or 'C'        ³ (Send Mail SM0)         ³ R6  ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ Rcv SUB               ³ Send Tsync,             ³ R5  ³
+    ³     ³          ³ ³                       ³   Set T1=1 sec          ³     ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³3³ Rcv CAN               ³ Report Mail Refused     ³ R6  ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³4³ T1 expired            ³ Send Tsync,             ³ R5  ³
+    ³     ³          ³ ³                       ³   Set T1=1 sec          ³     ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³5³ 45 secs in R5         ³ Hang Up, report error   ³ exit³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ R6  ³ AskBark  ³1³ Wish to make requests ³ Send SYN                ³ R7  ³
+    ³     ³   (*1)   ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ No requests to make   ³                         ³ R8  ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ R7  ³ DoRequest³1³ Rcv CAN               ³ Report Requests Refused ³ R8  ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ Rcv ENQ               ³ (Send Bark SB0)         ³ R8  ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³3³ Rcv SUB               ³ Send SYN                ³ R7  ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³4³ Rcv NAK or 'C'        ³ Send EOT                ³ R6  ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³5³ Rcv Other             ³ eat character           ³ R7  ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³6³ 5 sec, no input       ³ Send SYN                ³ R7  ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³7³ 45 secs in R7         ³                         ³ R8  ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ R8  ³ WtPickup ³1³ Allow File Request    ³ (Receive Bark RB0),     ³ exit³
+    ³     ³          ³ ³                       ³   Hang Up               ³     ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ Disallow Requests     ³ Hang Up                 ³ exit³
+    ÀÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÙ
+    *1 - Some implementations always do (R6.1) even if they have no requests.
+    Sender - Send Mail
+
+    ÚÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄ¿
+    ³State³ State    ³ Predicate(s)            ³ Action(s)               ³ Next³
+    ³  #  ³ Name     ³                         ³                         ³ St  ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ SM0 ³ SendMail ³                         ³ (XMODEM send packet XS0)³ SM1 ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ SM1 ³ CheckMail³1³ XMODEM successful     ³ (Fido registers success)³ SM2 ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ XMODEM fail or timeout³ hang up, report mail bad³ exit³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ SM2 ³ SendFiles³                         ³ (BATCH send files BS0)  ³ SM3 ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ SM3 ³ CheckFile³1³ BATCH send successful ³ report success          ³ exit³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ BATCH send failed     ³ hang up, rept files fail³ exit³
+    ÀÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÙ
+
+
+
+    Sender - Send Bark
+
+    ÚÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄ¿
+    ³State³ State    ³ Predicate(s)            ³ Action(s)               ³ Next³
+    ³  #  ³ Name     ³                         ³                         ³ St  ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ SB0 ³ SendBark ³1³ File to request       ³ Build Bark Request Pkt, ³ SB1 ³
+    ³     ³          ³ ³                       ³   Set tries = 0         ³     ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ No more files to req  ³ Send ETB                ³ exit³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ SB1 ³ AskFile  ³                         ³ Send Bark Packet        ³ SB2 ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ SB2 ³ RcvFile  ³1³ Rcv ACK               ³ (Batch Receive BR0)     ³ SB3 ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ Tries > 5             ³ Send ETB, report failed ³ exit³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³3³ Rcv Other             ³ Purge input, Incr tries ³ SB1 ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³4³ 10 sec w/o ACK        ³ Incr tries              ³ SB1 ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ SB3 ³ NxtFile  ³1³ Rcv ENQ               ³                         ³ SB0 ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ Rcv Other             ³ Purge Input             ³ SB3 ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³3³ 5 sec, no input       ³ Send SUB                ³ SB3 ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³4³ 45 sec in SB3         ³ Hang up, report error   ³ exit³
+    ÀÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÙ
+    Sender & Receiver - Receive Mail
+
+    ÚÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄ¿
+    ³State³ State    ³ Predicate(s)            ³ Action(s)               ³ Next³
+    ³  #  ³ Name     ³                         ³                         ³ St  ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ RM0 ³ RecMail  ³                         ³ (XMODEM rec packet XR0) ³ RM1 ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ RM1 ³ XRecEnd  ³1³ XMODEM successful     ³ delay 1 second          ³ RM2 ³
+    ³     ³          ³ ³                       ³   flush input           ³     ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ XMODEM failed         ³ hang up, rept mail fail ³ exit³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ RM2 ³ RecFiles ³                         ³ (BATCH rec files BR0)   ³ RM3 ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ RM3 ³ ChkFiles ³1³ BATCH recv successful ³ delay 2 secs, rprt good ³ exit³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ BATCH recv failed     ³ hang up, report bad file³ exit³
+    ÀÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÙ
+
+
+    Sender & Receiver - Receive Bark
+
+    ÚÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄ¿
+    ³State³ State    ³ Predicate(s)            ³ Action(s)               ³ Next³
+    ³  #  ³ Name     ³                         ³                         ³ St  ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ RB0 ³ HonorReq ³1³ Ok to honor request   ³ Purge Input, Send ENQ,  ³ RB1 ³
+    ³     ³          ³ ³                       ³   Set T1 = 2 seconds    ³     ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ Don't wish to honor   ³ Send CAN                ³ exit³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ RB1 ³ WaitBark ³1³ Got ACK               ³ Rcv Bark Packet (*1)    ³ RB2 ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ Got ETB               ³ Report done             ³ exit³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³3³ Got ENQ               ³ Send ETB                ³ RB0 ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³4³ T1 expired            ³ Purge Input, Send ENQ,  ³ RB1 ³
+    ³     ³          ³ ³                       ³   Set T1 = 2 seconds    ³     ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³5³ 20 seconds in RB1     ³ Hang Up, Report error   ³ exit³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ RB2 ³ AckBark  ³1³ Bark Pkt Rcvd Good    ³ Send ACK                ³ RB3 ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ Bark Pkt Rcv Error    ³ Send NAK                ³ RB1 ³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ RB3 ³ WaitStrt ³1³ Got 'C' or NAK        ³                         ³ RB4 ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ No data for 3 seconds ³ Send ACK                ³ RB3 ³
+    ³     ³          ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³3³ 15 seconds in RB3     ³ Hang Up, Report Error   ³ exit³
+    ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³ RB4 ³ SendFile ³1³ Can snd requested file³ (Batch Send File BS0)   ³ RB0 ³
+    ³     ³   (*2)   ÃÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄ´
+    ³     ³          ³2³ Can't send file       ³ Send EOT                ³ RB0 ³
+    ÀÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÙ
+    *1 - If SUB (16H) received before ETX go to RB0 to resync bark receive
+
+    *2 - While deciding if file exists, and if the password allows it to be
+         sent etc., a NUL may be sent to buy 20 seconds more on the timeout
+         on the other end if it is using the SEAlink extended FTS-0001
+         specification protocol.  Sending a NUL is harmless for a strict
+         FTS-0001 session, but will not buy more time.
+

@@ -1,0 +1,104 @@
+Document: FSC-0052
+Version:  001
+Date:     23-Sep-90
+
+
+                                      ZPTH
+                                      ----
+
+                    A proposal for making the PATH zone aware
+
+                               Gerard van der Land
+                                FidoNet 2:283/1.5
+
+
+
+Status of this document:
+
+     This FSC suggests a proposed protocol for the FidoNet(r) community,
+     and requests discussion and suggestions for improvements.
+     Distribution of this document is unlimited.
+
+     Fido and FidoNet are registered marks of Tom Jennings and Fido
+     Software.
+ 
+
+
+           The PATH line can be a more accurate source of  information than
+     the SEEN-BY  line to determine  if a message  is a duplicate.  TosScan
+     with Circular  PATH Protection  (CPP) enabled  will consider  messages
+     that already have your address in  them as duplicates. This works fine
+     in  conferences  that  are  distributed   within  one  zone,  but   in
+     conferences spread across zones it can cause problems.
+
+           Unlike SEEN-BY lines,  PATH lines are  not stripped at the  zone
+     gate,  because  they have  a very  important  purpose: to  be  able to
+     determine the used echomail topology and troubleshooting, like finding
+     the cause of duplicate messages. Unfortunately this also means that if
+     a message is entered  at 1:283/1 and my boss would  be running TosScan
+     with CPP  enabled, the  message would  be considered  as a  duplicate,
+     because "283/1" is already in the PATH lines.
+
+           If  such  messages are  not deleted  but  stored in  a duplicate
+     directory, you will of course notice this happen and  disable CPP, but
+     you can't know  if messages never reach your  system because they were
+     deleted for the same reason by another node that had CPP enabled.
+
+            That's why I have the following  proposal. If a message travels
+     from one zone to another, the zone gateway should move all information
+     in the current PATH lines to kludge lines with the following format:
+
+           ^aZPTH: <origin zone>:<old path info>
+
+           The receiving system in the destination  zone creates a new PATH
+     with his address in it.
+
+           There is no need  to support or allow 4D addresses  in the ZPTH,
+     since it is only supplements the existing PATH lines.
+
+
+     Simple sample
+     -------------
+
+           A message originating at 1:154/40 arrives at 1:260/340...
+
+     ^aPATH: 154/40 970 9 157/200 265/7 13/13 260/340
+
+           ...and is sent to Europe. This is how I would see it:
+
+     ^aZPTH: 1:154/40 970 9 157/200 265/7 13/13 260/340
+     ^aPATH: 310/11 507/1 512/0 280/0 283/1
+
+           Now suppose that  283/1 would gate it  to zone 3, it  would look
+     like this when it gets there:
+
+     ^aZPTH: 1:154/40 970 9 157/200 265/7 13/13 260/340
+     ^aZPTH: 2:310/11 507/1 512/0 280/0 283/1
+
+           The receiving node  in zone 3 now  creates a new PATH  line with
+     his address in it.
+
+     Advantages
+     ----------
+
+       1) It enables  Circular PATH  Protection (CPP)  on conferences  that
+          travel  across  zones  without  the  risk  of messages  that  are
+          erroneous considered as duplicates and deleted.
+
+       2) A  zone gate can  optionally parse the  ZPTH lines to  see if his
+          zone or the destination  zone has already seen the  message (CZP,
+          Circular ZPATH Protection), which means  a duplicate message will
+          never go to another zone. Ofcourse this could only be used  if it
+          sure that messages shouldn't re-enter a zone.
+
+       3) You  get  a  much better  view  on  the  used echomail  topology,
+          sometimes it is  very hard to see  where a message goes  from one
+          zone to another.
+
+       4) It will not screw up with any  echomail processor as long as they
+          ignore unknown kludges. Only nodes gating echomail from  one zone
+          to another would need to have a processor that supports the  ZPTH
+          kludge.
+
+       5) It will hardly increase the size of compressed mail archives.
+

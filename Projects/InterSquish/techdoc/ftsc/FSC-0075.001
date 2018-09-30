@@ -1,0 +1,281 @@
+
+  | Document: FSC-0075
+  | Version:  001
+  | Date:     23rd October 1993
+  | Author:   Jan Ceuleers
+
+				   ISDN capability flags in the Nodelist
+								 A proposal
+						 by Jan Ceuleers, 2:292/857
+					   version 0.4, October 3rd 1993
+
+
+	 1 Introduction
+
+	 The  Integrated Services Digital  Network is a  worldwide overlay
+	 network, offering the same services  as the PSTN (Public Switched
+	 Telephone Network) and  more. Its	basic bearer  capability is  a
+	 digital  bit stream  of 64000	bits/s,  as opposed  to the  audio
+	 channel with a 3.1 kHz bandwidth provided by the PSTN.
+
+	 Transferring data across the ISDN can be done in one of two ways:
+
+	   -  by using	the telephony services the ISDN  provides. In this
+		  mode,  a standard  modem	can  continue  to  be  used.  Some
+		  modulation schemes currently in use are V.32bis, PEP, ZyXEL,
+		  HST,	V.32  etc. We  already have  nodelist flags  for these
+		  cases.
+
+	   -  by using	ISDN's 'native'  mode. In this  case, a  number of
+		  protocols  (either or not  ISDN-specific) are used,  such as
+		  V.110, V.120, X.75 etc.
+
+	 This  document  aims to  define  the way  in  which nodes	are to
+	 advertise their ISDN  capabilities in the nodelist,  irrespective
+	 of whether or	not ISDN-only nodes should	be in the  nodelist in
+	 the  first place.	This latter  problem is  to be	solved by  the
+	 politicians.
+
+	 Descriptions of ISDN equipment and compatibility with POTS (Plain
+	 Old  Telephone Service) equipment	are beyond	the scope  of this
+	 document. More detailed information on ISDN is also not provided;
+	 readers  are referred to the literature (e.g. 'Computer Networks'
+	 by Andrew Tanenbaum).
+
+
+
+	 2 Different flavors of the same protocol
+
+	 Some ISDN protocols have different flavors, some  of which differ
+	 only marginally, but others are quite distinct.
+
+		  For  the techies among the readership: examples of both
+		  cases can be	found in  the 1988	definition of  V.110.
+		  There  are two variants of the  frame structure used in
+		  the  56kbps  synchronous	mode  (marginal  difference),
+		  while there  is quite  a major  difference between  the
+		  synchronous and asynchronous versions of V.110.
+
+
+									 1
+
+				   ISDN capability flags in the nodelist
+
+
+	 Since FidoNet	applications are essentially  character-based, the
+	 asynchronous versions	of protocols  will be  preferred over  the
+	 synchronous-ones(1).  This  applies  to V.110	and  V.120	and to
+	 any other such protocol.
+
+	 If there is an option, 8 data bits, no parity and 1 stop bit will
+	 be used in preference over all other possible combinations. (This
+	 is in line with the FOSSIL spec).
+
+
+	 3 Speeds
+
+	 Some protocols (such  as V.110) can be used  at different speeds.
+	 Certain implementations of  these protocols may not  support some
+	 of these speeds.
+
+	 The  baud	rate field	in	the nodelist  should not  be  used for
+	 indicating the  maximum speed an  ISDN node is capable  of, since
+	 ISDN capability  flags could  (technically) co-exist with	normal
+	 modem capability flags(2).
+
+
+	 4 Nodelist flags
+
+	 ISDN-related  nodelist  flags	consist of	a  prefix,	a protocol
+	 indicator and an optional (set of) suffixes.
+
+	 The prefix is the capital letter I (for ISDN).
+
+	 The protocol indicator is one of the strings defined in paragraph
+	 5 below.
+
+	 The suffix indicates the way in which the implementation deviates
+	 from the preferred  implementation, as indicated in  paragraphs 2
+	 and 3. The possible suffixes are:
+
+		  Onnn		The  only bit  rate supported  =  nnn *  100 (e.g.
+					IV110O384 means that this node only supports V.110
+					asynchronous at 38400 bps and at no other speeds.
+
+
+
+
+		  1.  As  a  matter  of  fact, there  are  no  provisions  for
+	 advertising the synchronous versions of such protocols.
+
+		  2. ISDN technology indeed allows for the possibility of both
+	 modem	 and  ISDN-specific  datacom   connectivity  on  the  same
+	 'telephone' number.
+
+									 2
+
+				   ISDN capability flags in the nodelist
+
+
+		  Pnnnnn	Maximum  packet size supported in bytes. This is a
+					layer 2  packet protocol  parameter. Communication
+					between two nodes is only possible if either end's
+					maximum  packet  size  is  not	exceeded.  Leading
+					zeroes are to be omitted.
+
+		  Rnnn		Highest  bit  rate	supported =  nnn  *  100 (e.g.
+					IV110R192 means  that this node  does not  support
+					V.110 asynchronous at 38400  bps, but does support
+					all other standardised	rates up to  and including
+					19200 bps)
+
+		  Wn		Window size. The window size must be less than the
+					modulo value (i.e. in modulo 8, the maximum window
+					size is 7).
+
+	 If more than one  suffix is used, the suffixes will  be sorted in
+	 ascending order.
+
+
+	 5 Protocols
+
+	 This section defines the meaning of the base protocol indicators.
+	 The  aim  is to  have	this  base	protocol indicator	cover  the
+	 majority of cases, so that suffixes will only rarely be required.
+
+
+	 5.1 V.110
+
+		  The  protocol  indicator	is V110.  When	specified  without
+		  suffixes,   the	IV110	nodelist  flag	 indicates	 V.110
+		  asynchronous capability  at bit  rates up  to and  including
+		  38400 bps.
+
+
+	 5.2 V.120
+
+		  The protocol	indicator  is  V120.  When	specified  without
+		  suffixes,  the   IV120   nodelist   flag	 indicates	 V.120
+		  asynchronous	capability. Due to the nature of the protocol,
+		  the O and R suffixes are irrelevant.
+
+		  There  is no	explicit mention  of frame	size in  the V.120
+		  specifications. However, since Q.921 is the layer-2 protocol
+		  of V.120, one might assume the frame size of Q.921, which is
+		  260 bytes. Frame sizes larger than that should be negotiated
+		  between sysops.
+
+
+
+									 3
+
+				   ISDN capability flags in the nodelist
+
+
+	 5.3 T.90 (X.75)
+
+		  The protocol indicator is T90. Base protocol parameters are:
+
+			   modulo: 8
+			   window size: 2
+			   packet size: 2048 bytes
+
+		  Currently, there	is no standardized method  for negotiation
+		  of the modulo mode (Recommendation ITU-TS T.90 reserves this
+		  subject for further  study), all	T.90-capable nodes	should
+		  answer   in  modulo-8  mode.	It	is	therefore  useless	to
+		  advertise  modulo-128  capability.   This  also  limits  the
+		  maximum window size to 7.
+
+		  Some	implementations have  a maximum  frame	length of  130
+		  bytes  and  a  maximum  window  size of  1.  This  would	be
+		  documented  as  IT90P130W1.  The 1992  version  of  the T.90
+		  standard specifies a method for in-band negotiation of frame
+		  length and window size.
+
+
+	 5.4 Other protocols
+
+		  Additional protocols can be added to this document (and thus
+		  assigned	 a	 nodelist	flag)	if	sufficient	 technical
+		  information is made available.
+
+		  Neither X.25 on B nor on D have been added, because there is
+		  no room in the nodelist for the X.25 address.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+									 4
+
+				   ISDN capability flags in the nodelist
+
+
+	 6 Conversion from old to new
+
+	 The ISDNA, ISDNB and  ISDNC nodelist flags are already  in use in
+	 zone 2.  The table below  shows the relationship between  old and
+	 new.
+
+
+						  old				   new
+						 ISDNA				IV110O192
+
+						 ISDNB				IV110O384
+
+						 ISDNC				   IT90
+					  ISDNA,ISDNB			  IV110
+
+					  ISDNB,ISDNC		  IV110O384,IT90
+
+
+
+								 ---===---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+									 5
+

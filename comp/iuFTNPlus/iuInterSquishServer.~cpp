@@ -384,7 +384,37 @@ try
       }
       break;
     }
+
+
+    /*TUserInfo ui;
+    //ui = new TUserInfo;
+
+    Result=CheckUserLogin(&ui, this->ISS->UsersCfgName,UserInfo.NAME);
+    if(Result){
+
+        UserInfo.ROGroups=ui.ROGroups;
+        UserInfo.Groups=ui.Groups;
+        UserInfo.Login=ui.Login;
+        UserInfo.Name=ui.Name;
+        UserInfo.Address=ui.Address;
+
+        if(!AnsiCompareText(ui.CharsetName,"OEM"))
+          FTranslitMode=2;
+        else if(!AnsiCompareText(ui.CharsetName,"ANSI"))
+          FTranslitMode=1;
+        else
+          FTranslitMode=0;
+
+        Result=true;
+    }*/
+
+//    delete ui;
+
+    //if (!Result) return false; //такого пользователя нет
 }
+
+
+
 __finally
 {
 //  CriticalSection->Leave();
@@ -1182,9 +1212,13 @@ int iBeginFieldContent;
       else if(IsField(asFieldLine,"From:"))
       {
         TFTNAddress tmp(asFieldContent);
+
+        //todo вот разобрали tmp - там адрес отправителя
         Msg->FromName=tmp.UserName!="" ? tmp.UserName : tmp.Account;
 //        Msg->Kludges->KludgeByName("RFC-From:")->AsString=asFromName;
-        if(UserInfo)
+        if(tmp.Net!=0 && tmp.Zone!=0){
+            Msg->OrigAddr=tmp.As5dString;
+        }else if(UserInfo)
         {
           Msg->OrigAddr=UserInfo->Address.As5dString;
           if (UserInfo->ReplyAddr!="") Msg->Kludges->KludgeByName("REPLYADDR:")->AsString=UserInfo->ReplyAddr;
@@ -1592,11 +1626,9 @@ static DWORD lastTimeStamp;
 
       Msg->DestAddr=*ReciptAddress;
       Msg->OrigDateTime=PostDateTime;
-#ifdef SHAREWARE
-      Msg->Kludges->KludgeByName("PID:")->AsString=VI_THIS_EXE.InternalName+" "+VI_THIS_EXE.FileVersion+Fcs;
-#else
+
       Msg->Kludges->KludgeByName("PID:")->AsString=VI_THIS_EXE.InternalName+" "+VI_THIS_EXE.FileVersion+"Free";
-#endif
+
       //Msg->ToName="Sysop";
       Msg->Header->wAttr=0;
     Msg->Header->Attr.Local=true;
@@ -1724,7 +1756,7 @@ AnsiString asMsgBody;
     {
         for(int i=0;i<adrListtemp->Count;i++)
         {
-                asMsgBody.Insert("To: "+adrListtemp->Items[i]->UserName+" "+adrListtemp->Items[i]->As5dString+"\n",0);
+            asMsgBody.Insert("To: "+adrListtemp->Items[i]->UserName+" "+adrListtemp->Items[i]->As5dString+"\n",0);
         }
     }
 
@@ -1936,7 +1968,11 @@ inline TiuIssSMTPServer * __fastcall TiuIssSMTPServerThread::GetISS(void)
 bool _fastcall TiuIssSMTPServerThread::CheckLogin(AnsiString Name, AnsiString Password)
 {
 bool Result;
+bool cui;
+
   AnsiString NAME=Name.UpperCase();
+  TUserInfo *ui;
+  ui=new TUserInfo();
 
   if(this->ISS->UsersCfg==NULL)
   {
@@ -1944,19 +1980,31 @@ bool Result;
     this->ISS->UsersCfg->Path=this->ISS->UsersCfgName;
   }
 
-  if(Server->ScriptingEnable)
-  {
-    AnsiString AuthString=ExecInstruction(Server->ScriptCfg->InstructionByName("IsUserValid"),FScriptControl, FScriptArgsList,"");
-    if(AuthString!="")
-    {
-      FUserInfo.ImportLine(AuthString);
-      if(FUserInfo.Address.AsString=="")//!!! Это не верно!
-        FUserInfo.Address=ISS->FTNAddress;
+    //cui=CheckUserLogin(ui, this->ISS->UsersCfgName,Name);
+    cui=CheckUserLogin(&FUserInfo, this->ISS->UsersCfgName,Name);
 
-      return true;
-    }
-  }
+    if (!cui) return false; //такого пользователя нет
+  
   CriticalSection->Enter();
+
+  if (FUserInfo.Address.AsString=="")
+  {
+    FUserInfo.Address=ISS->FTNAddress;
+  }
+
+  if (FUserInfo.Password==Password)
+  {
+    delete ui;
+    return true;
+  }
+
+  //__finally
+  {
+    CriticalSection->Leave();
+  }
+
+  return false;
+  /*
   try
   {
     TCustomUsersCfg *UsersCfg=this->ISS->UsersCfg;     //ISS->UsersCfg;
@@ -1968,7 +2016,7 @@ bool Result;
     {
       FUserInfo.Address=UsersCfg->Users->Items[i]->Address.AsString;
       if(FUserInfo.Address.AsString=="")//!!! Это не верно!
-        FUserInfo.Address=ISS->FTNAddress;
+        FUserInfo.Address=ISS->FTNAddress;*/
 //      FUserFTNAddress.AsString=FUserAddress;
 /*
       FDedicatedPoint=(FUserFTNAddress.Zone!=ISS->Address->Zone) ||
@@ -1976,7 +2024,7 @@ bool Result;
                     (FUserFTNAddress.Node!=ISS->Address->Node) ||
                     (FUserFTNAddress.Point!=ISS->Address->Point);
 */
-      FUserInfo.Password=UsersCfg->Users->Items[i]->Password;
+/*      FUserInfo.Password=UsersCfg->Users->Items[i]->Password;
       Result=FUserInfo.Password==Password;
 
       if(!AnsiCompareText(UsersCfg->Users->Items[i]->CharsetName,"OEM"))
@@ -1992,7 +2040,7 @@ bool Result;
   {
     CriticalSection->Leave();
   }
-  return Result;
+  return Result;*/
 }
 //---------------------------------------------------------------------------
 bool __fastcall TiuIssSMTPServerThread::AddRecipient(AnsiString Argument)
@@ -2407,3 +2455,9 @@ int Result=0;
   return Result;
 }
 //---------------------------------------------------------------------------
+
+AnsiString __fastcall TiuIssNNTPServer::GetUsersFileName()
+{
+        //TODO: Add your source code here
+    return this->FUsersCfgName;
+}

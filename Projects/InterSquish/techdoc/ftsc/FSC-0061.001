@@ -1,0 +1,205 @@
+Document: FSC-0061
+Version:  001
+Date:     08-Mar-1992
+
+
+
+
+                      Proposed Guidelines for the FileBone
+                                Erik VanRiper 
+                                  1:107/230
+
+
+
+
+Status of this document:
+
+     This FSC suggests a proposed protocol for the FidoNet(r) community,
+     and requests discussion and suggestions for improvements.
+     Distribution of this document is unlimited.
+
+     Fido and FidoNet are registered marks of Tom Jennings and Fido
+     Software.
+
+
+
+
+  1.  Purpose.
+
+      The purpose of this document is to set down basic guidelines for the
+      handling of File Distribution Networks on a "File Distribution
+      Backbone".
+
+
+  2.  Definition of Terms.
+
+    a.  FDN.  FDN is a File Distribution Network, made up of at least one
+        file area dedicated to moving files through Fidonet compatible
+        mailers for other nodes to utilize.  An example of this is the
+        Software Distribution Network or SDS as it is more commonly known.
+
+    b.  FTN.  FTN is a term coined to signify that another Network besides
+        FidoNet has the same technology as FidoNet, and can transfer files
+        and mail via FTSC-001 compatible mailers.  An example of this is
+        SigNet.
+
+    c.  TICK.  TICK (and HATCH) is (C) Copyright Barry Geller - 1988, 1989,
+        1990, 1991, 1992.  TICK is the current popular way to move files in
+        FTN's participating in File Distribution.
+
+    d.  FILEBONE.  FILEBONE is the "File Distribution Backbone".  The term
+        FILEBONE is used in place of BACKBONE because the BackBone is used
+        for transfering mail, not files.  There is a seperate document for
+        procedures of FidoNet BackBone systems.
+
+
+  3.  Reasons for this Document.
+
+    a.  Spending the last five months compiling information on all the
+        FDN's and how the files are moving in each, I noticed that a lot of
+        time, money, and hassle can be avoided by creating a well defined
+        mechinism by which all FDN's can participate.  In the past, (and
+        currently), there has been more concern by the heads of individual
+        FDN's as to WHO is picking up their FDN, and not enough concern in
+        how FAST those nodes are getting newly hatched files.  This
+        document will attempt to address both issues.
+
+    b.  Personally, I feel that there is not enough credit given to those
+        major file hubs all over the world who pay an arm and a leg to pick
+        up different FDN's from several different locations to support 50
+        or more FTN systems they have polling for support.  These HUMANS
+        have always worked hard, and received almost no credit.  I would
+        just like to take time out in this document to thank each and every
+        one of them for the wonderful support they have contributed to
+        several different FTN's.
+
+
+  4.  The Outline.
+
+    a.  The FILEBONE will be created in several stages, taking up to a year
+        to become fully operational.  This will require several support
+        programs to be written, tested, and documented, as well as
+        re-arranging current FDN links to test speed and reliability of
+        actually moving the files.
+
+    b.  The FILEBONE will consist of no less than 15 systems in Zone 1 (I
+        cannot speak for other zones).  Each system will be required to
+        make at least one call a night to drop off and pick up ALL the
+        available FDN's that are participating in the FILEBONE.  These
+        FILEBONE sites will also be primary hubs (acting as "stars") for
+        other FTN compatible systems interested in obtaining parts (or all)
+        of the files transferred.
+
+    c.  Each FILEBONE site will use several different programs written to
+        aid in locating delays, problems, and undesireable conditions while
+        processing the files.  They will also be required to submit "File
+        Distribution Reports" each week to the FILEBONE database, which
+        will maintain and analyze the information, detecting possible
+        problem areas.
+
+    d.  Each FILEBONE site will be required to submit to the wishes of each
+        FDN concerning hatching policies, linking policies, cutting of
+        links to problem nodes, and general reporting of usage.  FILEBONE
+        sites are not "pawns" of individual FDN's, but "tools" for each FDN
+        to use to get their files (and support conferences) from one end of
+        the FILEBONE to the other.
+
+    e.  Each FDN will be required to submit a statment of agreement to this
+        document to the FILEBONE systems, as the FILEBONE systems are the
+        ones paying to move their files.
+
+    f.  The FILEBONE will consist of a two-tierd system.  The largest being
+        the actualy FILEBONE, where all the "released" files will be
+        transported.  The second smaller level will be a "back area" for
+        each FDN that requires one.  The concept is this: If a system
+        hatches a file in area GENERAL, and Joe Smith, the moderator of the
+        GENERAL area has not authorized that system to hatch into that
+        area, the first FILEBONE site to get this file will move that file
+        to the GENERAL "back area" for review by Joe Smith.  Once Joe Smith
+        decides on suitability, he will then send a message back to that
+        FILEBONE site (and all other in-between) saying it is OK to let the
+        file pass, delete the file, or alter the description of that file
+        before letting it pass.  The FILEBONE will move the file to that
+        FDN's moderator on the "back area", so all FILEBONE sites that have
+        already seen the file can simply "move" that file back into
+        distribution, so that those FILEBONE sites already having the file
+        will not need to re-transfer it.  This system ensures that there is
+        only a small delay in time for checking the validity of that file.
+        A basic diagram follows:
+
+        Key:  "="   = FILEBONE
+              "-"   = "Back area"
+              1:0/x = FILEBONE sites
+              0:5/x = FDN nodes
+              A     = Node hatching
+                                                0:5/5
+                                                  |
+                                                  |
+       A ----> 1:0/0 ---- 1:0/1 ---- 1:0/2 ---- 1:0/3 ---- 1:0/4
+                 |==========+==========+==========+==========+
+
+                                                       
+        System A hatches file "FILENAME.ZIP" into the GENERAL file area.
+        1:0/0 detects that system is not on the list authorized to hatch
+        files into the GENERAL file area, so sends the file to 1:0/1 in the
+        GENERAL backarea, enroute to 0:5/5.  When 0:5/5 gets FILENAME.ZIP,
+        1:0/0, 1:0/1, 1:0/2, and 1:0/3 will have already seen the file, and
+        1:0/4 has not.  Joe Smith (The moderator of the GENERAL file area),
+        at 0:5/5 will test FILENAME.ZIP to see if it is acceptable for
+        distribution.  If it is, Joe Smith will send a netmail message back
+        to a program running on 1:0/3, letting the FILEBONE know it is OK
+        to distribute the file.  1:0/3 will then move the file to the
+        GENERAL area, and continue to send it on.  1:0/3 will also generate
+        a message back to 1:0/2 letting them know the status of the file,
+        and so on, until 1:0/0 has finally moved the file back into the
+        GENERAL area.  Another options to Joe Smith are to have the file
+        deleted (Usually because it has been duplicated), or to have the
+        file fowarded to another FDN moderator, where the file would be
+        more suitable.  With this method of checking files, FDN's can allow
+        the FILEBONE to let anyone hatch files into their FDN without
+        having to worry about duplicates or programs that are not suitable
+        for that FDN.
+
+    g.  FILEBONE sites will also be required to keep an online database
+        available to any nodes requiring information about individual FDN
+        areas.  This information will include:
+
+          1.  Average traffic per week and month.
+          2.  Average time to obtain file submitted.
+          3.  A listing of nodes carrying that FDN area.
+          4.  Guidelines, applications, and policies associated with that
+              FDN.
+
+        This will be an automated process, carried out much like a node
+        sending an AREAFIX or RAID request.  The FILEBONE site being
+        queried for the information is only resposible for 2 things:
+
+          1.  Ensuring the database is operational.
+          2.  Placing the requested information on hold for pickup.
+
+        Anything else that FILEBONE site does with the request for
+        information is at their disgression, such as sending back the
+        information on their dime.
+
+    h.  All FILEBONE sites will be required to drop the individual "User
+        Flags" in the nodelist that corespond to individual FDN's (in
+        regions that allow Uxxx flags in the nodelist).  They will instead
+        use the "UFDN" flag.  This will help (albeit a small amount) cut
+        down on the flag usage in the nodelist, since all the FILEBONE
+        sites will be moving most of the available file areas.
+
+
+  5.  The FILEBONE has started, with 21 systems in Zone 1, one system in
+      Zone 2, and several "OtherNets" getting involved by the day.  Several
+      of the programs outlined in this document have already been written,
+      and are in use, being tested.  There are still a few more programs to
+      be written, but things are running smoothly as of the date on this
+      document.  99% of the known FDN's in FidoNet are linked into the
+      FILEBONE in one form or another, and the future looks very promising.
+
+      This document is by no means complete.  There are several other
+      aspects to FDN's and FILEBONE that are not discussed here.  This
+      document is put forth for comments, additions, deletions, and all
+      general changes.  This is only how I (the author of this document)
+      envision the FILEBONE operating, and this document may be flawed in
+      one or several areas.

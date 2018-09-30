@@ -1,0 +1,130 @@
+
+
+-------- Msg 15 of 17 in area NETMAIL "NETMAIL" -------------------------------
+- From : Ivan Uskov  2:5055/101.3@fidonet                      06:19  19/Aug/99
+- To   : Ivan Uskov  2:5055/114.114                            06:19  19/Aug/99
+- Subj : вот, потеситровал постинг в эхи
+- Attr : Transit Pvt Kill 
+-------------------------------------------------------------------------------
+
+Hello Ivan,
+
+<IMHO>
+
+I believe this may be interesting:
+
+///////////////////////////////////////////////////////////////////
+// Forwarded by Ivan Uskov (2:5055/101.3) at 06:19, 19/Aug/99
+// Area : Личная почта (NETM_MY)
+// From : Sergey Lawrinenko (2:4635/18) at 09:31, 18/Aug/99
+// To   : Ivan Uskov (2:5055/101.3)
+// Subj : вот, потеситровал постинг в эхи
+///////////////////////////////////////////////////////////////////
+
+Привет Ivan!
+
+> послал в эху вот такую мессагу:
+
+=== Hачало Windows Clipboard ===
+Newsgroups: cherkassy.test
+Subject: Re: test
+References: <37b9862d@p55.f27.n4635.z2.fidonet.org>
+Reply-To: sergey@arbitrag.cherkassy.ua
+Followup-To:
+X-Comment-To: Yaroslav Osadchy
+
+On 17 Aug 99  15:56:09, Yaroslav Osadchy <p55.f27.n4635.z2.fidonet.org> wrote:
+
+>
+>   don't return
+>
+
+Ты ведь в курсе, что всегдя какой-нибудь дятел ответит? =)
+
+--
+            Best Reards, Sergey
+=== Конец Windows Clipboard ===
+> вот как она выглядела прогейтованая:
+
+=== Hачало 455.txt ===
+─ Тестовая эха (2:4635/18) ─────────────────────────────────── CHERKASSY.TEST ─
+ Сооб : 12 из 13
+ От   : sergey@arbitrag.cherkassy.ua (Serge 2:4635/18.128   18 Aug 99  09:15:12
+ Кому : Yaroslav                                            18 Aug 99  09:19:01
+ Тема : test
+───────────────────────────────────────────────────────────────────────────────
+@MSGID: 2:4635/18.128 37ba4f70
+@PID: InterSquish 1.2.2.207
+@REPLY: 2:4635/27.55@fidonet.org 37b9862d
+@RFC-References: <37b9862d@p55.f27.n4635.z2.fidonet.org>
+On 17 Aug 99  15:56:09, Yaroslav Osadchy <p55.f27.n4635.z2.fidonet.org> wrote:
+
+>
+>   don't return
+>
+
+Ты ведь в курсе, что всегдя какой-нибудь дятел ответит? =)
+
+--
+
+        Best Reards, Sergey
+-+- InterSquish NNTP Server/FTN Gate V.1.2.1
+ + Origin: ... Dark Stranger Station ... (2:4635/18.128)
+SEEN+BY: 4635/18
+
+> срезалось X-Comment-To , накузяво стоят адреса.
+> а внизу пример того , как все должно быть в идеале.
+
+─ Обсуждение протоколов TCP/IP и их реализации (2:4635/18) ──────── REL.TCPIP ─
+ Сооб : 10 из 10
+ От   : Victor Sudakov <vas@gateway.dtu.tsu.ru>             17 Aug 99  04:18:19
+ Кому : john gladkih <john@gate.simcb.ru>                   18 Aug 99  06:36:03
+ Тема : Почтовый сервер нужен...
+───────────────────────────────────────────────────────────────────────────────
+@MSGID: gateway.dtu.tsu.ru 37dc5e68
+@RFC-From: Victor Sudakov <vas@gateway.dtu.tsu.ru>
+@RFC-Newsgroups: relcom.comp.os.unix,relcom.talk,relcom.tcpip
+@RFCID: 7pad8r$pj8$1@gateway.dtu.tsu.ru
+@RFC-User-Agent: tin/pre-1.4-980818 ("Laura") (UNIX) (FreeBSD/2.2.6-RELEASE
+(i386))
+@REPLYADDR vas@gateway.dtu.tsu.ru
+@REPLYTO 2:4635/18.128
+In relcom.comp.os.unix john gladkih wrote:
+[dd]
+>а чего писатели-то? :) а почему не рулезный уиндоуз, btw? :)
+
+Джону везде мерещится ru.os.cmp ;)
+
+--
+Victor Sudakov
+VAS4-RIPE, http://www.dtu.tsu.ru/~vas
+PGP Public Key: finger vas@gateway.dtu.tsu.ru
+
+Maher-shalal-hash-baz, making speed to the spoil; he hastens to the prey
+-+- LuckyGate/DOS 6.01
+ + Origin: Tomsk Childrens Palace (2:4635/18.128)
+SEEN+BY: 4635/18
+@PATH: 4635/18
+
+=== Конец Windows Clipboard ===
+
+> ну , или можно взять пример с того, как гейтует 5020/400, там совершенно
+> другая идеология чем у лакигейта. а интерсквиш , имхо, сейчас пытается
+> эти две идеологии совместить, но пока неудачно :(
+
+Желаю удачи,
+            Сергей.
+-+- email: dark_stranger@mypad.com                        [Team: Выспаться]
+
+///////////////////////////////////////////////////////////////////
+
+
+</IMHO>
+
+Cheers,
+\Ivan
+
+http://intersquish.da.ru
+--- MadMED v0.43i/W32 (Jan 12 1999 05:12:19)
+ * Origin: *** Default MadMED Origin *** (2:5055/101.3)
+

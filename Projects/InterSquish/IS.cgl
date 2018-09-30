@@ -11,3 +11,31 @@ Call Tree:
    0x00459D80(=IS.exe:0x01:058D80) C:\work\builder\is\comp\iuNet\iuSMTPServerThread.cpp#107
 
 ------------------------------------------
+Error 00071. 0x310000 (Thread 0x0ADC):
+Bad parameter: A bad file or pipe stream (0x542B00) has been passed to the
+ function.
+fflush(0x00542B00) 
+
+Call Tree:
+   0x0040274A(=IS.exe:0x01:00174A) ..\..\comp\iuLogs\log.h#58
+   0x00408DF3(=IS.exe:0x01:007DF3) P:\builder\is\Projects\InterSquish\isControlWindow.cpp#76
+   0x004F8061(=IS.exe:0x01:0F7061)
+   0x0051EEFF(=IS.exe:0x01:11DEFF)
+   0x0051EF4E(=IS.exe:0x01:11DF4E)
+   0x0051E210(=IS.exe:0x01:11D210)
+
+------------------------------------------
+Error 00072. 0x310000 (r) (Thread 0x0ADC):
+Bad parameter: A bad file or pipe stream (0x542B00) has been passed to the
+ function.
+fflush(0x00542B00) 
+
+Call Tree:
+   0x0040274A(=IS.exe:0x01:00174A) ..\..\comp\iuLogs\log.h#58
+   0x0042C114(=IS.exe:0x01:02B114) P:\builder\is\comp\iuFTNPlus\iuInterSquishServer.cpp#215
+   0x004E9D70(=IS.exe:0x01:0E8D70)
+   0x004EA001(=IS.exe:0x01:0E9001)
+   0x004E8E49(=IS.exe:0x01:0E7E49)
+   0x004E8628(=IS.exe:0x01:0E7628)
+
+------------------------------------------

@@ -1,0 +1,216 @@
+
+  | Document: FSC-0078
+  | Version:  001
+  | Date:     11th April, 1993
+  |
+  | Clovis Lacerda, 4:808/2
+
+
+  Gateway between Fidonet compatible networks
+
+  Author: Clovis Lacerda, Brazil
+  Fido  : 4:808/2
+  Email : clovis@ear.anpe.br
+  Date  : March, 1993
+
+Copyright 1993, Clovis Lacerda. All rights reserved. The right to
+distribute for non-commercial use is granted  to the Fidonet
+Technical Standards Committee, provided that no fee is charged. This
+may be posted on electronic BBSs which charge no fee for accessing
+this document. Any and all other reproduction or excerpting requires
+the explicit written consent of the author.
+
+INTRODUCTION
+
+  Many networks, using the Fido technology, are being created
+everywhere. It is now time to implement a means to provide gateway
+capability between these networks. Some proposals were made, but, as
+far as I know from reading most of the FSC standards, none of them
+actually play with the basic standards of Fidonet, as established in
+FSC-0001. It is time to think of other ways in which to improve Fido
+technology based on what is universally available, rather than
+relying on the infamous ^A kludges that many software packages out
+there don't use, or worse, ignore systematically.
+
+ABSTRACT
+
+From now on, the word FakeNet will be used to refer to any
+Fido-compatible network that is not in the Fidonet nodelist, thus
+using node numbers not found in the 1-thr-6 Fidonet zones.
+
+A Fakenet uses its own nodelist. There is a large number of Fakenets
+all over, one not knowing the existence of the other, some using the
+same node numbers in their own nodelists.  We shall try to put these
+networks together, not by forcing any of them into a single nodelist,
+but by making one aware of the existence of the others, and providing
+gateways in each of these networks so that mail can flow in both
+directions.
+
+IMPLEMENTATION
+
+For a gateway to be implemented, extra information must be provided
+in the netmail. Normally, two user names, From: and To: define the
+sender and the addressee. The node numbers go "inside" the netmail
+and have their existences checked in the nodelist of the network in
+question by the local running software.
+
+Since we now have 2 networks, the extra information must be the
+remote node in the destination network, which obviously cannot be
+found in the local nodelist, and the local node that must reach the
+remote addressee, otherwise a reply cannot be made.
+
+Suppose, for example, that there are 2 Fakenets, one based in zone 10
+(network 1), the other one in zone 11 (network 2), and that user John
+Green in node 10:100/1 wants to send a netmail to Paul Brown in
+11:200/1.
+
+In both networks, a gateway node (common to both nodelists) must be
+provided.  Let's say that node 10:10/1 is the gateway in network 1,
+named "Gateway system A"  and node 11:11/1, named "Gateway system B"
+is the gateway in network 2.
+
+What John, from network 1, will have to do is:
+
+Send a netmail to his local gateway node, which is 10:10/1.
+
+In the To: field, he will put, besides the name of the addressee,
+Paul Brown, PAUL'S NODE NUMBER, 11:200/1, inside (). This is the
+extra information needed for the gateway to work. What will happen
+is:
+
+This netmail, in the domain of network 1, will travel the route and
+reach the gateway, 10:10/1. This gateway system must do the
+following:
+
+Change the domain of the netmail from network 1 to network 2. This
+means that any reference to node numbers in the netmail header must
+be updated.
+
+Thus, the netmail will now have the node 11:11/1 as the originating
+node, and 11:200/1 as the destination node, "hardcoded" in its
+header. But we can see that John's node number must be provided,
+otherwise Paul will not be capable of replying.  This is done by the
+gateway software that includes John's node number in his From: name
+field, inside (). When Paul receives John's netmail, he will reply,
+and the From: field will automatically become the new To: field, and
+will contain John's name and node number. The netmail will reach back
+11:11/1 and the process will be exactly the same, finally reaching
+John.
+
+In resume, this is the odyssey of John's netmail to Paul:
+
+1 - John enters his message to Paul. Since Paul is not in John's
+    network, John will have to use the gateway.
+
+    He sends a netmail to his local gateway system, 10:10/1 which
+    looks like this:
+
+    From: John Green, John's BBS (10:100/1)
+    To  : Paul Brown (11:200/1), Gateway System A (10:10/1)
+    Re  : Hello
+    ------
+
+    body of message ......
+
+Note that John had to MANUALLY enter Paul's node number and put it in
+the To: field, together with Paul's name. This netmail is addressed
+to Gateway System A, node 10:10/1.
+
+2 - After arriving in 10:10/1, the gateway software will create a new
+    netmail that looks like this:
+
+    From: John Green (10:100/1), Gateway System B (11:11/1)
+    To  : Paul Brown, Paul's BBS (11:200/1)
+    Re  : Hello
+    ----
+
+    body of message....
+
+Note that John's node number was inserted in the From: field, which
+is the information needed for the bidirectional gateway to work.
+
+3 - This netmail is now in the domain of network 2. It will travel
+the normal route and reach Paul. When he replies, the local message
+editor will make the From: field become the To: field. The
+netmail-reply will look like this:
+
+    From: Paul Brown, Paul's system (11:200/1)
+    To  : John Green (10:100/1), Gateway System B (11:11/1)
+    Re  : Hello
+    ----
+
+    body of new message.....
+
+This netmail will travel the route and reach 11:11/1. The process now
+is exactly the one used to gate the original netmail from network 1
+to 2. The gateway software will create a new netmail that looks like
+this:
+
+  From: Paul Brown (11:200/1), Gateway System A (10:10/1)
+  To  : John Green, John's system (10:100/1)
+  Re  : Hello
+  ----
+
+  body of new message....
+
+Note that Paul's node number was inserted in the From: field,
+finishing the gateway process.
+
+The only trade-off in the current proposal is obvious. The limited
+length of the name fields, which, according to FSC-0001, is 36
+characters long, and that may not allow the inclusion of the person's
+node number in it.
+
+For example, if John's full name were John Green Richardson Smith
+Jr., he would have sent his netmail to Paul, but the gateway system
+would fail when attempting to include his node, 10:100/1 together
+with his name. In this case, the netmail is bounced back with a
+warning message, and it will be John's responsibility to change his
+name to a shorter one or use an alias. It seems that more and more
+people are being practical and using only 2-word names, so this is a
+problem that can be easily worked out by the local BBS operator.
+
+Lastly, ^aINTL kludges must be issued in all netmails gated between
+the 2 networks.
+
+This proposal follows FSC-0034 and FSC-0001. It also allows immediate
+aplication, since it relies on what is Fidonet in essence, FSC-0001.
+
+A gateway package was implemented for this purpose. MailGate (c),
+besides gating netmail and echomail between 2 or more Fakenets, also
+provides transparent gateway between a Fakenet and Internet,
+integrating lists and news with echomail and also providing a BBS
+with the feature of creating its own lists, that can flow as
+echomail through a Fido-compatible network, through the gateway
+between 2 fakenets, and also through Internet, as a mailing list.
+
+CONCLUSION
+
+Enhancing technology and creating new oportunities, necessary
+ingredients to allow systems and sysops to play their freedom of
+choice, are the best keys to improve Fidonet technology and make it
+really become the de facto standard, no matter which new network is
+created every day.
+
+I don't know how suitable this proposal is in regard to  the incoming
+problem Fidonet is facing, or will have to face, when all the
+nodelist zones split apart, since the size of the nodelist is growing
+alarmingly.
+
+This document is not perfect and may contains wrong conclusions.
+Should you have suggestions and constructive criticisms, please
+contact the author.
+
+My thanks to those who were prompt in helping me through the
+technical aspects of Fidonet and in the last days routed my emails
+when trying to reach FTSC, (it finally reached the right place,
+Australia) especially Tom Jennings, Randy Bush and David Nugent.
+Thanks to Mitch Davis for helping me with some technical details.
+By no means am I saying that they support or have even read this
+document, it's only a thank you note.
+
+Fidonet is a trademark of Tom Jennings and Fido software, to whom we
+all owe many thanks for the origin and spirit of Fidonet.
+
+MailGate is a trademark of Clovis Lacerda
+

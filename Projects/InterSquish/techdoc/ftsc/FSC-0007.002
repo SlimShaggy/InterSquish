@@ -1,0 +1,310 @@
+Document: FSC-0007
+Version:  002
+Date:     17-Apr-90
+
+
+
+
+
+               FidoNet(r) RFC822-Style Message Format
+    (Informal Proposed Message Format Specification - Draft, revised)
+		     Robert Heller @ 1:321/153.0
+                          April 17, 1990
+
+
+
+
+
+Status of this document:
+
+     This FSC suggests a proposed protocol for the FidoNet(r) community,
+     and requests discussion and suggestions for improvements.
+     Distribution of this document is unlimited.
+
+     Fido and FidoNet are registered marks of Tom Jennings and Fido
+     Software.
+
+
+
+
+
+1. Purpose.
+===========
+
+The purpose of this document is to outline my ideas concerning
+FidoNet (r) message format, both as stored on disk as message
+files handled by BBS (or other "conferencing" programs) and as
+these messages exist packed into "bundles" or "packets" as
+transmitted from machine to machine.  I think using a uniform
+format for normal message storage will make things easier, at
+least in terms of "standardized" message bundling and transmiting
+software is concerned.  If done right it also makes things easier
+for BBS and conferencing software writers too.
+
+This specification is only a first draft proposal.  Just
+something to put on the table for discussion. Feel free to
+comment on it. I am open to suggestions.
+
+2. Preliminary Definations.
+===========================
+
+I will be using BNF notation to describe the format of data
+fields.  This is a fairly standard notation and should be familar
+to anyone who has taken a compiler design course.  To make things
+a little briefer, I will be using some pre-defined
+psuedo-terminal symbols.  These symbols are defined as:
+
+   o The symbol ALPHA referes to any ASCII alphabetic character,
+     including the uppercase letters ('A' thru 'Z', 41H thru
+     5AH), the lowercase letters ('a' thru 'z', 61H thru 7AH) and
+     these characters: '#' (23H), '$' (24H), '&' (26H), '*'
+     (2AH), '+' (2BH), '-' (2DH), '=' (3DH), '^' (5EH), and '_'
+     (5FH).
+
+   o The symbol DIGIT refers to any of the ASCII characters '0'
+     thru '9' (30H thru 39H).
+
+|  o The symbol NEWLINE refers to the single ASCII character LF (0AH),
+|    when the message is in transit, and refers to the local O/S's
+|    newline convention for text files (i.e. LF under UNIX, CRLF under
+|    MS-DOS and CP/M, CR under OS-9, etc.), or whatever is convient for
+|    the BBS software.
+
+   o The symbol WHITESPACE refers to one or more ASCII space
+     (20H) or tab (09H) characters. 
+
+   o The symbol OPTWHITESPACE referes to zero or more ASCII space
+     (20H) or tab (09H) characters.
+
+   o The symbol TEXT referes to zero or more printable ASCII
+     characters not including a NEWLINE sequence.
+
+   o The symbol NULL referes to the null string (no characters at
+     all).
+
+Oh, one other thing:  message files contain only printable ASCII
+characters and NEWLINE sequences (packed messages will have
+non-printable bytes).  Also, I'll number the definations.  I am
+also only using six BNF operator characters: a vertical bar (|)
+for alteration, braces ({}) for comments, single quotes (') for
+character and string literals and parens (()) for expression
+grouping. 
+
+
+3. Definations 1: Stored Message.
+=================================
+
+
+Changed or added definations are indicated by an '*' after the def number.
+
+The goal symbol is "<message>".
+
+   { A message consists of a header followed followed by a
+     NEWLINE followed by a message body. }
+<message>::=<header> NEWLINE <message-body>		{Def 1.1}
+   { A message body is just unbounded text. }
+<message-body>::=NULL | (TEXT NEWLINE <message-body>)   {Def 1.2}
+   { A header is more complicated:  There are a series of
+     header line types. }
+<header>::= NULL | (<header-line> NEWLINE <header>)	{Def 1.3} *
+   { This syntax defines the posiblity of a null header - 
+     this needs to be checked for by sematic routines,
+     since it makes no sense. }
+<header-line>::=<to>|<from>|<date>|<attributes>|
+		<cost>|<subject>|<via>|<origin>|
+		<area>|<seen-by>|<path>|<message-id>|
+		<processed-by>|<other-header-line>      {Def 1.4} *
+   { Now for the header line formats themselves.
+     Some notes:  certain header lines are required (<to>,
+     <from>, and <date>), and some can only occur once (<to>,
+     <from>, <date>, and <subject>). Except for these
+     restrictions, most header lines can either be omited or can
+     occur more than once. }
+<to>::='To: ' <address>					{Def 1.5}
+<from>::='From: ' <address>				{Def 1.6}
+<address>::=<user> OPTWHITESPACE '@' OPTWHITESPACE 
+	    <nodeid>					{Def 1.7}
+<user>::= ALPHA <user1>					{Def 1.8}
+<user1>::= (ALPHA | DIGIT | WHITESPACE | NULL) <user1>	{Def 1.9}
+	{ Note: this is the full blown FidoNet node address -
+	  includes optional zone and point numbers.
+	  It does not include the "domain". I am not sure
+	  about this - I think more discussion on the whole
+	  idea of "domains" and "zones" is needed.  My feeling
+	  is we should look into a symbolic addressing system,
+	  simular to what the InterNet uses. }
+<nodeid>::= ((<digits> ':') | NULL) {zone}
+	    <digits> '/' <digits>   {basic net/node}
+	    (('.' <digits>) | NULL) {point}		{Def 1.10}
+<digits>::= DIGIT | (DIGIT <digits>)			{Def 1.11}
+<date>::='Date: ' <date-string>				{Def 1.12}
+	{ Here it is: my idea for a *standard* date string }
+  { day-of-week month date, year hour:minute AM/PM time-zone }
+  { Although not specified, hours and minutes are zero padded to
+    two digits.  The date and year are not padded at all.}
+<date-string>::= <day> ' ' <month> ' ' <digits> ', ' 
+		 <digits> ' ' <digits> ':' <digits> 
+		 <am-pm> ((' ' <time-zone> | NULL)	{Def 1.13}
+<day>::= 'Mon" | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 
+	 'Sat' | 'Sun'					{Def 1.14}
+<month>::= 'Jan' | 'Feb' | 'Mar' | 'Apr' | 'May' | 
+	   'Jun' | 'Jul' | 'Aug' | 'Sep' | 'Oct' |
+	   'Nov' | 'Dec'				{Def 1.15}
+	{ If the AM/PM indicator is missing (null), the hours
+	  field is assumed to in 24-hour format (i.e. 00 to 23) }
+<am-pm>::= 'AM' | 'PM' | NULL				{Def 1.16}
+	{ This field is optional.  It makes sense given that
+	  FidoNet <tm> is international. }
+<time-zone>::= ALPHA | (ALPHA <time-zone>)		{Def 1.17}
+<subject>::=('Subject: ' | 'Subject (Private): ') TEXT	{Def 1.18}
+<cost>::='Cost: ' <money-sign> <digits>
+	 (('.' <digits>) | NULL)			{Def 1.19}
+	{ This is tricky, given the internationalness
+          of FidoNet(r).  I guess it isn't critical. }
+<money-sign>::= '$' | '#' | NULL			{Def 1.20}
+<via>::= 'Via: ' <nodeid> ', ' <date-string> <program>	{Def 1.21}
+<program>::= NULL | (' ' TEXT)				{Def 1.22}
+<processed-by>::= 'Processed-by: ' TEXT 		{Def 1.22.1} *
+	{ This replaces the 'tear' line. }
+<origin>::= 'Origin: ' TEXT '(' <nodeid> ')'		{Def 1.23} *
+<area>::= 'Area: ' <areaname>				{Def 1.24}
+	{ I'm leaving the question of all caps for the
+	  area name open:  other than ease of comparision,
+	  is it neccessary to be all caps? }
+<areaname>::= ALPHA | (ALPHA <areaname>)		{Def 1.25}
+<seen-by>::= 'Seen-By: ' <node-list>			{Def 1.26} *
+<node-list>::= <nodelist-nodeid> | 
+		  (<nodelist-nodeid> <node-list>)	{Def 1.27} *
+<nodelist-nodeid> ::= ((<digits> ':') | NULL)
+		  ((<digits> '/') | NULL) 
+		  (<digits> | NULL)
+		  (('.' <digits>) | NULL)		{Def 1.28} *
+	{ This is also open-ended.  Should there be a
+	  standard format for this?
+	  The syntax here is somewhat ambigious - it 
+	  allows for certain bogus forms.  It needs sematic
+	  routines to handle these forms (raise an error 
+	  or whatever).  Writing the grammer to avoid these
+	  problems would add complexity not needed at this
+	  level. }
+<path>::= 'Path: ' <node-list>				{Def 1.28.1} *
+<message-id>::= 'Message-id: ' <nodeid> ' ' <serialnum>	{Def 1.29} *
+	{ This is the syntax proposed by Jim Nutt }
+<serialnum>::= {8 hex digits}				{Def 1.29.1} *
+	{ I've left out a proper grammer rule or token 
+	  for a hexidecimal number. }
+<attributes>::= 'Attributes: ' <attrlist>		{Def 1.30}
+<attrlist>::=<attribute> | (<attribute> ', ' <attrlist>){Def 1.31}
+	{ This is probably not complete, but...}
+<attribute>::='Kill Sent' | 'File Attached' | 'File Request' |
+	      'Sent' | 'Crash' | 'Audit'		{Def 1.32}
+	{ Maybe we should forget about an 'Attributes: ' 
+	  header tag and instead have a collection of
+	  additional header tags to handle each posible
+	  attibute - i.e. 'File-Attached: <filename>',
+	  'File-Request: <filename> <update-info>',
+	  'Sent: <date-sent>', etc. header lines. }
+<other-header-line>::=<tagname> ': ' (TEXT | NULL)	{Def 1.33}
+	{ This is the expandsion hook. }
+<tagname>::= ALPHA <tagname1>				{Def 1.34}
+<tagname1>::=NULL | ((ALPHA | WHITESPACE | DIGIT |
+	     <pun> <tagname1>)				{Def 1.35}
+	{ This is also open-ended.  Restriction: colon (:)
+	  cannot be allowed! }
+<pun>::='(' | ')' | '.' | ',' | ';'			{Def 1.36}
+
+4. Packed Message Format.
+=========================
+
+A packed message is simply a regular message with some binary
+header (i.e. an "envelope") info and a NUL (00H) byte after the message
+text: 
+
+       Offset
+      dec hex
+              .-----------------------------------------------.
+        0   0 |    0     |     3      |    0      |    0      |
+              +-----------------------+-----------------------+
+        2   2 | origZone (low order)  | origZone (high order) |
+              +-----------------------+-----------------------+
+        4   4 | origNet  (low order)  | origNet  (high order) |
+              +-----------------------+-----------------------+
+        6   8 | origNode (low order)  | origNode (high order) |
+              +-----------------------+-----------------------+
+        8   8 | origPoint (low order) | origPoint (high order)|
+              +-----------------------+-----------------------+
+       10   A | destZone (low order)  | destZone (high order) |
+              +-----------------------+-----------------------+
+       12   C | destNet  (low order)  | destNet  (high order) |
+              +-----------------------+-----------------------+
+       14   E | destNode (low order)  | destNode (high order) |
+              +-----------------------+-----------------------+
+       16  10 | destPoint (low order) | destPoint (high order)|
+              +-----------------------+-----------------------+
+       18  12 | Attribute (low order) | Attribute (high order)|
+              +-----------------------+-----------------------+
+       20  14 |      message text (includes ASCII header)     |
+              ~                    unbounded                  ~
+              |                 null terminated               |
+              `-----------------------------------------------'
+
+Some notes:  I've included both the Zone and Point addresses in
+the packed message headers.  This does not really affect things
+like routing and point mapping.  The packets themselves have
+addressing info in their headers (as described in FSC001).  The
+addressing in the packet header - this addressing is used by the
+transmitting programs.  The internal addressing info is processed
+by re-packing programs - that is programs which peel routed
+messages (messages that are "just passing through") and re-packet
+them for later re-transmitsion to another node during a future
+mail event.  Messages destined for the current node (one whose
+address exactly matches all four destination address words), get
+extracted from the packet and stored in the message base.  Note
+that only the ASCII message text is stored.  The binary header is
+discarded at this point. 
+
+5. Conclusions.
+===============
+
+It is my idea that FidoNet(r) is going to sooner or later going
+need some of the extendablity provided by this sort of message
+format. If fact it allready needs some of these fields, and has
+been "faking it" for some time now: things like EchoMail (
+"Area: ", "Origin: ", "Seen-By: ", and "Path: " header lines), points
+and zones (extra addressing hacks), uucp gatewaying (more extra
+addressing hacks), routing ("Via: " header lines).  Going to a
+RFC822-style message format also helps to increase the varity of
+BBS and conferencing software - this will help improve the "state
+of the art" in this regard.  Also, using a RFC822-style message
+format allows indefinite extensablity - as new ideas regarding
+messages and conferencing develope, the message format can be
+easily extended to handle these new ideas with ease.
+
+6. Contact Info.
+================
+
+Comments, suggestions, gripes, etc. can be sent to me at any of
+these addresses: 
+
+	ARPANet:	Heller@CS.UMass.Edu
+	BITNET:		Heller@UMass.BitNet
+	Genie:		RHELLER
+        BIX:            lockshill.bbs
+	CompuServe:	71450,3432
+	FidoNet		Robert Heller @ 1:321/153.0
+	USMail:		HC82 Box 29 LH1, Locks Hill Road, Wendell, MA 01379
+	Voice Phone:	Home: 617-544-6933, Work: 413-545-0528
+	Data Phone:	617-544-8337 at 300, 1200, or 2400 BAUD 24hours,
+                        except during FidoNet(r) mail periods.
+
+7. More Information.
+====================
+
+I have written a set of EchoMail processing using a message format
+described in this document.  The code is in C and is freely available
+for evalation.  If you would like a copy, let me know and I will get a
+copy to you.  I developed the code under OS-9/68000, but the code should
+easily port to other platforms.
+
+
+                                                                                                     

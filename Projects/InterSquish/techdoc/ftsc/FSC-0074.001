@@ -1,0 +1,475 @@
+
+
+  | Document: FSC-0074
+  | Version:  001
+  | Date:     28th July 1993
+  | Author:   John Souvestre, David Troendle, Bob Davis, George Peace
+  |
+  | FTS-0004.002 -- proposed
+
+
+                      EchoMail Specification
+
+                            June, 1992
+
+                      This document began as
+              the Conference Mail System User Manual
+                By Bob Hartman t/a Spark Software
+          FidoNet(tm) node 132/101 (currently 1:104/501)
+                       Used with permission
+
+  Revision 2:
+
+       06 Jun 1991
+       John Souvestre, David Troendle, Bob Davis
+
+       29 Oct 1991
+       John Souvestre, David Troendle
+
+       28 Jan 1992
+       George Peace
+
+       02 Jun 1992
+       George Peace
+
+
+
+                         ECHOMAIL DEFINED
+
+  EchoMail is a technique that permits several nodes on a
+  network to share a message base. It is similar in concept to
+  the conferences available on commercial information services
+  but is most closely related to the Usenet system consisting of
+  thousands of systems world wide.  All systems sharing a given
+  conference see any messages entered into the conference by any
+  of the participating systems.  This can be implemented in such
+  a way as to be totally transparent to the users of a
+  particular system.  In fact, they may not even be aware of the
+  network being used to move their messages about from node to
+  node!
+
+  Unfortunately, EchoMail has disadvantages as well.  Many users
+  who are not educated about EchoMail systems do not realize the
+  messages transmitted cost MANY sysops (system operators)
+  money, not just the local sysop.  This is an important
+  consideration in EchoMail and should not be taken lightly.  In
+  a conference with 100 systems participating the cost per
+  message can be quite high.
+
+
+
+
+
+
+                    BRIEF HISTORY OF ECHOMAIL
+
+  In late 1985, Jeff Rush, a Fido sysop in Dallas, wanted a
+  convenient means of sharing ideas with the other Dallas
+  sysops.  He created a system of programs he called Echomail,
+  and the Dallas sysops' Conference was born.
+
+  Within a short time sysops in other areas began hearing of
+  this marvelous new gadget and EchoMail took on a life of its
+  own.  Today the FidoNet public network boasts a myriad of
+  conferences varying in size from a handful of participants to
+  Sysop conferences with hundreds of participants.  It is not
+  uncommon for a system to carry hundreds or more conferences
+  and share those conferences with 10 or more nodes.
+
+
+
+                        HOW ECHOMAIL WORKS
+
+  Today's EchoMail processing is functionally compatible with
+  the original EchoMail utilities.  In general, the process is:
+
+    -  A message is entered into a designated area on a FidoNet
+       compatible system.
+
+    -  This message is "Exported" along with some 'control
+       information' to each system "linked" to the conference
+       through the originating system.
+
+    -  Each receiving system "Imports" the message into the
+       proper Conference Mail area.
+
+    -  The receiving systems then "Export" these messages, along
+       with additional control information, to each of their own
+       EchoMail links.
+
+    -  Return to the import step.
+
+  The method is quite simple in general.  Of course, following
+  the steps literally means messages would never stop being
+  Exported and transmitted to other systems.  This obviously
+  would not be desired.  The information contained in the
+  'control information' section is used to prevent exporting the
+  same message more than once to a single system.
+
+
+
+                   MESSAGE CONTROL INFORMATION
+
+  Control information is associated with each EchoMail message.
+  This information consists of certain special lines placed
+  inside the message.  These lines are typically inserted
+  automatically by the program which prepares or processes the
+  message, not by the person writing it.
+
+
+
+
+
+
+  In FTS-0001 terminology, these control information lines shall
+  be inside the "text" field of a "packed message".
+
+  Control information lines shall contain only ASCII characters,
+  from 32 to 126, except the first character of the path line
+  and as noted elsewhere in this document.  This limitation
+  applies only to control information lines.
+
+  Alphabetic characters in required literal strings (AREA,
+  Origin, SEEN-BY, and PATH) are case-sensitive.
+
+  All control information lines shall be terminated with ASCII
+  character 13 (carriage return).
+
+  These required control information lines determine how
+  EchoMail is handled:
+
+
+
+  1. Area line
+
+  There shall be exactly one area line in an exported message.
+  The AREA line:
+
+    -  Shall be the first line of the text and thus shall
+       immediately follow the packed message header.  This
+       position is "offset 0" of the "text" portion of the
+       packed message.
+
+    -  Shall be formatted as:
+
+            AREA:CONFERENCE
+
+            AREA: is a required five character upper case
+            literal.
+
+            CONFERENCE is the name of the conference. The
+            conference name is composed of ASCII characters in
+            the range 33 to 96 and 123 to 126.  The conference
+            name shall be no more than 60 characters in length.
+
+  The AREA line is added when a conference is "Exported" to
+  other systems.  It is based upon information found in a
+  configuration file for the designated message area.  This
+  field is used by receiving systems to "Import" messages into
+  the correct EchoMail area.
+
+  Some implementations insert a Ctrl-A (0x01) immediately
+  preceding the AREA: literal (^AAREA:CONFERENCE).
+
+  Six months after adoption of this document the ^AAREA: format
+  shall be processed equally with the AREA: format when either
+  occurs in received packets.
+
+
+
+
+
+
+
+
+  2. Origin Line
+
+  There shall be exactly one origin line in a message.  It shall
+  be placed in the message following all user entered
+  information and immediately before the remaining control
+  information lines.
+
+  The origin line:
+
+    -  Shall begin with the eleven character literal:
+
+            <space>*<space>Origin:<space>
+
+    -  Is optionally followed by user/system defined data in the
+       ASCII range 32 to 126.
+
+    -  Shall end with a FidoNet network address enclosed in
+       parenthesis:
+
+            ([<zone>:]<net>/<node>[.<point>][@<domain>])
+
+    -  Shall be no more than 79 characters long including the
+       required lead-in and address information.
+
+    -  Shall be inserted into the message at the originating
+       system.
+
+  The complete line might look like:
+
+            * Origin: Conference Mail BBS (1:132/101)
+
+
+
+  3. Seen-by Lines
+
+  Seen-by lines are the focus of EchoMail distribution control
+  information.  They are used to determine which addresses
+  (systems) have received messages.  There can be as many seen-
+  by lines as required to store the necessary information.
+
+  Seen-by lines consist of "SEEN-BY:<space>", followed by a list
+  of net/node numbers corresponding to the systems which have
+  received that message.  The net/node number of each system to
+  which a message is exported is added to the seen-by lines at
+  the time of export.
+
+  There shall be exactly one set of seen-by lines in a message.
+  Seen-by lines:
+
+    -  Shall follow the origin line.
+
+    -  Shall begin with the nine character literal:
+
+
+
+
+
+
+            SEEN-BY:<space>
+
+    -  Shall contain a list of net/node numbers.
+
+    -  Shall be no more than 80 characters long including the
+       required literal.
+
+  The complete lines might look like:
+
+            SEEN-BY: 104/1 501 132/101 113 136/601 1014/1
+            SEEN-BY: 1014/2 3
+
+  The list of net/node numbers:
+
+    -  Shall identify at least one address. "Blank" seen-by
+       lines shall not be transmitted.
+
+    -  Shall be sorted in ascending net/node order.
+
+    -  Shall not contain repeated node numbers.
+
+    -  Shall use only "2D" net/node notation.
+
+    -  May use short form address notation where a net number is
+       listed once on any one line.  These 2 lines are
+       equivalent:
+
+            SEEN-BY: 104/1 104/501 132/101 132/113 136/601
+            SEEN-BY: 104/1 501 132/101 113 136/601
+
+  Some implementations insert a Ctrl-A (0x01) immediately
+  preceding the SEEN-BY: literal (^ASEEN-BY:).
+
+  Six months after adoption of this document the ^ASEEN-BY:
+  format shall be processed equally with the SEEN-BY: format
+  when either occurs in received packets.
+
+
+
+  4. Path Lines
+
+  Path lines identify a list of net/node numbers that processed
+  a message before it reached the current system.  There can be
+  as many path lines as required to store the necessary
+  information.
+
+  This is different from seen-by lines, in that seen-by lines
+  list list all systems to which the message has been sent while
+  path lines list the systems which have processed the message.
+
+  There shall be exactly one set of path lines in a message.
+  Path lines:
+
+    -  Shall follow seen-by lines.
+
+
+
+
+
+
+    -  Shall be the last line(s) in the text field of a packed
+       message.
+
+    -  Shall begin with the seven character literal:
+
+            ^APATH:<space>
+
+       The ^A is a special character which stands for Control-A
+       (ASCII character 1), and is required at the beginning of
+       each path line.
+
+    -  Shall contain a list of net/node numbers.
+
+    -  Shall be no more than 80 characters long including the
+       required literal.
+
+  The complete path line might look like:
+
+            ^APATH: 132/101 1014/1
+
+  The list of net/node numbers:
+
+    -  Shall identify at least one net/node number.  "Blank"
+       path lines shall not be transmitted.
+
+    -  Shall not be sorted.  They shall remain in the order
+       representing the actual "path" along which the message
+       traveled.
+
+    -  Shall use only "2D" net/node notation.
+
+    -  Shall begin with the net/node of the originating system.
+
+    -  Shall not be deleted during processing.  The original
+       path information shall be maintained from origin to final
+       destination.
+
+
+
+                        ECHOMAIL TOPOLOGY
+
+  The way in which systems link together for a particular
+  conference is called the "EchoMail Topology."  It is important
+  to know this structure for two reasons:
+
+    -  It is important to have a topology which is efficient in
+       the transfer of the EchoMail messages.
+
+    -  It is important to have a topology which will not cause
+       systems to see the same messages more than once.
+
+  Efficiency can be measured in a number of ways:
+
+    -  Least time involved for all systems to receive a message
+
+
+
+
+
+
+    -  Least cost for all systems to receive a message
+
+    -  Fewest phone calls required for all systems to receive a
+       message.
+
+  Users of EchoMail systems have determined (through trial and
+  error) the best measure of efficiency to be a combination of
+  all three measurements.  Balancing the equation is not
+  trivial, but some guidelines can be offered:
+
+    -  Have nodes form "stars" for distribution of EchoMail.
+       This arrangement has several nodes all receiving their
+       EchoMail from the same system.  In general the systems on
+       the "outside" of the star poll the system on the
+       "inside".  The system on the "inside" in turn polls other
+       systems in a similar star configuration to receive the
+       EchoMail that is being passed on to the "outside"
+       systems.
+
+    -  Utilize fully connected polygons with few vertices.
+       Nodes can be connected in a triangle (A sends to B and C,
+       B sends to A and C, C sends to A and B) or a fully
+       connected square (all corners of the square send to all
+       of the other corners).  This method is useful for getting
+       EchoMail messages to each node as quickly as possible.
+
+  All of these efficiency guidelines have to be tempered with
+  the guidelines dealing with keeping duplicate messages from
+  being exported.  Duplicates will occur in any topology that
+  forms a closed polygon that is not fully connected.  Take for
+  example the following configuration:
+
+            A ----- B
+            |       |
+            |       |
+            C ----- D
+
+  This square is a closed polygon that is not fully connected.
+  It is capable of generating duplicates:
+
+    1. A message is entered on node A.
+
+    2. Node A exports the message to node B and node C placing
+       the seen-by for A, B, and C in the message as it does so.
+
+    3. Node B sees that node D is not listed in the seen-by and
+       exports the message to node D.
+
+    4. Node C sees that node D is not listed in the seen-by and
+       exports the message to node D.
+
+  At this point node D has received the same message twice - a
+  duplicate was generated.
+
+
+
+
+
+
+  Normally a "dup-ring" will not be as simple as a square.
+  Generally it will be caused by a system on one end of a long
+  chain accidentally connecting to a system on the other end of
+  the chain.  This causes the two ends of the chain to become
+  connected, forming a polygon.
+
+  In FidoNet this problem is reduced somewhat by having a
+  regional EchoMail star distribution architecture that
+  maintains EchoMail connections within regions of the world.
+  Within that architecture only a small number of prearranged
+  systems (regional collection systems) make inter-regional
+  connections.  This architecture, along with multiple daily
+  connections, results in an efficient topology which typically
+  allows global distribution within 24 hours.
+
+
+
+                    THE PATH LINE AND TOPOLOGY
+
+  The PATH line stores the net/node numbers of each system
+  having actually processed a message.  This information is
+  useful in correcting the biggest problem encountered by nodes
+  running an Echomail compatible system - the problem of finding
+  the cause of duplicate messages.  How does the PATH line help
+  solve this problem?  Take the following path line as an
+  example:
+
+            ^APATH: 107/6 107/312 132/101
+
+  This shows that the message was processed by system 107/6 and
+  transferred to system 107/312.  It further shows system
+  107/312 transferred the message to 132/101, and 132/101
+  processed it again.  Here's another example:
+
+            ^APATH: 107/6 107/312 107/528 107/312 132/101
+
+  This shows the message having been processed by node 107/312
+  on more than one occasion.  Based upon the earlier description
+  of the 'information control' fields in Echomail messages, this
+  identifies an error in processing.  This further shows node
+  107/528 as the node which apparently processed the message
+  incorrectly.  In this case the path line can be used to help
+  locate the source of duplicate messages or topology problems.
+
+  In a conference with many participants it becomes almost
+  impossible to determine the exact topology used.  In these
+  cases the use of the path line can help a moderator or
+  distributor of a conference track any possible breakdowns in
+  the overall topology, while not substantially increasing the
+  amount of information transmitted.  Having this small amount
+  of information added to each message pays for itself very
+  quickly when it can be used to help detect a topology problem
+  causing duplicate messages to be transmitted to each system.
+

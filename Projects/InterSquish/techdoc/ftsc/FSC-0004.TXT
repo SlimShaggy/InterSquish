@@ -1,0 +1,85 @@
+FSC-0004
+
+Date: Mon  9 Feb 87 21:46
+From: Randy Bush on 105/6, PSG Portland of VanPort Area, Portland OR
+To:   Wynn Wagner on 124/108, The POLE: Opu of Dallas Metrop, Dallas TX
+Subj: Re: Zones
+
+The FSC has been working with existing implementations based on a year or two
+old paper by Kilgore Trout describing Zones and Points, zone gates, and nodes
+supporting points.  [ The paper was published in FidoNews last year, but
+unfortunately was mostly to do with exploiting FidoNet financially, but had
+pretty good technical requirements buried underneath. ] 
+
+The FSC's goal is to send to some place for which one does not have the 
+nodelist.  The underlying problem we are addressing is nodelist growth.  We 
+envision over 10^5 nodes in a few years.  Our approach may be a bit more 
+disjoint than you were considering.  
+
+We have private nodelists already, and many of us use them (including 
+remapping to private nodelists using Points and/or addressees' names). This 
+has been in use for long enough that we almost understand half the uses to 
+which folk seem to put it.  But the important part of Zones is not the 
+nomenclature, rather the mapping of addresses.  
+
+What the FSC was seeking with Zones (and is implemented and being tested) is
+a method of getting mail to Bialystok (sp) without having a Polish phone 
+book.  In the following example, please imagine possible sugar such as using
+POLAND for 42 etc.  
+
+When I, 1:105/6 address a message to Krzystzof in Bialystok, 42:451/666, it 
+addresses the message header to <irrelevant> and creates a ^a line something
+like 
+
+  ^aINTL 42:451/666 1:105/6
+
+The ^aINTL line is noticed by a smart router at either my node, or my 
+outbound host's node.  To date the only ways to create the ^aINTL line are 
+SEAdog's Mail program and some private utilities.  
+
+Either in a batch run on the smart node (currently implemented by the program
+ZoneGate) or in a truely smart mailer program (not yet known) the smart
+router changes the destination net/node of the message containing the ^aINTL
+to the outbound gateway to (or toward) zone 42 by a simple algorithm shown
+below.  Thus, the message will travel within zone 1 (this zone) as if its
+final destination was the net/node of the outbound gate.  This allows Opera
+and Fidos 11w to carry it on its meanderings within any particular zone.  
+
+When it arrives at the destination outbound zone gate, the smart router there
+notices it, and 
+  o may strip the seenbys (we had thought of it but not yet implemented it)
+    except for that of the zonegate 
+  o hands the message to the corresponding inbound zone gate by an unspecified
+    means (intl zone gates tend to be other than FidoNet) 
+
+The recipient inbound zone gate looks at the message's ^aINTL line and, using
+the same algorithm as all the other smart routers that have seen the message,
+
+  (* I hope you were waiting for the algorithm *) 
+  IF msg.aINTL.toZone = myzone THEN 
+     msg.address := msg.aINTL.toNetNode 
+  ELSE 
+     msg.address := outboundZoneGate [ msg.aINTL.toZone ] 
+
+And thus the message travels onward, with its header address net/node 
+representing it's intra-zone routing within the current zone and the ^aINTL 
+line showing smart routers the true final destination.  
+
+Observe that smart routers and zone gates only need know the local addresses
+of the outbound zone gates from their own zone's nodelist, and nothing about
+the nodelists of other zones.  One imagines the truely international FidoNet
+having more than 10^5 nodes, with Opera and Fidos and other pre-Zone clones
+will carrying the international traffic on its way within a zone in complete
+innocence.  
+
+The return address for the message is also stored in the ^aINTL line, so a 
+'smart' recipient node can reply.  
+
+Rather than trading private nodelists, the only information that needs to be
+given to smart routers is the addresses of zone gates out of the current 
+zone.  And, of course anybody can set up Zones, zone gates, and all those 
+nice egalitarian sentiments, all they need is a simple mapping utility and a
+way of telling folk that they're a zone gate and to what.  
+
+There are some who consider a Unix gate merely a zone gate.  Usenet certainly
+is another zone.  

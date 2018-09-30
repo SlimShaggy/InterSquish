@@ -280,6 +280,7 @@ void __fastcall TCustomSMTPServerThread::ProcessNOOP(String Argument)
 void __fastcall TCustomSMTPServerThread::ProcessQUIT(String Argument)
 {
  SendAnswer(221,ClientSocket->LocalHost+" Service closing transmission chanel");
+ this->Terminate();
 }
 //---------------------------------------------------------------------------
 

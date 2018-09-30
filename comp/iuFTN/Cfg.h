@@ -11,6 +11,7 @@
 #include "FTNBasics.h"
 #include "..\..\comp\include\XxxList.h"
 #include "iuScriptControl.h"
+//#include "iuInterSquishServer.h"
 
 //#include "Kludges.h"
 //---------------------------------------------------------------------------
@@ -22,11 +23,18 @@
 //---------------------------------------------------------------------------
 //struct TAreaInfo: public TObject
 //---------------------------------------------------------------------------
+
+
+
+
 struct TUserInfo
+//class TUserInfo
 {//FTNAddress,ReplyAddr,ReplyTo,Groups,ROGroups
+public:
   TFTNAddress Address;
   AnsiString FName;
   AnsiString NAME; //Имя в верхнем регистре
+  AnsiString Login; //login юзера
   AnsiString Groups;
   AnsiString ROGroups;
   AnsiString Password;
@@ -35,12 +43,16 @@ struct TUserInfo
   AnsiString CharsetName;
   bool Posting;
 
+//  TUserInfo(TiuCustomNNTPServer *server,AnsiString login); //конструктор класса
+
+  __property AnsiString Name={read=FName,write=SetName};
+
   inline void __fastcall SetName(AnsiString Value)
   {
     FName=Value;
     NAME=FName.UpperCase();
   };
-  void __fastcall ImportLine(AnsiString Line)
+  inline void __fastcall ImportLine(AnsiString Line)
   {
   char *pcBegin;
   char *pcEnd;
@@ -107,7 +119,6 @@ struct TUserInfo
 */
   }
 
-  __property AnsiString Name={read=FName,write=SetName};
 };
 
 
@@ -313,5 +324,8 @@ __published:
   __property OnRefresh;
 };
 //---------------------------------------------------------------------------
+
+
+bool CheckUserLogin(TUserInfo *ui,AnsiString users,AnsiString login);
 
 #endif

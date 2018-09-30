@@ -1,0 +1,617 @@
+
+  | Document: FSC-0082
+  | Version:  001
+  | Date:     14 May 1995
+  |
+  | Stephan Slabihoud, 2:2446/110.6@fidonet.org
+
+
+                      A Proposed New Packet Type
+                           Stephan Slabihoud
+                       2:2446/110.6@fidonet.org
+                         90:400/410@nest.ftn
+               slabih00@marvin.informatik.uni-dortmund.de
+                          1.Rev: Sep 20, 1994
+
+
+
+
+     Status of this document
+     =======================
+
+     This FSC suggests a proposed protocol for the FidoNet(r) 
+     community, and requests discussion and suggestions for 
+     improvements. Distribution of this document is unlimited.
+
+     Fido and FidoNet are registered marks of Tom Jennings and
+     Fido Software.
+
+     Purpose
+     =======
+
+     This document should introduce a widely used standardised 
+     extension to FTS-0001, like FTS-0006, 0007 and 0008 are, 
+     and  provides a new way to switch to a new more confortable 
+     bundling method. I call this method XType-1. This is also
+     more convenient than FSC-0014 (an earlier binary-style msg
+     proposal) and allows multimedia extensions for further
+     support (e.g. samples and pictures like World-Wide-Webb). An
+     example how to implement MM extensions can be found at the
+     end of this document. Note: This proposal does not suggest
+     how to implement MM extensions, it should only demonstrate
+     the flexibility of XType-1.
+
+     Prologue
+     ========
+
+     The new bundling method (XType-1) that document is introducing 
+     is NOT backward compatible. So only new software packages may 
+     offer this bundling method.
+     
+     Why introducing a new bundle format?
+     ====================================
+
+     Well, FSC-0001, 0039, 0048 and 0045 are not very comfortable 
+     to handle. Software must be very complex to process a Type-2 
+     packet and looking for control lines like SEEN-BYs, MSGIDs, 
+     REPLYs and so on slows down the importing, processing and 
+     exporting of every mail.
+
+     How can I recognize a new XType-1 bundle?
+     =========================================
+
+     XType-1 bundles are using a new extension "*.PKX" and not longer 
+     "*.PKT". So software can recognize a reveived XType-1 packet 
+     in a very easy way. Older software that do not know the XType-1 
+     bundling method will not touch the file. But it is highly 
+     recommended to send the XType-1 bundles only to nodes you know 
+     about that they can process this new bundling method.
+     Filename naming is the same as in FTSC-0001 explained. Only the
+     extension has been changed from "PKT" to "PKX".
+     For older software it is possible to convert the XType-1 format
+     in one of the older formats like FSC-0001, 0039, 0048 and 0045.
+
+
+     Packet Header
+     =============
+
+       Offset
+      dec hex
+              .-----------------------------------------------------.
+        0   0 | HeaderVersion      ($01) | I/M-Format           [1] | [2]
+              +--------------------------+--------------------------+
+        2   2 | ProductCode          (*) | ProductCode          (*) |
+              +--------------------------+--------------------------+
+        4   4 | Revision         (major) | Revision         (minor) |
+              +--------------------------+--------------------------+
+        6   6 | origZone             (*) | origZone             (*) |
+              +--------------------------+--------------------------+
+        8   8 | origNet              (*) | origNet              (*) |
+              +--------------------------+--------------------------+
+       10   A | origNode             (*) | origNode             (*) |
+              +--------------------------+--------------------------+
+       12   C | origPoint            (*) | origPoint            (*) |
+              +--------------------------+--------------------------+
+       14   E | destZone             (*) | destZone             (*) |
+              +--------------------------+--------------------------+
+       16  10 | destNet              (*) | destNet              (*) |
+              +--------------------------+--------------------------+
+       18  12 | destNode             (*) | destNode             (*) |
+              +--------------------------+--------------------------+
+       20  14 | destPoint            (*) | destPoint            (*) |
+              +--------------------------+--------------------------+
+       22  16 |                      password                       |
+              |                8 bytes, null padded                 |
+              +--------------------------+--------------------------+
+       30  1E | Date/Time in POSIX 1003.1 format                (*) |
+              | (4 bytes)                                           | [5]
+              +--------------------------+--------------------------+
+       34  22 | CapabilWord          (*) | CapabilWord          (*) |
+              +--------------------------+--------------------------+
+       36  24 |          length of origNetwork (in bytes)       (*) | [3]
+              +-----------------------------------------------------+
+       38  26 |  origNetwork, zero when "length of origNetwork"=0   | [4]
+              |           null padded to an even length             |
+              +-----------------------------------------------------+
+       ~~  ~~ |          length of destNetwork (in bytes)       (*) | [3]
+              +-----------------------------------------------------+
+       ~~  ~~ |  destNetwork, zero when "length of destNetwork"=0   | [4]
+              |           null padded to an even length             |
+              +-----------------------------------------------------+
+       ~~  ~~ |                    zero or more                     |
+              ~                        packed                       ~
+              |                       messages                      |
+              +--------------------------+--------------------------+
+       ~~  ~~ |      0      |      0     |      0      |      0     |
+              '-----------------------------------------------------'
+
+    (*) high-low-byte or low-high-byte according to I/M-Format-Flag
+        (see [1]).
+
+    [1] This flag defines Intel ($00) or Motorola ($01) format.
+        Intel-Format stores low-byte first, Motorola-Format stores
+        high-byte first.
+    (2) HeaderVersion $01 means XType-1 ($02 means XType-2 and so on).
+    (3) Length of network domain (max. 64k characters). Zero, when
+        no network name is used, not known or your software does not
+        allow a 5D address. When this field is $0000 the next field (the
+        domain itself) will not be stored.
+    (4) Domain names are not case sensitive.
+    (5) POSIX 1003.1 format: Long integer containing the number of
+        seconds since the 1st of January 1970 (00:00:00).
+
+    Packet       = PacketHeader  { PakdMessage }  $00 $00
+
+    PacketHeader = $01            /* $01 means XType-1 header             */
+                   I/M-Format     /* $00=Intel format, $01=Motorola format*/
+                   productCode    /* 0 for Fido, write to FTSC for others */
+                   revision       /* revision or 0                        */
+                   origZone       /* zone of pkt sender (otherwise null)  */
+                   origNet        /* of packet, not of messages in packet */
+                   origNode       /* zone of pkt sender (otherwise null)  */
+                   origPoint      /* zone of pkt sender (otherwise null)  */
+                   destZone       /* zone of pkt receiver (otherwise null)*/
+                   destNet        /* of packet, not of messages in packet */
+                   destNode       /* of packet, not of messages in packet */
+                   destPoint      /* of packet, not of messages in packet */
+                   password       /* session pasword  (otherwise null)    */
+                   date           /* of packet creation, binary coded     */
+                   time           /* of packet creation, binary coded     */
+                   CapabilWord    /* bitvector of XType versions known by */
+                                  /* orig. software                       */
+                   origLength     /* length of orig domain                */
+                   origNetwork    /* network of pkt sender                */
+                   destLength     /* length of dest domain                */
+                   destNetwork    /* network of pkt receiver              */
+
+
+
+                    msb           Capability Word               lsb
+     Node Supports  ------------FTSC Type Supported **)------------
+
+                     U  S 14 13 12 11 10  9  8  7  6  5  4  3  2  1
+
+     Type-N,XType-1  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  1
+
+                     ^  ^
+                     |  +-- "S" Indicates nodes able to process type 2,
+                     |      type 2+ or stone age style packets
+                     +----- "U" Indicates nodes able to process RFC-822 
+                            bundles.
+                    ** - In the example bit definitions only XType-1
+                         is defined now. The rest are to be concidered 
+                         "reserved by FTSC".
+
+     Generating XType-1 bundles
+     ==========================
+
+      Do we have a CW              Does CW indicate
+     stored for dest?  YES ---->   higher packets  YES ---> Generate higher
+           NO                       we support?                packet
+           |                            NO
+          \|/                           |
+           +-----<----------------------+
+           |
+      Fill header with all info
+           |
+      Add Messages
+           |
+      Terminate packet
+           |
+      Send packet
+
+
+     Receiving bundles
+     =================
+
+       Receiving a PKX? NO -------------> Old style (PKT) format
+          YES
+           |
+       HeaderVersion = $01 NO -------------> Process XType-Other
+          YES
+           |
+       Store CW
+           |
+       Process
+
+
+     Packed Messages in the XType-1 bundle
+     =====================================
+
+     To conserve space and eliminate fields which would be meaningless 
+     if sent, messages are packed for transmission in a binary style.
+
+     XType-1 uses two different styles, a netmail style and an echomail
+     style.
+
+
+                             Packed Netmail Message
+       Offset
+      dec hex
+              .-----------------------------------------------------.
+        0   0 |     0      |     1       | I/M-Format           [1] |
+              +--------------------------+--------------------------+
+        2   2 | origZone             (*) | origZone             (*) |
+              +--------------------------+--------------------------+
+        4   4 | origNet              (*) | origNet              (*) |
+              +--------------------------+--------------------------+
+        6   6 | origNode             (*) | origNode             (*) |
+              +--------------------------+--------------------------+
+        8   8 | origPoint            (*) | origPoint            (*) |
+              +--------------------------+--------------------------+
+       10   A | destZone             (*) | destZone             (*) |
+              +--------------------------+--------------------------+
+       12   C | destNet              (*) | destNet              (*) |
+              +--------------------------+--------------------------+
+       14   E | destNode             (*) | destNode             (*) |
+              +--------------------------+--------------------------+
+       16  10 | destPoint            (*) | destPoint            (*) |
+              +--------------------------+--------------------------+
+       18  12 | Attribute            (*) | Attribute            (*) |
+              +--------------------------+--------------------------+
+       20  14 | cost                 (*) | cost                 (*) |
+              +--------------------------+--------------------------+
+       22  16 | Time/Date string (20 characters)                    | [2]
+              +-----------------------------------------------------+
+       42  2A |          length of origNetwork (in bytes)       (*) | [3]
+              +-----------------------------------------------------+
+       44  2C |  origNetwork, zero when "length of origNetwork"=0   |
+              |           null padded to an even length             |
+              +-----------------------------------------------------+
+       ~~  ~~ |          length of destNetwork (in bytes)       (*) | [3]
+              +-----------------------------------------------------+
+       ~~  ~~ |  destNetwork, zero when "length of destNetwork"=0   |
+              |           null padded to an even length             |
+              +-----------------------------------------------------+
+       ~~  ~~ |                  variable fields                    |
+              ~                                                     ~
+              |                                                     |
+              `-----------------------------------------------------'
+
+                             Packed Echomail Message
+       Offset
+      dec hex
+              .-----------------------------------------------------.
+        0   0 |     0      |     2       | I/M-Format           [1] |
+              +--------------------------+--------------------------+
+        2   2 | Attribute            (*) | Attribute            (*) |
+              +--------------------------+--------------------------+
+        4   4 | cost                 (*) | cost                 (*) |
+              +--------------------------+--------------------------+
+        6   6 | Time/Date string (20 characters)                    | [2]
+              +--------------------------+--------------------------+
+       26  1A |                  variable fields                    |
+              ~                                                     ~
+              |                                                     |
+              `-----------------------------------------------------'
+
+    (*) high-low-byte or low-high-byte according to I/M-Format-Flag
+        (see [1]).
+    [1] This flag defines Intel ($00) or Motorola ($01) format.
+        Intel-Format stores low-byte first, Motorola-Format stores
+        high-byte first. Date/Time always stored in the format above!
+    [2] Time/Date string (ascii format)
+        Format (see FTS):
+        DAY [ ] MONTH [ ] JEAR [ ][ ] HOUR [:] MINUTE [:] SECOND [0]
+        
+           DAY: [00] ... [31]
+         MONTH: [Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec]
+          JEAR: [00] ... [99]
+          HOUR: [00] ... [23]
+        MINUTE: [00] ... [59]
+        SECOND: [00] ... [59]
+
+    (3) Length of network domain (max. 64k characters). Zero, when
+        no network name is used, not known or your software does not
+        allow a 5D address. When this field is $0000 the next field (the
+        domain itself) will not be stored.
+
+
+      Due to routing, the origin and destination net and node of a packet
+      are often quite different from those of the messages within it, nor
+      need the origin and destination nets and nodes of the messages within
+      a packet be homogenous.
+
+      PakdMessage  = $01             /* $01 indicates packed netmail message*/
+                     I/M-Format      /* $00=Intel, $01=Motorola-Format  */
+                     origZone        /* of message */
+                     origNet         /* of message */
+                     origNode        /* of message */
+                     origPoint       /* of message */
+                     destZone        /* of message */
+                     destNet         /* of message */
+                     destNode        /* of message */
+                     destPoint       /* of message */
+                     AttributeWord   /* as described in FTS-0001        */
+                     cost            /* in lowest unit of originator's  */
+                                     /* currency                        */
+                     Date/Time       /* message body was last edited    */
+                     origLength      /* length of orig domain           */
+                     origNetwork     /* network of pkt sender           */
+                     destLength      /* length of dest domain           */
+                     destNetwork     /* network of pkt receiver         */
+
+
+      PakdMessage  = $02             /* $02 indicates packed echomail message*/
+                     I/M-Format      /* $00=Intel, $01=Motorola-Format  */
+                     AttributeWord   /* as described in FTS-0001        */
+                     cost            /* in lowest unit of originator's  */
+                                     /* currency                        */
+                     Date/Time       /* message body was last edited    */
+
+
+     AttributeWord   bit       meaning
+                     ---       --------------------
+                       0  +    Private
+                       1  + s  Crash
+                       2       Recd
+                       3       Sent
+                       4  +    FileAttached
+                       5       InTransit
+                       6       Orphan
+                       7       KillSent
+                       8       Local
+                       9    s  HoldForPickup
+                      10  +    unused
+                      11    s  FileRequest
+                      12  + s  ReturnReceiptRequest
+                      13  + s  IsReturnReceipt
+                      14  + s  AuditRequest
+                      15    s  FileUpdateReq
+
+                            s - need not be recognized, but it's ok
+                            + - not zeroed before packeting
+
+     Bits numbers ascend with arithmetic significance of bit position.
+
+
+
+     What is a variable field:
+     =========================
+     
+     A variable field consists of a header of four bytes length:
+     
+              .-----------------------------------------------------.
+        0     | DATA LENGTH          (*) | DATA LENGTH          (*) |
+              |               $0000 when last field                 |
+              +--------------------------+--------------------------+
+        2     | FIELD-ID                                            |
+              |           "ND" (end data) when last field           |
+              +--------------------------+--------------------------+
+        4     | FIELD-DATA                                          |
+              ~                                                     ~
+              | zero padded to an even length                       |
+              `-----------------------------------------------------'
+
+
+     Defined FIELD-ID's:
+     ===================
+     
+     FIELD-ID  -  synonym to
+     --------------------------------------------------------------
+           FR     "From" user
+           TO     "To" user
+           SJ     "Subject"
+           AR     AREA               (only used in echomails)
+           PD     ^PID
+           TD     ^TID
+           ED     ^EID
+           MD     ^MSGID
+           RP     ^REPLY
+           RT     ^REPLYTO           (used by uucp gateways)
+           RA     ^REPLYADDR         (used by uucp gateways)
+           SN     ^SEEN-BY           (only used in echomails)
+           VA     ^VIA               (only used in netmails)
+           RN     ^REALNAME
+           SP     ^SPLIT
+           CS     ^CHARSET or ^CHRS
+           OR     Origin             (only used in echomails)
+           TL     Tearline
+           ML     Mailtext follows
+           ND     End of data fields
+     --------------------------------------------------------------
+      multimedia extensions (explanation follows):
+           VO     audio data VOC format
+           WA     audio data WAV format
+           MI     MIDI data
+           GF     bitmap data GIF
+           TI     bitmap data TIFF
+           JP     bitmap data JPEG
+           AV     video data AVI
+     --------------------------------------------------------------
+      write to St.Slabihoud for more...
+
+     All fields must have an even length. An odd field length must
+     be aligned to an even one with a padded 0.
+
+      Field  = dataLength       /* of field data (incl. 0)   */
+               fieldID          /* see table                 */
+               fieldData        /* Field data                */
+     
+     Example (NetMail):
+     ==================
+     
+     From: Stephan Slabihoud on 2:2446/110.6
+     To  : Guenther Paczia on 2:2446/110
+     Subj: This is a testmail
+     -----------------------------------------
+     ^PID: AVALON 3.72
+     ^MSGID: 2:2446/110.6@fidonet.org a3dbcfe5
+     ^MYCTRL nothing interest
+     This is the message body
+     
+     
+              .-----------------------------------------------------.
+              | MESSAGE-HEADER                                      |
+              ~                                                     ~
+              |                                                     |
+              +--------------------------+--------------------------+
+              | PACKED NETMAIL MESSAGE HEADER                       |
+              ~                                                     ~
+              |                                                     |
+              +--------------------------+--------------------------+
+              |           18             |           0              |
+              +--------------------------+--------------------------+
+              |           'F'            |           'R'            |
+              +--------------------------+--------------------------+
+              |             'Stephan Slabihoud', $00                |
+              +--------------------------+--------------------------+
+              |           16             |           0              |
+              +--------------------------+--------------------------+
+              |           'T'            |           'O'            |
+              +--------------------------+--------------------------+
+              |             'Guenther Paczia', $00                  |
+              +--------------------------+--------------------------+
+              |           18             |           0              |
+              +--------------------------+--------------------------+
+              |           'S'            |           'J'            |
+              +--------------------------+--------------------------+
+              |             'This is a testmail'                    |
+              +--------------------------+--------------------------+
+              |           12             |           0              |
+              +--------------------------+--------------------------+
+              |           'P'            |           'D'            |
+              +--------------------------+--------------------------+
+              |             'AVALON 3.72', $00                      |
+              +--------------------------+--------------------------+
+              |           34             |           0              |
+              +--------------------------+--------------------------+
+              |           'M'            |           'D'            |
+              +--------------------------+--------------------------+
+              |             '2:2446/110.6@fidonet.org a3dbcfe5\0'   |
+              +--------------------------+--------------------------+
+              |           50             |           0              |
+              +--------------------------+--------------------------+
+              |           'M'            |           'L'            |
+              +--------------------------+--------------------------+
+              | '^MYCTRL nothing interest', $0A                     |
+              | 'This is the message body', $0A                     |
+              +--------------------------+--------------------------+
+              |           0              |           0              |
+              +--------------------------+--------------------------+
+              |           'N'            |           'D'            |
+              +--------------------------+--------------------------+
+              | more messages or zero                               |
+              ~                                                     ~
+              |                                                     |
+              +--------------------------+--------------------------+
+              |      0      |      0     |      0      |      0     |
+              '-----------------------------------------------------'
+
+
+     Unknown control lines are stores as usual in the message body. So
+     it is possible to receive a XType-1 packet and convert it into an
+     old style Type-2+ packet to send to it to another systems that do
+     not recognize the new Xtype-n bundles.
+
+     Messages can be longer than 65535 bytes. Just use the 'ML' fields
+     more than once. When importing such a mail the importer can easily
+     split the mail into smaller parts. All 'ML' fields can be added to
+     one big mail, or each 'ML' text can be stored in its own message.
+     According to older software each 'ML' field should not be longer
+     than 8 kbyte (but it is allowed to use longer fields!).
+
+     All fields are unsigned integer.
+
+
+
+     Example: How to implement MultiMedia extensions (draft version):
+     ================================================================
+
+     Graphics and sounds are coded in one of the following fields:
+        Audio: VO,WA,MI
+        Bitmap: GF,TI,JP
+        Video: AV
+
+     Each field-data starts with a multimedia header:
+     
+               .------------------------.
+        0   0  | Name (Title)           |
+               | 16 chars (zero padded) |
+               +------------------------+
+       16  10  | ID                     |
+               | 32bit Random Number    |
+               +------------------------+
+       20  14  | Flags                  |
+               | 16bit bitfield         |
+               +------------------------+
+       22  16  | 42 reserved bytes      |
+               |                        |
+               +------------------------+
+       64  40  | start of data          |
+               ~                        ~
+               |                        |
+               '------------------------'
+
+       Flags:
+        Bit 0/1  - 1 = align left
+                   2 = align right
+                   3 = center
+                   0 = reserved
+        Bit 2-15 - reserved
+
+
+     There are some possibilties for a mail editor to show/play the
+     multimedia extensions:
+
+      1. It shows the mail in the first window and a list of all
+         available fields in an extra (selection) window. The user
+         selects the picture/sound from the selection window.
+
+      2. Pictures will be put together with the mailtext in ONE window
+         (a button will be shown when it is an audio field).
+         To define the place where a picture (or other multimedia
+         extension) is shown put following ^A-control line into the
+         mailbody:     ^MMEDIA: <field> <id> [<infotext>]
+           <field> is the "variable field" shortcut.
+           <id> is the 32bit ID in hex from the multimedia header.
+           <infotext> can be used as infotext for buttons.
+
+     Example of ML field (mailbody):
+     ------------------------------------------------------------
+       Welcome to\n
+       ^MMEDIA: GF 5417fde6\n\n
+       Please select:\n\n
+       To hear my voice click on the button:\n
+       ^MMEDIA: VO 2f4dca67 Say it\n
+       I am watching you ;-):\n
+       ^MMEDIA: GF 5627320f Click here\n
+     ------------------------------------------------------------
+
+     This mail could be shown as follows:
+     ------------------------------------------------------------
+       Welcome to:
+       +------------------------------+
+       | GIF-Picture                  |
+       +------------------------------+
+
+       Please select:
+
+       To hear my voice:
+       +--------+
+       | Say it |
+       +--------+
+       I am watching you ;-):
+       +-------------+
+       |             |
+       | GIF-Picture |
+       |             |
+       +-------------+
+     ------------------------------------------------------------
+     Note: All pictures can be shown as button as well. This should
+           be switchable in the mail editor.
+
+
+
+     Credits
+     =======
+
+     Thanx to Jonathan de Boyne Pollard, Peter Dreuw, Daniel Roesen and
+     Rowan Crowe for their good ideas.
+
+
+     Epilog
+     ======
+
+     That's all, now it's up to you to decide whether or not to
+     implement it.

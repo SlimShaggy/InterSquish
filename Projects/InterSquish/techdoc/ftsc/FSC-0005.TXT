@@ -1,0 +1,266 @@
+FSC-0005
+
+               The Opus Computer-Based Conversation System
+
+         (c) Copyright 1987, Wynn Wagner III, All Rights Reserved
+
+
+
+
+
+
+
+                              
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                  OPUS-CBCS
+
+                           Matrix Password Methods
+
+
+
+
+
+
+
+
+
+
+MATRIX PASSWORDS USED BY OPUS
+-----------------------------
+
+
+         Opus uses two kinds of passwords for matrix sessions:
+
+                  SESSION LEVEL     access code is roughly the same sort
+                                    of thing as a user's password.  It is 
+                                    passed from one system to another during 
+                                    the session negotiation sequence (aka 
+                                    YooHoo) and is in effect for the entire 
+                                    matrix session.
+
+                  TRANSACTION LEVEL passwords are valid only for WaZOO 
+                                    "ZedZap" style file requests.  They are a
+                                    way to protect requestable material on a 
+                                    file-by-file basis.
+
+
+
+MATRIX PASSWORDS USED BY OTHER<tm> SYSTEMS
+------------------------------------------
+
+         It is possible that Opus will be sensitive to passwords produced
+         by other netmail software.  Because other password methods have
+         not been documented or their behavior publicly explained, the
+         compatibility between Opus and non-WaZOO systems isn't assured.
+
+         Apparently the behavior of some other methods involves protection
+         against unauthorized "pickup" of material that is on hold.  You
+         can make a case that Opus does this as well.  Opus uses a true
+         session-level protection scheme.  Unauthorized pickup is avoided
+         in that the remote system will find itself without a carrier.
+
+         Within a couple of days of the scheduled release of Opus 1.00,
+         we discovered a change in the implementation of some "bark" style
+         file request programs.  The change was made to the method of
+         exchange the name of the file being requested and apparently
+         offers some kind of transaction-level password.  There was no
+         attempt to include this change in Opus 1.00.
+
+
+
+
+PASSWORDS
+---------
+
+         A password consists of 4 to 6 characters or numbers and is
+         case insensitive.  The password cannot contain white space,
+         control codes, or punctuation (except an underscore).
+
+         Valid characters for passwords are
+
+                  "a".."z", "A".."Z", "0".."9", "_"
+         
+
+
+
+
+
+
+
+SETTING UP A SESSION LEVEL PROTECTION SYSTEM
+--------------------------------------------
+
+
+         UPFRONT
+         -------
+
+         Both sides of a password protected session use the same access
+         code.  My system's password on your system is your password on
+         my system.
+
+
+
+         OPUSNODE
+         --------
+
+         The OPUSnode program (by Wes Cowley) has facilities for dealing
+         with Opus-compatible passwords beginning with version 1.4.4.
+
+
+
+         STORING PASSWORDS
+         -----------------
+
+         This is fairly technical information about the storage of
+         matrix passwords.
+
+         There are plans to change the structure of the node list file
+         (NODELIST.SYS), and the new structure has room for a 6-character
+         password.  That's in the future.  For the present, we have to have
+         some place to store the password.
+
+         This kludge is about as temporary as they come.  The correct way to 
+         handle passwords is to have a structure that can handle them.  The 
+         current node list structure has no such field.  It does, however, 
+         have an extra-ordinarily amount of space to hold the CITY.
+
+         The CITY in the NodeList.Sys file is 40 characters.  If you want to 
+         put a session level password in the node list file, you can do so.
+
+                  NORMAL CITY:     ccccccccccccccccccnnnnnnnnnnnnnnn
+
+                  PASSWORDED CITY: ccccccccccccccccccn!ppppppnnnnnnn
+
+                                    c = city information
+                                    n = null (ascii zero)
+                                    ! = exclamation point (or "=")
+                                    p = password information
+
+         In other words, to put a password into the node list CITY record, 
+         follow the city with a null and an exclamation point and a 
+         null-terminated password.
+
+         An equals sign can appear instead of an exclamation point.  This
+         has a special meaning to ECHO GUARD (see below).
+
+
+
+
+         METHOD
+         ------
+
+         The session level password is used during the YooHoo negotiation.
+         If there is a problem, Opus will drop carrier on the caller and
+         make a "*" type log entry.
+
+         As a confidence factor, successful passwords will be logged with
+         a tracer ("#") style entry.
+
+
+
+
+
+
+
+
+
+SETTING UP A TRANSACTION LEVEL PROTECTION SYSTEM
+------------------------------------------------
+
+         Transaction level passwords only work with WaZOO "ZedZap"
+         style file requests.
+
+
+         ORIGINATING SYSTEM
+         ------------------
+
+         The REQUESTING system puts the required transaction level
+         access code into its REQ file.
+
+                  EXAMPLE:  NEATFILE.ARC !mypass_x
+
+
+
+         SYSTEM WITH REQUESTED FILES
+         ---------------------------
+
+         The REQUESTED system has passwords in its `OkFile.'
+
+                  EXAMPLE:  c:\files\neat*.arc !mypass_x
+
+                  NOTE:     Password protected files will not be
+                            available to non-WaZOO file requesters.
+                            There is no known method for having an
+                            access code in the "BARK" style file
+                            request, so Opus just pretends it doesn't
+                            have the file available if such a request
+                            comes in.
+
+
+
+
+
+
+ECHOGUARD
+---------
+
+                  IMPORTANT: As with the rest of Opus, there is no
+                             guarantee that anything will work as
+                             documented.  Because EchoGuard is a
+                             security feature, this fact needs to 
+                             be stressed... 
+                             
+                                    THERE IS NO ASSURANCE THAT 
+                                    ECHOGUARD WILL OFFER YOU ANY 
+                                    KIND OF PROTECTION.
+
+
+
+         EchoGuard is a method to trap many attempts "unauthorized"
+         echomail attempts.  There is an undocumented control file
+         switch for this:
+
+                  ECHO Guard
+
+         If this switch is set, Opus will mark many unauthorized 
+         messages so they won't be scanned and sent to other systems.
+         EchoGuard does NOT prevent the message(s) in an unauthorized
+         bundle from being tossed.
+
+         Opus assumes bundles from password-protected systems have
+         already passed the access code test.  If it finds a "=" instead
+         of a "!" in the NodeList.Sys file where the password would go,
+         it treats the packet as though it were approved.  In other
+         words, you can use EchoGuard even though you exchange echomail
+         with some non-WaZOO systems.  For the WaZOO systems, use a
+         "!" and password in NodeList.Sys.  
+         
+         For the non WaZOO systems, use a "=" character.  The equals
+         sign tells the ECHO GUARD routine that the system in question
+         is not capable of handling session level passwords.
+
+         Unauthorized messages sent to echomail areas will be flagged
+         as "Sent" and "Orphan" to keep other scan programs from 
+         sending them to anybody else.
+
+
+
+
+
+                                      ###
+
+
+

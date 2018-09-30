@@ -1,0 +1,191 @@
+
+  | Document:   FSC-0090, Attachment A
+  | Version:    001
+  | Date:       9 December, 1995
+  | Supercedes: FSC-0022, revision 3
+  |
+  | Originally by Bob Hartman, Jim Long, and Randy Bush
+  | modified by Rick Moore
+  | modified by David Nugent, 3:632/348, 21-Jul-1993
+  | modified by David Nugent, 3:632/348@fidonet, 9-Dec-1995
+
+
+ Application for an FTSC Product Code
+
+
+    This is an application for an FTSC product code, which is used to
+    identify your product when used in FidoNet, and providing a means
+    by which you can be contacted should your product be found
+    responsible for problems encountered during its use. The issuance
+    of this product code in no way implies authorisation or approval
+    of your product for use on the network, only provides a means of
+    ready identification.
+
+    See the attached document for usage of FTSC product codes in 
+    fts-0001 packets and mailer sessions, and other enhanced FidoNet
+    protocols. As of 9th December, 1995, this application should be
+    submitted only by developers of products with FTS-0006 (YooHoo)
+    and/or FSC-0056 (EMSI) capability.
+
+    This application should be completed and submitted for only `real'
+    and completed products which will be used by FidoNet systems. If
+    you are currently developing a product which is not yet ready
+    for use on the network out of experimental stage, use product
+    code 0 (zero) which is, by convention, reserved for this purpose.
+
+    Please answer the questions as accurately and completely as 
+    possible. We need to know what will actually be used on the net,
+    so describe only the current product, and leave future features
+    and plans for the comments section.
+
+    Send the completed form via FidoNet mail to the chair of the
+    FidoNet Technical Standards Committee at its designated address,
+    preferably in the form of a FidoNet file attach. This address may
+    change from time to time, but will be listed in the administrative
+    section of the nodelist in one of the FidoNet zones (typically
+    marked "FTSC_Chair" or "Fido_Tech_Stand"). As of the date this
+    document was last updated, this address is 3:3/20.
+
+    We hope that you will take the time to revise your answers by 
+    submitting updates as your product changes. A summary of the 
+    information you provide is compiled into a list of all product
+    codes published and updated periodically by the FTSC called
+    "FTSCPROD.DOC".
+
+    Thank you for your cooperation,
+    FidoNet Technical Standards Committee Chair
+
+
+    --- Cut along here -------------------------------------------------
+
+  Type of application
+
+  1.  Mark whichever is appropriate:
+
+      ____  New product application
+
+      ____  Update existing product	 for existing product code x____
+
+
+  2.  If this is an update, please briefly state the nature of the
+      update (change author's node number, change of product name, etc.)
+
+      __________________________________________________________________
+
+      __________________________________________________________________
+
+      __________________________________________________________________
+
+      __________________________________________________________________
+
+
+  Product information
+
+
+  3.  What is the name of the product and the current version name or
+      number?
+
+      __________________________________________________________________
+
+
+  4.  What is the name, FidoNet node, and postal address, and voice
+      number of the person(s) or organization responsible for the
+      product?  Where should inquiries be directed and who should be
+      contacted if the product is thought to cause errors on the
+      network?
+
+      __________________________________________________________________
+
+      __________________________________________________________________
+
+      __________________________________________________________________
+
+      __________________________________________________________________
+
+      __________________________________________________________________
+
+
+
+  5.  What machines and operating environments does it presently run on?
+
+      __________________________________________________________________
+
+
+
+  6.  Does the product contain a 'mailer'?  E.g. the package transmits
+      mail to other FidoNet systems and can fall back to FTS-0001,
+      though it may handle other protocols.
+
+      __________________________________________________________________
+
+
+
+  7.  If the answer to question (6) is yes, what additional protocols
+      other than FTS-0001 does the product support? Refer to the
+      specific FTSC document which details this protocol, if any.
+
+      __________________________________________________________________
+
+      __________________________________________________________________
+
+      __________________________________________________________________
+
+
+      With what additions or restrictions?
+
+      __________________________________________________________________
+
+
+
+  8.  Is the package capable of servicing file requests, and if so,
+      'Bark' style (FTS-0008) and/or WaZOO .REQ (FTS-0006) or both?
+
+      __________________________________________________________________
+
+
+      With what additions or restrictions?
+
+      __________________________________________________________________
+
+
+  9.  Is your software capable of functioning as a Continuous Mail
+      system? i.e. nodes running it might be marked as such in the
+      FidoNet nodelist?
+
+      __________________________________________________________________
+
+
+  10. How is the product distributed?
+
+      Public Domain  ____________           Shareware      ____________
+
+      Commercial     ____________           Other          ____________
+
+      Object code    ____________           Source code    ____________
+
+
+      Comments: ________________________________________________________
+
+      __________________________________________________________________
+
+      __________________________________________________________________
+
+
+
+  11. Please give additional comments to describe your product.
+
+      __________________________________________________________________
+
+      __________________________________________________________________
+
+      __________________________________________________________________
+
+      __________________________________________________________________
+
+      __________________________________________________________________
+
+      __________________________________________________________________
+
+      __________________________________________________________________
+
+

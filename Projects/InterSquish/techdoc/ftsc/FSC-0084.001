@@ -1,0 +1,1486 @@
+
+  | Document: FSC-0084
+  | Version:  001
+  | Date:     03 September 1995
+  |
+  | Denis Bider, FidoNet#2:380/129.0
+
+/*
+
+Document: Electronic Data Exchange standard level 1
+File: EDX1.TXT
+Purpose: a straight-forward data exchange standard with space to expand
+Author: denis bider, ofs->FidoNet#2:380/129.0
+
+
+Copyright (C) 1994-1995 by denis bider. See DISCLAIM.TXT.
+Send *any* comments to one of my addresses as listed above.
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ========================================================================
+   Introduction
+   ========================================================================
+   After a year of development and all sorts of improvements, EDX finally
+   achieved the state where it has nearly everything currently wanted from
+   a mail format. And finally, it is being released into the general
+   public. My opinion is that it was well worth the waiting; anyway, this
+   is up to you to decide.
+
+   EDX is meant as a standard for electronic cumputer networks that
+   exchange messages, files and similar data. What it does is to redesign
+   all the existing chaos from the beginning and try not to do the same
+   mistakes other similar standards did. It does its own work, others do
+   their.
+
+   It is not necessary that EDX is better than other such standards. It
+   might also be the worst of all. This document will try to convince you
+   about neither. It will simply describe the standard from the beginning
+   to the end.
+
+   Due to my relatively poor English, I may not succeed in the "easy to
+   understand" part, but well, you'll just have to get along with it.
+
+   Please mail me all comments you might have.
+
+
+
+
+
+
+
+
+
+
+   ======================================================================
+   Notes, definitions
+   ======================================================================
+   Null:          ASCII 0
+   CR:            Carriage Return (Enter) - ASCII 13
+   a long:        a 32-bit (4-byte) signed value.
+   an int:        a 16-bit (2-byte) signed value.
+   a char(acter): an 8-bit (1-byte) value.
+   a ulong:       an unsigned long.
+   a uint:        an unsigned int.
+   A subfield:    a various-length data field most commonly used
+                  in other data fields. Consists of a subfield ID
+                  (an uint), a subfield data length ("datlen")
+                  identifier (an ulong) and <datlen> bytes of data.
+                  Ie:
+                     ulong     datlen
+                     ulong     ID
+                     char      data[datlen]
+   0x<value>      value in hexadecimal (base 16).
+   Lowercase:     When a string or character is said to be "lowercase",
+                  that means that any characters between and including
+                  ASCII 'A'..'Z' are represented as their 'a'..'z'
+                  counterpart. Conversion applies to *no other characters
+                  in any national alphabets*.
+
+
+      * All mentioned CRCs are, as in Zmodem, 0xffffffff based
+      * All multi-byte items (words, longs) mentioned are
+        expressed in Intel format, which means least significant
+        bytes (LSB) being presented first. (Eg, 0xff11 should be
+        presented as 0x11 0xff)
+
+
+
+
+
+
+
+
+
+
+   ======================================================================
+   Views
+   ======================================================================
+
+
+
+   The network
+   =============
+   My opinion is that the most basic set of layers to which all computer
+   network technologies can be divided to contains the following:
+      1: Physical point-to-point connection layer
+      2: Physical network layer
+      3: Logical point-to-point connection layer
+      4: Logical network layer
+
+   Let's explain that on the example of Fidonet, a typical over-the-phone
+   network technology. In this case, the physical point-to-point connections
+   are telephone wires; the physical network is all those point-to-point
+   connections combined; the logical point-to-point connections are modem
+   dial-up connections; and the logical network are, roughly, all those
+   point-to-point connections combined.
+
+   The similar applies for, say, Internet telnet feature: the physical
+   point-to-point connections are the low-level connections between
+   Internet-connected computers, the physical network are all these
+   combined, and the logical connection is the telnet feature itself.
+   There is, of course, no logical network layer. And similarly for a
+   connection to a local BBS.
+
+   EDX is a standard that defines the fourth, logical network layer.
+   A "Recommendations" chapter is provided in which a sample interaction
+   between the fourth and the third network layer is defined; however,
+   that chapter should not be treated as a part of EDX itself.
+
+
+
+   The site
+   ==========
+   In everyday practice, I encounter many inconsistencies in how systems
+   are generally treated. Often, one says "BBS" meaning "mail system", or
+   meaning the entire site at all. So let's define these terms.
+
+      1. The site is all the hardware, software and peopleware, and is
+         often referred to as "system".
+      2. The mail system is the part of the site that deals with networks,
+         with "external relations". If you're in an OFT network and run
+         SomeScan in combination with OtherMail, these two programs are
+         your mail system from the viewpoint of the network you're in.
+      3. The BBS is the part of the site that deals with human callers, and
+         has nothing to do with the part of the site called the "mail
+         system", except that the parts can and usually do exchange data
+         (messages, files).
+
+   My opinion is that the mail system and the BBS part of a site should be
+   kept separated, but often that is not the case. Take QWK networks for
+   example, where not only the two concepts are totally mixed up, but
+   networks also not so rarely mess with things that are none of their
+   bussiness; a network as an organization should care about the systems,
+   not about the BBSes or even the entire sites, but that is the mistake
+   often done.
+
+
+   The points
+   ============
+   In networks like FidoNet, a user often installs mailing software and
+   becomes what is called "a point". A point system is, in EDX, treated
+   as any other system. Indeed, actually *every* system is a point system,
+   it's only that those systems that are talked about as "nodes" have a
+   point number of zero. See below for a disclaimer in which you will read
+   that in EDX, if OFT addresses are used, all fields must be present,
+   zero or not.
+
+   Therefore, when an application receives or sends mail from/to a point,
+   the "point" system must be treated as any other system. In EDX terms,
+   points are full-fledged systems and that is exactly how they must be
+   treated; they are included in SENTTO and TRACE subfields, as well. The
+   limitations of a point being able to be linked to a single system (ie,
+   what was in former organization called "a boss") is gone and buried; as
+   said, EDX does not distinguish point systems from any other type of
+   systems. Any differences in point-system-treatment in the other parts of
+   a network do not affect how EDX treates them.
+
+
+
+
+
+
+
+
+
+   ========================================================================
+   Addresses in EDX
+   ========================================================================
+   EDX uses E-Addressing for maximum compatibility with various addressing
+   systems and to allow independability from the addressing scheme as used
+   by the underlying network. However, only and exclusively site
+   E-Addresses are used in EDX; usage of a user E-Address in any field of
+   an EDX message is considered a violation of the specifications.
+
+   The general format of a site E-Addresses is:
+      <format> "->" <siteaddr>
+
+   <format> specifies the format of the <siteaddr> field. An E-Address is
+   assumed not to contain any whitespace. E-Addresses can or cannot be case
+   sensitive, depending on the contents of the <format> field; for that
+   matter, when passing E-Addresses, the its case should be left untouched.
+   For now, all known types of E-Addresses are case INsensitive.
+
+   The following formats are recognized:
+
+   Format identifier:    "ofs" (Traditional FTN style)
+   <siteaddr> format:    <netid> "#" <zone> ":" <net> "/" <node> "." <point>
+   Example addresses:    ofs->FidoNet#2:380/129.0
+   ALL ADDRESS COMPONENTS ARE REQUIRED. NO EXCEPTIONS.
+
+   Format identifier:    "itn" (Internet e-mail style)
+   <siteaddr> format:    <sth> {"." <sth>}
+   Example addresses:    itn->f129.n380.z2.fidonet.org
+                         itn->ixtas.fer.uni-lj.si
+
+   All format identifiers are and will be three characters in length.
+
+
+
+
+
+
+
+
+
+
+   ========================================================================
+   The logical network layer
+   ========================================================================
+   This chapter describes the logical network layer that is independent
+   of the lower layers. One of the ways how to actually pass what is
+   defined in this chapter from one system to another is described in the
+   Recommendations chapter. The reason for such separation is that EDX
+   is a layer 4 protocol definition exclusively, and does not want to
+   mix with other network layers; ie., a network must by itself choose
+   or define the layer 3, 2 and 1 protocols it is going to use with EDX.
+   However, in order to standardize EDX-related matters, a chapter with
+   some recommendations is provided towards the end of the document.
+
+   The idea of the mentioned independent part of the logical network layer
+   is similar to the way in which messages are stored in the JAM message
+   base format; each message consists of a binary header for fixed-length
+   data and an arbitrary number of subfields that contain other, variable-
+   length data.
+
+   An EDX subfield consists of, as lined out in the Notes section, a
+   datlen identifier, an ID and data. Subfields with an unknown ID should
+   be left untouched when exported to other systems.
+
+
+
+
+   ========================================================================
+   The message
+   ========================================================================
+   EDX messages differ a little from other network types' messages: in EDX,
+   messages need not consist of text only, or of text at all; a message can
+   have more than one receiver.
+
+
+   True crossposting and other goodies
+   ========================================================================
+   For quite a while at first, true crossposting (a single physical message
+   belonging to more than one echo) was a part of the EDX specifications.
+   However, it is my opinion that, in the current state of things, it would
+   cause much more problems than it would solve, so this "feature" has been
+   removed.
+
+   Formerly present, but removed for the same reason have been Utypia-style
+   ROUTE directions.
+
+
+   Message header
+   ========================================================================
+   The binary message header layout follows:
+      char signature[8]   // Must match <E><D><X><_><M><S><G><NULL>
+      uint hdrlen         // The size of the header
+      int utcoffset       // UTC offset, *signed*; see timestamp
+      ulong timestamp     // Local time of message's creation
+      ulong subflen       // Length of the subfields that follow
+      ulong attribute1    // Message attributes
+      ulong seqno         // Message's sequential number
+
+   hdrlen specifies the size of the header, from and including the first
+   byte of the signature field to and including the last byte of the last
+   present field. Used mainly to ensure downward compatibility for
+   hypothetical EDX levels higher than 1. Should an application encounter
+   hdrlen higher than it supports, it should only process fields up to what
+   it supports and skip the others. Should it encounter hdrlen lower than
+   it supports, it should only process fields up to <hdrlen> bytes. Note
+   that the hdrlen field cannot be just arbitrarily picked! When creating
+   a header, always include the whole contents of the highest header
+   revision you support; otherwise, it is perfectly allright for a
+   processing application to dismiss the message in its entirety.
+
+   timestamp contains the local date and time when the message has been
+   written, or if that information isn't available, when it joined network
+   flow. It is expressed as the number of seconds elapsed since 00:00:00,
+   January 1st 1970; the time should be (= must be) represented in UTC.
+
+   The UTC offset of the site that generated timestamp as described above
+   is stored in the utcoffset field. Eg: if the UTC offset is -0230, the
+   utcoffset field should read, simply, -230; +0200 => 200; and so forth.
+
+   The seqno field is the message's sequential number. For each area an
+   EDX system is linked to, it maintains the number of messages it exported
+   from that area. When the next message is exported, that number is
+   incremented by 1 and is also assigned to the message as its serial
+   number. The main use of this serial number is that one can quickly see
+   if they received all the messages from a particular system in a
+   particular area, and if they didn't, messages are getting lost
+   somewhere. This serial number might also be used as means of dupe-link
+   detection, but however, if the serial numbers of two messages don't
+   match, one of them can still be a dupe of the other; the system might
+   have exported the message twice. Therefore, you should stick to the
+   msgid header field for duplicate message checking; the serial numbers of
+   duplicate messages can be used to determine the cause of duplication.
+
+
+
+
+   Message attributes
+   ========================================================================
+   The following bits for attribute1 are defined:
+
+      HasFiles   0x01L  The message has files attached
+      IsReply    0x02L  The message is a reply
+      ReceiptRq  0x04L  (netmail messages only) A return receipt should
+                        be generated for the message when it is received
+                        by the destination system.
+      ConfirmRq  0x08L  (netmail only) A return receipt should be generated
+                        for the message when it is read by each of its
+                        addressees.
+      IsReceipt  0x10L  (netmail only) The message is a return receipt.
+      Echoed     0x20L  If set, the message contains an ECHO subfield.
+                        If not set, the message contains a DEST subfield.
+
+   Other bits should be set to 0.
+
+   IsReceipt cannot be set in combination with ReceiptRq and/or ConfirmRq.
+
+
+
+   Subfields
+   ========================================================================
+   A short list of subfields and their IDs:
+   DEST (0), ORIGIN (1), AUTHOR (2), ECHO (3), WHOTO (4), TRACE (5),
+   CHARSET (6), SUBJECT (7), CREATOR (8), EXPORTER (9), SENTTO (10),
+   MSGID (11), REPLYID (12), TEXT (1000), FILE (1001)
+
+   Each subfield is an independent unit on itself. However, for the sake of
+   easier producing of simpler and more readable EDX handling code, two
+   major types of subfields are recognized, "simple" and "complex".
+
+   The "simple" subfields are simply subfields that have a maximum lenght
+   of 100 characters. They usually contain a stream of textual characters.
+
+   Please note that if a simple subfield contains text, it is *not*
+   null-terminated. Its length is to be determined by the "datlen"
+   identifier in the subfield header. As said, the maximum length for
+   simple subfields is 100 characters; all data beyond the 100th character
+   can be ignored. Simple subfields have IDs ranging within 0..999.
+
+   The "complex" subfields are all other subfields. Their maximum size
+   and other attributes are specific for each of them. Their IDs range
+   from 1000 on.
+
+   Note: read what subfield descriptions say. If, for example, the Presence
+         field says "exactly one", that means that *exactly one* subfield
+         of this type should be inserted in the message, no more, no less.
+         The same applies for other fields and as well to everything else
+         in the document.
+
+
+
+   SUBFIELD: DEST (simple)
+   ID: 0
+   Presence: Either one DEST subfield or one ECHO subfield
+
+   The DEST subfield stores the address of the system to route the message
+   to. It is up to the systems that are passing the message to decide if
+   and how to actually route the message there.
+
+   For historical reasons, messages with a DEST subfield are called
+   "netmail". Messages with an ECHO subfield are called "echomail".
+   A netmail message is considered private between its authors and its
+   addressees.
+
+
+
+   SUBFIELD: ORIGIN (simple)
+   ID: 1
+   Presence: Exactly one
+
+   Contains:
+      * the E-Address of the system that generated the message
+      * a NULL character
+      * the name of the person that wrote the message
+
+   Gating: see Origin supplementary line. Also, as opposed to, for example,
+      FidoNet, the gating system does not insert its own address in the
+      ORIGINADDRESS subfield when a message is gated to EDX, but instead
+      converts the original origination address to E-Address format and
+      puts it here. The address of the gating system itself is stored as a
+      part of a gated TRACE subfield. (See TRACE subfield)
+
+
+
+   SUBFIELD: AUTHOR (simple)
+   ID: 2
+   Presence: Zero or more
+
+   Format of contents:
+      * the E-Address of the system where the person can be reached
+      * a NULL character
+      * the name of the person
+
+   Each AUTHOR subfield lists one of the message's authors if there are
+   more than one or if the message's author is not the message's physical
+   sender. All message's authors should be listed, any of them "residing"
+   in the ORIGIN subfield or not.
+
+   Gating to network formats that only support sender name (like QWK or
+   OFT): use Author supplementary lines.
+
+
+
+   SUBFIELD: ECHO (simple)
+   ID: 3
+   Presence: Either an ECHO subfield or a DEST subfield
+
+   The subfield specifies the name of the echo area to which the message
+   has been posted. The contents of the ECHO subfield should be treated
+   case insensitive. For the echo area name, all characters between from
+   ASCII 33 to 126 are allowed, with the exception that '-', '+' and '%'
+   must not be the first characters of the area name and that '*' and '?'
+   must not be present at all.
+
+   If there is no DEST or ECHO subfield in a message, the message should be
+   shown to the sysop and its distribution among systems stopped.
+
+   An echoed message is considered public.
+
+
+
+   SUBFIELD: WHOTO (simple)
+   ID: 4
+   Presence: Zero or more
+
+   Each WHOTO subfield specifies a name of a person whose attention should
+   be drawn to the message. The WHOTO subfield is, by its function, very
+   much the same as To: lines in FidoNet and similar networks, except that
+   EDX allows more than one message's addressee. (.. by allowing multiple
+   WHOTO subfields to be present)
+
+   If an WHOTO subfield is not present in a message with an ECHO subfield,
+   the message should be assumed of equal importance to everybody. (Ie, the
+   same as "To: All" in the analogy above)
+
+   If no WHOTO subfield is present in a message with a DEST subfield, the
+   message is assumed to be addressed to the operator of the system it is
+   destined to.
+
+   Gating to networks that don't support as many message addressees as the
+      gated message has: use Whoto supplementary lines.
+
+
+
+   SUBFIELD: TRACE (simple)
+   ID: 5
+   Presence: Exactly one
+
+   There are three formats for a TRACE subfield, "prevnet", "gated" and
+   "native". The gated and prevnet formats are used only when converting
+   a message from a parallel format to EDX and should not be used
+   otherwise.
+
+   The prevnet format reads:
+      "<= <text-of-parallel-trace-information>"
+   It is used to store TRACE information of the previous network.
+
+   The gated format reads:
+      "++ <time>, <site E-Address>, <progname>, from: <prev net fmt>"
+   It is used to signify that a message has been gated from a network and
+   is inserted by the gating program. See the native format for a
+   description of the mentioned gated entry fields.
+
+
+   Each EDX-compliant system, when exporting a message to other systems,
+   must add its TRACE subfield of "native" type to the message, and it
+   should do that so that all previously existant TRACE subfields are
+   listed *before* the added TRACE subfield. This is essential: the order
+   of TRACE subfields must always be kept when passing the message to other
+   systems.
+
+   No more than one native TRACE subfield may be appended. Also, prior to
+   exporting a message, the native TRACE subfields should be checked upon
+   the presence of our E-Address, and if positive (a TRACE subfield with
+   our address is already present), the message should not be processed.
+   An exception to this rule is only made if the native entry is the last
+   in the list; in this case, the message should be forwarded to other
+   systems, but another native entry should not be added to the TRACE
+   subfield.
+
+   If a system holds multiple addresses, only one of them should be written
+   to the TRACE subfield, but all of them should be checked when checking
+   if the message was already processed by the system.
+
+   The format of the native TRACE subfield entry is:
+      ".. <time>, <site E-Address>, <program id>"
+
+   where ".." are indeed two periods (dots), <program id> should contain
+   the name and version of the program that added the subfield entry and
+   not exceed 25 characters, whereas <time> is the time when message was
+   processed by the system whose site address is specified in
+   <site E-Address>. Timestamp format is:
+
+      YYMMDD HHmm sUUUU
+
+   where:
+
+   (all components of the timestamp are null-padded to their full length)
+
+      YY is the last two digits of the year
+      MM is the month
+      DD is the day
+      HH is the hour
+      mm is the minute
+      s is the sign for UUUU (either + or -)
+      UUUU is the UTC offset of the system that generated
+         the timestamp
+
+   The YYYYMMDDHHmm part corresponds to the local time of the site. For
+   example, 7th November 2007, 13:57, UTC offset 0200 positive:
+      071107 1357 +0200
+
+   Gating in general: the gating program should always add a "gated" TRACE
+      subfield together with other TRACE subfields it created when gating
+      the message.
+   OFT gating: for ROUTE-ed (netmail) messages, the TRACE subfield is
+      parallel to the Via kludge; when gated to OFT, the information from
+      TRACE should be mirrored to Via, while when gated to EDX, the
+      information from Via (without the "^Via: " prefix) should be mirrored
+      to TRACE subfields using the prevnet entry format. If any mirrored
+      Via line information is prefixed with "EDX<= ", "EDX++ " or "EDX.. ",
+      the "EDX" pre-prefix should be removed and the "<= " prefix not added.
+
+      For echoed messages, the TRACE subfield is not to be gated.
+
+      Puzzled? Study the below example:
+
+<TRACE> .. 970101 1300 +1200, ofs->FidoNet#2:380/129.0, StupiToss v1.23
+<TRACE> .. 970101 1330 +1200, ofs->FidoNet#2:380/100.0, SmarToss v2.34
+
+      Gated to OFT:
+
+^AVia: EDX.. 970101 1300 +1200, ofs->FidoNet#2:380/129.0 StupiToss v1.23
+^AVia: EDX.. 970101 1330 +1200, ofs->FidoNet#2:380/100.0, SmarToss v2.34
+^AVia: FidoNet#2:345/678.0 SnailConvert  Mon, 30 Feb 00 at 24:61
+
+      Gated back to EDX:
+<TRACE> .. 970101 1300 +1200, xyz.m-art.fido, StupiToss v1.23
+<TRACE> .. 970101 1330 +1200, m-art.fido, SmarToss v2.34
+<TRACE> <= FidoNet#2:345/678.0 SnailConvert  Mon, 30 Feb 1999 at 24:61
+<TRACE> ++ 970112 2001 +3456, ofs->FidoNet#3:456/789.0, WMail v3.45, from: OFT
+<...>
+
+   Gating for networks with similar TRACE control: see OFT gating.
+      Of course, if the destination network format supports TRACE
+      information in echoed messages, it should be used.
+   Converting to JAM: forget JAM's internal format and use the EDX's
+      "international" format as described above, ie. "EDX.. <...>",
+      "EDX<= <...>" and "EDX++ <...>".
+
+
+
+   SUBFIELD: CHARSET (simple)
+   ID: 6
+   Presence: Exactly one
+
+   Contains the name of the character set that was used when writing the
+   message if not LATIN-1. People of each country should settle on a few
+   commonly-used character sets and their ID strings for the EDX CHARSET
+   subfield; in Slovenia, for example, this subfield will usually contain
+   "CP852", while for, say, the USA, it will probably always contain
+   "CP437".
+
+
+   SUBFIELD: SUBJECT (simple)
+   ID: 7
+   Presence: Zero or one
+
+   The SUBJECT subfield should contain a short description of what the
+   message's text is about.
+
+   When gating a message, if the subject is longer than what is supported
+   by the destination network format, the Subject supplementary line should
+   be used. (See next chapter)
+
+
+   SUBFIELD: CREATOR (simple)
+   ID: 8
+   Presence: Zero or one
+
+      The subfield contains the name of the program with which the message
+      was originally written. Should be omitted if the used program is
+      the same that created the packet. The stated rule may or may not
+      apply if the CREATOR and EXPORTER programs are different, but from
+      the same package.
+
+      Gating for network formats that do not feature anything parallel to
+         the CREATOR subfield: use the Creator supplementary line.
+      OFT Gating: when exporting to, use Creator supplementary line
+         because of PID restrictions. However, when importing from, PID
+         should be converted to CREATOR.
+
+
+   SUBFIELD: EXPORTER (simple)
+   ID: 9
+   Presence: Zero or one
+
+      The subfield contains the name of the program that entered the
+      message into network flow. Should be omitted if the used program is
+      the same that created the packet. The stated rule may or may not
+      apply if the CREATOR and EXPORTER programs are different, but from
+      the same package.
+
+      Gating for network formats that do not feature anything parallel to
+         the EXPORTER subfield: use the Exporter supplementary line.
+      OFT Gating: when exporting to, use Exporter supplementary line
+         because of TID restrictions. However, when importing from, TID
+         should be converted to EXPORTER.
+
+
+
+   SUBFIELD: SENTTO (simple)
+   ID: 10
+   Presence: Exactly one with ECHO subfields, none with DEST
+
+   The SENTTO subfield contains from 1 to 25 ulongs.
+
+   The SENTTO subfield is intended to provide means for implementations
+   of fully connected poligons (networks or parts of networks where all
+   participating systems send mail directly to all other systems). Each
+   ulong in the SENTTO subfield should contain a 32-bit CRC of the
+   E-Address of one of the systems to which the previous system in chain
+   has exported the message in which the SENTTO subfield appears. The
+   all-lower-case representation of the E-Address should be used when
+   calculating the CRC. If a CRC of one system's E-Address is already
+   included in the SENTTO field of a message, that message should not be
+   sent to that system again. Each system should, when exporting a message
+   to another system, create a *new* SENTTO subfield with CRCs of addresses
+   of systems to which the system is sending the message now.
+
+   The SENTTO subfield is mandatory in messages with one or more ECHO
+   subfields, but should not be included in messages with DEST subfields.
+
+   Gating: always removed when gated.
+
+
+
+   SUBFIELD: MSGID (simple)
+   ID: 11
+   Presence: Exactly one
+
+   The MSGID subfield contains text that represents the string assigned to
+   the message by the system it was sent from. When the MSGID has been
+   created on an EDX-compliant system, its format should be:
+      <hexno1><hexno2><hexno3>
+      All of them are numbers in hexadecimal notation, the first two padded
+      to 8 characters, the third padded to 4 characters in length, with no
+      separator characters (whitespace, for example) to be inserted in
+      between. <hexno1> is the 32-bit CRC of message text, the algorythm is
+      the same as used in ZModem; <hexno2> contains a 32-bit sum of all
+      characters in message text (that is, for i = 1 to textlen do value =
+      value + character), first initialized to zero; <hexno3> contains the
+      16-bit CRC of message text, and the algorythm is the same as used in
+      XModem.
+
+   The MSGID should *never* be changed when the message is already being
+   distributed. Note that at no point should this information serve as
+   means to check if the message text has been passed ok; a processing
+   application should always treat the MSGID field to be in an unknown
+   format. However, the MSGID subfield is assumed not to contain
+   unprintable characters, that is, it should always contain characters
+   between and including ASCII 32..126.
+
+   Gating: when converting to another message format, always use the MsgID
+      subfield to store the message ID. However, the destination message's
+      message ID field should, too, be set; when the contents of the MSGID
+      field are longer than what is supported by the destination format or
+      contain characters that should not be present there, a 32-bit CRC of
+      the contents of the MSGID field is taken. If an origination address
+      is needed, it is taken from the ORIGIN subfield.
+         When a message is gated *from* another message format, it is first
+      checked if the message contains a MsgID supplementary line; if so,
+      the MSGID contents are taken from there. Otherwise, the contents of
+      the origination message format's msgid field are taken. If the field
+      is in binary, each of the bytes it consists of should be converted to
+      a hexadecimal representation to produce a non-interrupted string of
+      hexadecimal digits, say "1af262b577de" for some 6-byte binary number.
+      If the origination address is a part of the origination message
+      format's message ID field, its 32-bit CRC in hexadecimal should be
+      appended to the already copied message ID without intervening data.
+
+
+
+   SUBFIELD: REPLYID (simple) [don't take that too literally]
+   ID: 12
+   Presence: Zero or one
+
+   Contains the contents of the MSGID subfield of the message this message
+   is a reply to; if the message is being converted from or to another
+   message format, the same conversion techniques apply as for the MSGID
+   subfield. This includes the usage of supplementary lines in cases
+   similar to those described for the MSGID subfield; however, for the
+   REPLYID subfield, not only a ReplyID, but also a ReplyAddr supplementary
+   line is used. The reason will soon be obvious.
+
+   Consider the following in an OFT message:
+
+      ^AMSGID: 2:380/121.512 2ffbea7f
+      ^AREPLY: 2:380/104.15 78024880
+
+   When converted to EDX, it would read simply
+
+      <MSGID>        2:380/121.512 2ffbea7f
+      <REPLYID>    2:380/104.15 78024880
+
+   But when converted back to OFT, the REPLY subfield could not be
+   converted because the replied-to message's origination address is not
+   available. For that matter, the contents of the replied-to message's
+   MSGID subfield are followed by a NULL character and the origination
+   address of the replied-to message. The full format of the REPLYID
+   subfield, therefore, reads:
+
+      <original message's ID>
+      <NULL>
+      <original message's origination E-Address>
+                                      =========
+
+   Imagine the underlined "E-Address" string in block letters.
+
+
+   Now, when a message is generated by an OFT system, it has the MSGID of,
+   for example:
+      ^AMSGID: 2:380/104.15 78024880
+
+   The string is then "converted" to EDX format, simply:
+      <MSGID> 2:380/104.15 78024880
+
+   However, when the message is again converted to OFT format, the
+   following message ID is created:
+      ^AMSGID: ofs->FidoNet#2:380/104.15 <somenumber>
+   <somenumber> contains the 32-bit CRC of the contents of the MSGID
+   subfield that you can see 5 lines above. Of course, a MsgID supline is,
+   too, prepended prior to the message text:
+       &MsgID: 2:380/104.15 78024880
+   The reason that somewhere ofs->FidoNet#2:380/104.15 and somewhere just
+   2:380/104.15 is placed is that in the first case, the address was
+   obtained from the ORIGINADDRESS subfield (that was converted to EDX
+   format), while in the second case, the address is treated as a part of
+   the original message ID. You should be able to explain that on each
+   specific case.
+
+
+   Later, a reply is generated by another OFT system that has the *.ID pair
+   of, for example:
+      ^AMSGID: 2:380/121.512 2ffbea7f
+      ^AREPLY: 2:380/104.15 78024880
+
+   When converted to EDX, it reads:
+
+      <MSGID>        2:380/121.512 2ffbea7f
+      <REPLYID>    2:380/104.15 78024880
+                  <NULL>
+                  ofs->FidoNet#2:380/104.15
+
+   Notice the original message's origination address after the REPLYID; it
+   is retrieved from the first part of the ^AREPLY kludge in the message
+   prior to its conversion.
+
+   Now, when converted back to OFT:
+      ^AMSGID: ofs->FidoNet#2:380/121.512 <sthelse>
+      ^AREPLY: ofs->FidoNet#2:380/104.15 <somenumber>
+   Here, <somenumber> is the same number as it was a few steps before when
+   the original message's was converted back to OFT. This way, reply
+   linking is possible even when messages get gated multiple times.
+
+   Of course, along with the ^AREPLY and ^AMSGID kludges created in the
+   last described step, MsgID and ReplyID supplementary lines are also
+   added to message text:
+       &MsgID: 2:380/121.512 2ffbea7f
+       &ReplyID: 2:380/104.15 78024880
+       &ReplyAddr: ofs->FidoNet#2:380/104.15
+
+
+
+   SUBFIELD: TEXT (complex)
+   ID: 1000
+   Contents: text
+   Presence: Zero or one
+
+   The TEXT subfield contains plain text. The smallest unit of text next
+   to a character and a word is, however, not a line, but a paragraph that
+   contains freely flowing text without intervening CR-s. A CR (ASCII 13)
+   is used to terminate a paragraph and start a new one. ASCII 141 (softCR)
+   is treated as a normal character.
+
+   It is strongly recommended that, when displaying message text, lines of
+   minimally 78 characters in length be supported. When inserting ASCII art
+   in message text, this should ensure proper display of such messages on
+   as many systems as possible.
+
+   Message text is not to exceed 128k in length. However, implementations
+   must be able to process all sizes of text up to that number of bytes.
+
+   *Only actual message text* is allowed to be stored in the TEXT subfield.
+   Although it is allowed to treat the tearline and originline as a part of
+   message text when gating a message from OFT to EDX, it is not under any
+   circumstances allowed for an EDX-compliant piece of software to actually
+   generate any control information in the TEXT subfield. Such information
+   has its place in other subfields; if there isn't any place for it to
+   store, it shouldn't stored at all.
+
+
+
+   SUBFIELD: FILE (complex)
+   ID: 1001
+   Contents: Two ulongs followed by two null-terminated strings
+             followed by unbounded data
+   Presence: Zero or more
+
+   Contains information about an enclosed file and the file itself.
+
+   The first ulong contains the size of the file; it must match the number
+   of bytes in the "unbounded data" field as said above.
+
+   The second ulong contains the UTC date and time of file's last update,
+   in Unix format - the number of seconds since 00:00:00, 01-Jan-1970.
+
+   The first string contains the short 8.3 filename consisting of
+   characters 'A'..'Z', '0'..'9', and "_-!#$&()", without the quotes;
+   treated case insensitive.
+
+   The second string contains the full name of the file; any character from
+   ASCII 32..126, up to 255 characters. Should the full filename equal the
+   short one, the third and the second strings should be set to the same
+   values.
+
+   The NULL that terminates the last of the above strings is immediately
+   followed by the contents of the file.
+
+   Gating for networks that don't feature files attached to messages:
+      probably the best would be to move the uuencoded file's contents
+      to the message text.
+
+   Gating for networks that feature file attaches: save attached files to
+      disk and attach them to the message. Use whatever format you wish
+      to store other information about the file in the message's text.
+      If the network format overwrites message's subject if files are
+      attached, save the subject to message text using the Subj supline.
+
+
+
+   Passing a message
+   ========================================================================
+   When an application passes an EDX message it has received from somewhere
+   to another system using the EDX format again, the only data it is
+   allowed (*and* required) to change are the TRACE and SENTTO subfields.
+   See the format of the two subfields for further information.
+
+
+
+   Colors, fonts, inserted pictures, sound and whistles
+   ========================================================================
+   EDX currently supports none of the above, the reason being that the
+   number of complications all of the above would make highly exceeds its
+   usability. If time proves the opposite, a special "FORMAT" subfield
+   will be implemented that will dictate how to interpret message text,
+   implementing all of the above and still staying backwardly compatible.
+
+   Implementation of all this is relatively simple for message processors,
+   while it complicates the message editor authors' lifes. I invite all
+   authors of public mail editors to send me a message if they would like
+   to implement GUI elements in their programs; if enough of us happens to
+   gather up, we will produce specifications for the FORMAT subfield and a
+   special msgbase format will be developed, most probably an extension to
+   JAM (as it is the most flexible messagebase format present at the
+   moment), to support this.
+
+
+
+
+
+
+   ========================================================================
+   EDX message text supplements
+   ========================================================================
+   Those EDX implementations that are expected to convert messages between
+   EDX and some other format can make use of message text supplementary
+   lines when a message's information would otherwise be lost in a non-EDX
+   format.
+
+   Note that EDX supplementary lines, however contradictory it may seem,
+   are under no condition to be used in EDX, but in message formats that
+   place control information in the message text and do not have (enough)
+   space reserved for some information the message carried prior to being
+   converted from EDX into that format. Also, for information for which
+   there is sufficient space in the converted-to message format, no
+   supplementary lines should be created; for example, there should be no
+   Creator or Exporter supplementary lines in OFT Type-2 messages.
+
+   Supplementary line format is, exactly:
+      <" &"><linetag><": "><data><EOL>
+   where:
+      <linetag> is the tag of the supplementary line (case sensitive)
+      <data> consists of ASCII characters 32-126
+      <EOL> is converted-to message format specific end-of-line terminator,
+         for instance <CR> for FTS-1, <CRLF> for RFC-822 etc.
+
+   A supplementary line must not exceed 79 characters.
+
+   All supplementary lines are appended just prior to original message
+   text. They are separated from it with an empty line, unless an empty
+   line is impossible to insert in the converted-to message format.
+
+   When a message with supplementary lines is converted (back) to EDX, the
+   below-defined supplementary lines should be converted to their subfield
+   representation. Unknown supplementary lines should be left untouched.
+
+   Note that supplementary lines should be treated as a part of message
+   text equal to the text itself; they are human readable, only their
+   format is such that also a program can read them. Therefore, it is
+   natural, for example, to store EDX supplementary lines after the SOT
+   and before the EOT kludge in OFT messages.
+
+
+
+   MsgID
+      " &MsgID: <text><EOL>"
+   Contains the contents of the MSGID subfield. (See MSGID subfield)
+
+
+   ReplyID
+      " &ReplyID: <text><EOL>"
+   Contains the contents of the REPLYID subfield up to, but excluding the
+   NULL character. (See REPLYID subfield)
+
+
+   ReplyAddr
+      " &ReplyAddr: <text><EOL>"
+   Contains the contents of the REPLYID subfield from, but excluding the
+   NULL character. (See REPLYID subfield)
+
+
+   Creator
+      " &Creator: <text><EOL>"
+   Contains the contents of the CREATOR subfield should nothing equivalent
+   be featured by the converted-to message format.
+
+
+   Exporter
+      " &Exporter: <text><EOL>"
+   Contains the contents of the EXPORTER subfield should nothing equivalent
+   be featured by the converted-to message format.
+
+
+   Origin
+      " &Origin: <name>, <E-Address><EOL>"
+   Contains the name and address of the actual message sender if the
+   converted-to message format cannot (safely) hold their entire name or
+   address as it was originally.
+      In OFT messages, the Origin supplementary line is always written.
+
+
+   Dest
+      " &Dest: <E-Address><EOL>"
+   For netmail (and equivalent) messages only: contains the address of the
+   system to route the message to if the converted-to message format cannot
+   (safely) hold the entire address.
+      In OFT netmail messages, this supplementary line is always written.
+
+
+   Author
+      " &Author: <name>, <E-Address><EOL>"
+   Contains the name of one of the message's authors if the converted-to
+   message format doesn't support anything parallel to the AUTHOR subfield.
+   One line is used for each author, *all* authors should be specified.
+
+
+   Whoto
+      " &Whoto: <name><EOL>"
+   Contains the name of one of the message's recipients if there are more
+   than the converted-to message's format supports. One line is used for
+   each recipient, *all* recipients should be specified. The Whoto line
+   only applies to echoed messages; for netmail messages, multiple copies
+   of the original message should be created.
+
+
+   Subject
+      " &Sbj: <text><EOL>"
+   Contains the entire message's subject if there is not enough space for
+   it in the converted-to message format.
+
+
+
+
+
+
+
+
+
+
+The following chapter is independent from the EDX specifications. It is a
+recommendation for an integrator between EDX and other specifications, and
+should, indeed, be placed in some file by itself. Don't worry, it'll be as
+it evolutes.
+
+   ========================================================================
+   EDX Recommendations
+   ========================================================================
+   The following are implementation recommandations intended to avoid chaos
+   of different, non-inter-operable EDX implementations. In order to
+   achieve that goal, each developer is highly encouraged to develop their
+   software having them in mind.
+
+   "ERX" is an abbreviation for "EDX Recommendations". ERX does *not* equal
+   EDX; if one decides to implement EDX, they aren't bound to also follow
+   the ERX specifications. However, for cases described herein, it is
+   highly desireable that these specifications, too, be followed.
+
+   In Fidonet, for example, common practice has been to separate the system
+   into two major parts, the mailer and the tosser, where the mailer
+   formally operates the level 3 layer and the tosser formally operates the
+   level 4 layer. But in reality, the tasks are commonly mixed up; the
+   program referred to as the mailer does things that belong to the fourth
+   layer (call scheduling, for example), and still these functions are
+   called the property of the mailer. Newer software, though, would use a
+   different approach: there would be a single central system coordinating
+   module (the "tosser") whose task would be to process mail and schedules,
+   and that module would use the lower-laying modules ("mailers") to
+   perform mail sessions.
+
+   While these modules are kept in the same executable, there's no real
+   problem exchanging data between them. But in reality, this cannot be
+   the case for full-fledged packages; and, frequently, two modules used
+   are not necessarily from the same author. The most practical way to
+   exchange data between them is, then, through the underlying operating
+   system's file system.
+
+   The session module needs the following data be sent to it by the
+   controlling module:
+      * has the session been initiated locally or remotely
+      * the protocols that should be taken in consideration when
+        attempting to initialize the session, in descending order
+      * the list of mail and requests to be sent to the remote
+
+   Of course, the above short list contains nothing that could not be
+   specified to the session handler on the command line when an outbound
+   session is established. The problem is in the mail list when somebody
+   else called in; with incomming sessions, there is no way to tell who it
+   is that is attempting the connection before the session has already been
+   established. That's why the session module should have some means to
+   scan through the entire list of mail to be sent to all systems and pick
+   out those destinated to the current partner-in-session.
+
+
+
+   Recommended in-transit mail storage
+   ========================================================================
+   As stated above, probably the optimal way to exchange data between
+   modules is the underlying file system. When the mail is stored in files
+   (mail for separated systems in separated files, of course), there are,
+   basically, two ways of storing it: unchanged or changed. When it is
+   unchanged, it is assumed that the file contains an arbitrary number of
+   mail items; see below for a definition of such a format. The only
+   reasonable way to change the mail packets, on the other hand, is to
+   compress or encrypt them. Therefore, we need three types of files we
+   would be able to tell from each other just by checking the filenames.
+
+   Encrypted packets aren't covered in ERX.
+
+   Adding mail packets to files containing unchanged mail is relatively
+   easy. On the other hand, with compressed mail, one would have to
+   unpack the file, add the mail packets, and recompress it; a relatively
+   major pain in the ass. That's why compressed mail containers contain
+   a variable number of uncompressed mail container files, which can then
+   be quickly added another when necessary.
+
+   ERX defines no standard mail compressing protocol; it is up to the
+   implementation to scan the compressed mail container for a format ID
+   and run the appropriate decompression module, be it ZIP, ARJ, LHA or
+   whatever.
+
+   For uncompressed mail containers, the naming convention is:
+      <somethng>.ERX
+
+   while for compressed mail containers, it is:
+      <somethng>.EC<n>
+
+   <somethng> consists of exactly 8 *hex* digits. ('0'..'9', 'A'..'F')
+   <n> is a number in base 36 (0..9, A..Z) - described a paragraph or two
+   below. The names are case insensitive.
+
+   Naming algorythm: the contents of <somethng> generally don't matter,
+   but however, for compressed mail containers, an optimal algorythm
+   would compute the 32-bit CRC of our address and the address of the
+   system the file is destinated to, while for uncompressed containers,
+   the algorythm would be simply to make <somethng> a number that is
+   incremented each time a new uncompressed mail container is created for
+   a specific system.
+
+   <n> comes to use when a parallel task wants to store new compressed
+   mail for a system when that particular system is just on-line and
+   receiving its mail; then, a new compressed file is created with a
+   higher value of <n>.
+
+   Note that there is a catch with processing received mail. No one
+   guarranties that two uncompresed mail containers from two separate
+   systems will have a different name. Therefore, when raw uncompressed
+   mail containers are received, care should be taken to rename them in
+   the event of a name clash, and when compressed mail containers are
+   received, only one at a time should be unpacked and processed.
+
+   Also note that the names of files when received on the destination
+   system need not match the filenames as they were on the origination
+   system. In the event of name clash, implementations are allowed, indeed,
+   expected to rename the files as appropriate.
+
+
+
+   Format of the above mentioned uncompressed mail containers
+   ========================================================================
+   An uncompressed mail container (a packet) consists of a binary header
+   and an arbitrary number of mail items; for now, EDX messages. For the
+   sake of upgradeability, each item is preceded with a 4-byte unsigned
+   long integer representing its length in bytes and a 4-byte unsigned long
+   integer representing the type of the item in order to allow
+   implementations of lower EDX levels to skip items they do not know about
+   in the possible future.
+
+   Uncompressed mail containers are protected using envelopes that
+   optionally include password protection. An envelope is a 32-bit value
+   that is used to check packet's authenticity.
+
+   For non-password-protected packets, the envelope is simply the 32-bit
+   CRC of all data beyond packet header. For password-protected packets,
+   however, the procedure is a bit longer.
+
+   In the latter case, the first part of computing a packet's envelope is
+   to generate the packet's key: a 32-bit CRC, a 32-bit checksum and a
+   16-bit CRC of all data beyond the packet's header are computed. The
+   checksum is a 32-bit value that represents the sum of all bytes the
+   mentioned data consists of. The 32-bit CRC is the one used in ZModem,
+   the 16-bit CRC is the one used in XModem. When the three values are
+   computed, they are copied into an array of 10 bytes that represents the
+   packet's key, first the 32-bit CRC (4 bytes), then the checksum (ditto),
+   then the 16-bit CRC (2 bytes). Then, the packet's password is encrypted
+   with the resulting key, and the 32-bit CRC of the resulting encrypted
+   password is the packet's envelope. The encryption algorythm is:
+      newdata[i] = origdata[i] * thekey[(i MOD sizeof(thekey))]
+   The arrays newbyte, origbyte and thekey are assumed zero-based. The
+   newdata and origdata arrays are assumed to have the same size. The i
+   variable is assumed to have the range of 0..[origdatalength-1].
+
+   If there is no data following the packet's header, the envelope should
+   be set to -1 (0xffffffff).
+
+   The packet's envelope is checked by computing a separate version of the
+   envelope and comparing it to the envelope that is stored in the packet's
+   header.
+
+
+   Header structure:
+      char  signature[4]       // 'E', 'R', 'X', ASCII 0
+      ulong hdrsize            // Size of the packet's header in bytes
+      ulong envelope           // Packet's envelope, see above
+      char  origaddress[101]   // Null-terminated origin E-Address
+      char  destaddress[101]   // Null-terminated dest E-Address
+      char  creatorprog[51]    // The program that created the *packet*
+
+   The size of the packet header may increase in future ERX levels higher
+   than 1. However, future packet headers will stay compatible with ERX
+   level 1; an ERX implementation is, when implementing packets as
+   described in here, expected to be able to process all revisions of the
+   packet header with the help of information stored in hdrsize.
+
+   The signature field *must* match 'E', 'R', 'X', NULL in order for the
+   packet to be processed. The comparison of 'E', 'R' and 'X' should be
+   performed exactly - case sensitively.
+
+   The origaddress and destaddress fields specify the origination and
+   destination addresses of the packet, *not* the messages in it. Since
+   the ERX packet is a temporary structure created and known only between
+   two directly connected systems and is not to be routed, a destaddress
+   would normally not be needed, but is present if the packet ends on a
+   different system from the one it was destined to.
+
+   The creatorprog field contains a banner for the program that created the
+   *packet* (not the messages in it), say: "MailMangle v1.24 build376".
+   Only characters in the range of ASCII 32..126 are allowed.
+
+
+   The header is followed by zero or more items (for now messages only),
+   each preceded with the following structure:
+      ulong itemtype
+      ulong itemlen
+
+   itemtype 0 stands for a message; no other values have been defined as
+   of yet. If an unknown itemtype field is encountered, the item should be
+   skipped.
+
+
+   Coexistance of ERX packets with Old FidoNet Technology Type-2+ packets
+   ========================================================================
+   When an ERX implementation sends mail to a system using OFT Type-2+
+   packets, it should signify the availability of ERX by setting the
+   Capability Word as if it would support Type-16 packets; that is, the
+   14th bit of CW (starting from 0 = 0x01) is set to 1. The CWValidation
+   field should, of course, be set accordingly to the generated CW.
+
+
+   Coexistance of ERX packets with Old FidoNet Technology Type-2 packets
+   ========================================================================
+   When sending mail to a system using OFT Type-2 packets as described in
+   FTS-1 r15, a Type-2+ header is generated instead of a raw Type-2 one,
+   and the CW and CWV fields are used as described above.
+
+
+
+
+
+
+
+
+   Recommended mail list format
+   ========================================================================
+   The recommended mail list format consists of the main data file and the
+   index file, named <basename>.MLD and <basename>.MLX, respectively.
+   <basename> should be user-definable.
+
+   Note that the mail list base is not used as an in-between between a
+   tosser and a mailer as used in, for example, FidoNet, but between the
+   program that already established a mail connection and the program that
+   is actually performing mail transfer. Therefore, the use of this type of
+   mail list has no meaning with traditional mailers like FrontDoor or
+   BinkleyTerm.
+
+   All applications should open the mail list files in shareable (DENYNONE)
+   read/write or readonly mode. An exception is granted to maintenance
+   utilities, which should open the mail list files in exclusive, DENYALL
+   sharing mode.
+
+   If a normal application (ie, not a maintenance utility) attempts to
+   write to the mail list, it must first attempt to lock the first byte of
+   the data file. The application should under no circumstances attempt to
+   write to the mail list if it could not lock the data file. The program
+   should, after successfully locking the mail list, write what it has to
+   write as quickly as possible and then release the lock.
+
+
+
+   The data file
+   =============
+   The data file consists of a 1024-byte binary header, followed by
+   subfields of base type, each listing a file or a request and its
+   destination. The binary header format is:
+      char hrsig[30]
+
+   The hrsig field contains the following human readable signature:
+   "Mail list data file (binary)", followed by #26 (^Z), followed by
+   the terminating null.
+
+   The rest of the data file is built of base subfields.
+
+   Subfield IDs are somewhat peculiar: they are used to hold special
+   attributes of the mail item. The first 16 bits (0..15) are used as
+   a part of the normal ID, while the other 16 (16..31) have special
+   meanings that depend on the type of subfield. This all is equivalent
+   to splitting the subfield ID in half and naming the second half
+   "subfield attributes" instead. The unused attribute bits should be
+   set to zero when writing the field to the file.
+
+   The maximum length of any given subfield is 512 bytes.
+
+
+   SUBFIELD: FILE
+   ID, low 16 bits: 0
+   ID, high 16 bits:
+      31:   If set the file should only be sent on inbound connections with
+            the specified system. If not set, the file should be sent on
+            outbound connections as well.
+      30:   If set, the file contains ERX mail, no matter what its filename.
+      29:   If set, the file contains OFT mail, no matter what its filename.
+            If bit 30 is set, bit 29 should be ignored. If neither bit 30
+            nor 29 are set, the file is assumed normal.
+      28:   If set in combination with 30 or 29, the mail is stored in raw,
+            unmodified (compressed, encrypted) packets; otherwise ignored.
+      27:   If set, the file should be deleted after it is sent in its
+            entirety.
+      26:   If set, file's size should be set to zero after it is sent in
+            its entirety. If bit 27 is set, too, this bit should be ignored
+            and bit 27 honored.
+   Contents: Two null-terminated strings
+
+   The first string specifies the E-Address of the system the subfield
+   applies to, while the second string specifies a file to be transfered
+   to that system. Exactly one file per subfield can be specified.
+
+   The maximum length of the first string is 100 characters. The maximum
+   length of the second string is 255 characters.
+
+
+   SUBFIELD: REQUEST
+   ID, low 16 bits: 1
+   ID, high 16 bits: undefined. (Zeroed)
+   Contents: two or three null-terminated strings
+
+   The first string specifies the E-Address of the system the subfield
+   applies to, while the second string specifies the filename to
+   request from the remote system. Wildcards are allowed. Should a password
+   be required, it should be specified in the third string. If the second
+   strings contains a full path and filename, it is to be treated as an
+   update request. Exactly one request per subfield can be specified.
+
+   The maximum length for the first and third (optional) string is 100
+   characters. The maximum length for the second string is 255 characters.
+
+
+   SUBFIELD: TEST
+   ID, low 16 bits: 65535
+   ID, high 16 bits: depends on implementation
+   Contents: A null-terminated string and undefined data
+
+   Intented for various experiments, this subfield contains one
+   null-terminated string specifying the program that is making the
+   experiments, followed by that program specific data. When another
+   program's (= unknown) TEST subfield is encountered, it should be
+   ignored.
+
+
+
+   The index file
+   ==============
+   The mail list index file is built of a binary header and an arbitrary
+   number of binary records. The binary header format is:
+      char hrsig[31]
+
+   The hrsig field contains the following human readable signature:
+   "Mail list index file (binary)", followed by #26 (^Z), followed by the
+   terminating null.
+
+   Each binary record corresponds to a subfield in the mail list data file.
+   The binary record format is:
+      ulong addresscrc
+      ulong subfpos
+      ulong subfid
+
+   Where addresscrc specifies the 32-bit CRC of the E-Address used by the
+   subfield; equals -1 if the subfield is not of a type that would contain
+   a single E-Address (no such mail list data file subfield is defined as
+   of yet), subfpos specifies the absolute position of the subfield in the
+   data file and subfid specifies the ID of the subfield.
+
+
+
+   Subfield deleting
+   =================
+   When a subfield is processed (ie, a file is sent or a request is made),
+   it should be deleted. Since it would be rather awkward to actually
+   delete the subfield, it is done so that all the fields of the respective
+   subfield's index record are set to -1 and the subfield's ID in the data
+   file is set to -1.
+
+   Actual physical deletion of subfields is left to some sort of a packing
+   program as used by similar data bases.
+
+
+
+
+
+
+   Recommended logical connection layer standard
+   ========================================================================
+   I stick to the rule that any network layer should cooperate with as
+   many other different network layers as possible, and that's why I
+   leave it to the network that is about to implement EDX to decide which
+   first, second and third layers to use. FTN networks will probably want
+   to stay with (or upgrade to) EMSI and Hydra.
+
+
+
+
+
+
+
+
+
+
+   ========================================================================
+   Evolution considerations
+   ========================================================================
+   As EDX evolutes, care will be taken for each higher level of EDX to be
+   a superset of the prior versions, so that a higher-level program will
+   be able to process lower-level EDX packets without even having to know
+   that they are from a level lower than the highest supported. Also, a
+   lower-level program will be able to process higher-level EDX packets
+   as long as it ignores unknown subfields and subfields; also, in binary
+   or string structures, it should ignore all extra data out of the known
+   structures, so that lower-level software won't choke on a packet if a
+   new substring is added to, say, string 2 of the SYSINFO subfield.
+   However, a lot of information would be lost with such superset-to-
+   subset conversions; therefore, a received mail packet should (=must)
+   be passed to downlinks with all locally unknown information included,
+   with only the known fields updated, if necessary. I still do, of
+   course, strongly encourage everyone, especially sites with many direct
+   or indirect downlinks, to use as recent software as possible.
+
+
+
+
+
+
+
+
+
+
+   ========================================================================
+   Considerations on upgrading from and coexisting with other mail formats
+   ========================================================================
+   Mail format coexistance is often required for a big network to be able
+   to upgrade itself smoothly to a new and better mailing technology.
+   Generally, the implementation is such that when sending mail to another
+   system, the application puts somewhere a sign about other mail formats
+   it supports; this sign is, naturally, not defined in the specifications
+   of the mail format the sign is in, but rather in the specifications of
+   the mail format the sign stands for. If the destination system also
+   supports the "signed" mail format, it uses it next time when sending
+   mail to the system that sent the sign. When that system receives mail in
+   the new format, it too switches to it next time it sends mail back.
+
+   Note that, when converting a message to EDX format, each piece of
+   information should only be converted if and only if:
+      a) An official supplement has been added to EDX explaining how
+         and if that information should be stored in EDX
+   or b) EDX already has space defined to store that information;
+         for example, the contents of the OFT MSGSEQ kludge should
+         be stored in the seqno header field.
+   or c) The official standard describing that information contains
+         instructions how to store the information in EDX messages.
+
+   The exact instructions as present in either of the above cases should
+   be followed. Instructions in an official EDX supplement have precedence
+   over original EDX specifications, while the original EDX specifications
+   have precedence over instructions made by a third party as described in
+   the third case. That means that if someone invents a great new WhizBang
+   mail format and says that message sequential number information should
+   be stored in an additional subfield, that information should regardless
+   of that be stored in the appropriate field in the message header.
+
+   If none of the above described cases in which information can be stored
+   in an EDX message applies, please contact me - either privately, through
+   E-Mail or snailmail, or through the FidoNet Net_Dev echo. All proposals
+   are welcome.
+
+
+
+
+
+
+
+
+
+
+/// EOF */

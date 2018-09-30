@@ -1,0 +1,804 @@
+Document: FSC-0066
+Version:  002
+Date:
+
+
+
+
+                          Type 3Binary:  A proposal
+                          =========================
+
+                                  Mark Kimes
+                               FidoNet 1:380/16           
+
+
+
+
+Status of this document:
+
+     This FSC suggests a proposed protocol for the FidoNet(r) community,
+     and requests discussion and suggestions for improvements.
+     Distribution of this document is unlimited.  Information in this
+     document is freely usable and adaptable by any and all parties.
+
+     Fido and FidoNet are registered marks of Tom Jennings and Fido
+     Software.
+
+
+
+
+Specifications for type 3binary mail format:
+===========================================
+
+Type 3binary is a new form of mail for Fidonet Technology Networks
+(FTNs).  I've tried to design it to be simple to program, reasonably
+cheap to implement, flexible, extensible, compact and powerful.
+
+
+Chunks:
+------
+
+The basic unit of type 3binary mail is a chunk.  A chunk looks like
+this:
+
+          +-------------------------------------+
+     +----+ 2-byte integer length (type + data) | (A 2-byte integer is
+     |    +-------------------------------------+  a signed integer in
+     |   /| 2-byte unsigned integer type        |  Intel format, giving
+     +--+ +-------------------------------------+  a length range of
+         \| length - 2 of data (may be none)    |  2-32767 (0 is unused).
+          +-------------------------------------+  binary numbers in
+          | pad byte for alignment if required  |  3binary are always Intel
+          +-------------------------------------+  format.)
+
+Chunks are usually contained (as "subchunks") within a "container", or
+"master", chunk that has the form:
+
+          +-------------------------------------+
+    +-----+ 2-byte integer length (type + data) |
+    |     +-------------------------------------+
+    |    /| 2-byte unsigned integer type        |
+    |   / +-------------------------------------+
+    +--+  | 4-byte long integer giving total    |
+        \ | length of all following subchunks   +----+
+         \| complete.                           |    |
+          +-------------------------------------+\   |
+          | (subchunks...)                      | +--+
+          +-------------------------------------+/
+
+Predefined chunk types:
+----------------------
+
+ Quick table:
+ -----------
+
+ Mnemonic  VAL Where  Data format
+ --------  --- -----  -----------
+*EOP       0    END   None (end of packet indicator)
+*FROM      1   BOTH   FTN address in packet, name@FTN address in msg
+ TO        2   BOTH   [FTN address in packet,] name[@FTN address] in msg
+ SUBJECT   3    MSG   Text hinting at topic of message
+*ID        4    MSG   4-byte long integer
+ REF       5    MSG   4-byte long integer followed by FTN address.
+*DATE      6    MSG   Packed date
+ ATTRIB    7   BOTH   4-byte integer (bit field; see below)
+ PASSWORD  8   BOTH   8-bit text, case sensitive
+*PRODUCT   9    PKT   8-bit text, case insensitive
+ ECHO      10  BOTH   8-bit text, case insensitive
+ MSG       11 TWEEN   4-byte long integer (length of total msg)
+ TEXT      12   MSG   8-bit text
+ ORIG      13  BOTH   Origin address in native network's format
+ ORIGID    14   MSG   Origin network's form of message identifier
+ FONT      15   MSG   Text describing recommended font style
+ CHARSET   16   MSG   Text:  Character set identifier (including 16-bit
+                      character sets)
+ RICH      17   MSG   Richly formatted 8-bit text
+ SUB       18  BOTH   Subtopic chunk (use with ECHO, as for ECHO)
+ GROUP     19  BOTH   As for ECHO, but for Groupmail-like technology
+ ATTACH    20   MSG   Text giving name of a file that should follow msg
+ DEST      21   BOTH  Destination address in native network's format
+ QUOTE     22   MSG   Original user's name and quoted text
+ GLOBAL    23  TWEEN  4-byte long integer (length of global chunks following)
+ ENCRYPT   24   MSG   Encryption method and encrypted text
+ ADD       25   MSG   Add an ECHO area.
+ DROP      26   MSG   Drop an ECHO area.
+ REPORT    27   MSG   Report on ECHO areas.
+ PKT       28 TWEEN   4-byte long integer (length of total packet header)
+
+ * = required field.
+
+ Notes:
+ -----
+ o Even when text is case insensitive, case should be preserved.
+ o Addresses are always in text, and always given in full.
+ o A full FTN address is in the form:
+      domain[.sub[.sub]]#zone:net/node[.point]
+   Multiple levels of subdomains are possible.  The rest of the address
+   after '#' can be considered internally as one subdomain if desired.
+   Node and point are decimal representations of 2-byte unsigned
+   integers in the range 0-65534 (if point is 0 it should be omitted).
+   Zone and net are decimal representations of 2-byte unsigned integers
+   in the range 1-65532.  Domains and subdomains are case insensitive
+   alphanumeric text, and each "part" (separated by periods) is
+   significant to 8 characters (preserve what you get though, please).
+ o Name@FTN address form is:
+      user name@Full_FTN_address
+ o Note that the characters '#' and '@' are illegal in a user name.
+ o Address in TO field may be omitted for broadcast mail.  If user name
+   is missing, assume message is addressed to "All."  TO chunk may be
+   omitted in packet header if packet not designed to forward en masse.
+   Multiple TO chunks may be present and would be considered a request
+   to send the message to each listed address.
+ o "8-bit text" just means that all 8 bits in a byte are useable.
+   It doesn't mean that a CHARSET can't change this to use 16-bit
+   characters or something else "strange," just that all 8 bits in bytes
+   are useable.  In the absence of a CHARSET chunk, ISO-8859-1 (Latin-1)
+   should be assumed.
+ o Note that a CHARSET may be required before other text-based chunks,
+   even in a header.  This allows, for example, "user name" to contain
+   defined characters not in the default character set.
+ o "TWEEN" chunks are "container" chunks; their data indicates the length
+   of "subchunks" that follow and are contained within the master
+   "TWEEN" chunk.  MSG, PKT and GLOBAL chunks are masters.  Other
+   masters may be encountered as new chunks are defined.  At a minimum,
+   new master chunks should contain FROM and TO subchunk information to
+   allow an older implementation to route the chunks, even if ignorant
+   of their content.
+   
+
+
+Chunk breakdown:
+===============                                                 Chunk class:
+                                                                -----------
+EOP (marks end of packet):                                      n/a
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (always 2)                  |
+          +---------------------------------------------------+
+  Type    |     00 (EOP type indicator)                       |
+          +---------------------------------------------------+
+
+FROM (indicates FTN origin of packet or message):               CONTROL
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     01 (FROM type indicator)                      |
+          +---------------------------------------------------+
+  Data    | FTN origin address in text                        |
+          | (FTN address in packet,                           |
+          |  user name@FTN address in message)                |
+          | This information is required                      |
+          +---------------------------------------------------+
+
+TO (indicates FTN destination of packet or address):            CONTROL
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     02 (TO type indicator)                        |
+          +---------------------------------------------------+
+  Data    | FTN destination address in text                   |
+          | (FTN address in packet,                           |
+          |  user name@FTN address in message)                |
+          | may be omitted or partial (name only) if ECHO     |
+          | chunk is active.  Required for netmail.           |
+          +---------------------------------------------------+
+
+SUBJECT (indicates something about the message's topic):        CONTROL
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     03 (SUBJECT type indicator)                   |
+          +---------------------------------------------------+
+  Data    | 8-bit Text                                        |
+          +---------------------------------------------------+
+
+ID (unique message identifier):                                 CONTROL
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     04 (ID type indicator)                        |
+          +---------------------------------------------------+
+  Data    | 4-byte long integer                               |
+          | It is up to the originator of the message to use  |
+          | a number which, when combined with the FROM       |
+          | chunk, forms a unique ID for this message for a   |
+          | period of at least one year.                      |
+          +---------------------------------------------------+
+
+REF (reference identifier):                                     CONTROL
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     05 (REF type indicator)                       |
+          +---------------------------------------------------+
+  Data    | 4-byte long integer.  This corresponds to the ID  |
+          | of the message to which this is a reply.          |
+          +---------------------------------------------------+
+          | FTN address in text                               |
+          | This corresponds to the FROM address (less user   |
+          | name) of the message to which this is a reply.    |
+          +---------------------------------------------------+
+
+DATE (date of message):                                         CONTROL
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     06 (DATE type indicator)                      |
+          +---------------------------------------------------+
+  Data    | A binary structure with the following format:     |
+          +---------------------------------------------------+------------+
+          | 2-byte unsigned int year                                       |
+          +----------------------------------------------------------------+
+          | unsigned byte month (1-12)                                     |
+          +----------------------------------------------------------------+
+          | unsigned byte day-of-month                                     |
+          +----------------------------------------------------------------+
+          | unsigned byte hour                                             |
+          +----------------------------------------------------------------+
+          | unsigned byte minute                                           |
+          +----------------------------------------------------------------+
+          | unsigned byte second                                           |
+          +----------------------------------------------------------------+
+          | byte pad for alignment                                         |
+          +----------------------------------------------------------------+
+          | 2-byte signed int gmt offset (15 min increments, -32767 = n/a) |
+          +----------------------------------------------------------------+
+
+ATTRIB (bitmapped attribute field):                             CONTROL
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     07 (ATTRIB type indicator)                    |
+          +---------------------------------------------------+
+  Data    | 4-byte long integer (bit-mapped field)            |
+          | Defined bits:                                     |
+          +---------------------------------------------------+---+
+          | 0 = PRIVATE in message header,                        |
+          |     "en masse forward okay" in packet header          |
+          +-------------------------------------------------------+
+          | 1 = Audit trail requested; use sparingly              |
+          +-------------------------------------------------------+
+          | 2 = Return receipt requested; use sparingly,          |
+          |     netmail only                                      |
+          +-------------------------------------------------------+
+
+PASSWORD (password protection at packet/message level):         CONTROL
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     08 (PASSWORD type indicator)                  |
+          +---------------------------------------------------+
+  Data    | 8-bit Text                                        |
+          +---------------------------------------------------+
+
+PRODUCT (name of program producing the packet):                 CONTROL
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     09 (PRODUCT type indicator)                   |
+          +---------------------------------------------------+
+  Data    | 8-bit Text                                        |
+          +---------------------------------------------------+
+
+ECHO (echo area tag identifying a conference):                  CONTROL
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     10 (ECHO type indicator)                      |
+          +---------------------------------------------------+
+  Data    | 8-bit Text                                        |
+          +---------------------------------------------------+
+
+MSG (message chunks preface):                                   CONTAINER
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     11 (MSG type indicator)                       |
+          +---------------------------------------------------+
+  Data    | 4-byte long indicating total length of all        |
+          | following chunks that comprise message            |
+          | note this allows "skipping" a message in one bite |
+          | or loading entirely into memory in one bite for   |
+          | processing without further disk access.           |
+          +---------------------------------------------------+
+
+TEXT (generic message text):                                    BODY
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     12 (TEXT type indicator)                      |
+          +---------------------------------------------------+
+  Data    | 8-bit Text                                        |
+          | This is similar to what's in a type 2 message     |
+          | body.  As with type 2, text is free flowing with  |
+          | carriage returns to terminate paragraphs.         |
+          | Unlike type 2, no "soft-crs" and linefeeds.       |
+          +---------------------------------------------------+
+
+ORIG (origin address in native network's format):               CONTROL
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     13 (ORIG type indicator)                      |
+          +---------------------------------------------------+
+  Data    | 8-bit Text                                        |
+          | When a message is gated into an FTN, this field   |
+          | is used to preserve the "true" origin address for |
+          | purposes of generating a reply back through the   |
+          | gate to the originator.                           |
+          +---------------------------------------------------+
+
+ORIGID (original message identifier in native network's format): CONTROL
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     14 (ORIGID type indicator)                    |
+          +---------------------------------------------------+
+  Data    | 8-bit Text                                        |
+          | When a message is gated into an FTN, this field   |
+          | is used to preserve the original unique message   |
+          | identifier (if one was used) for purposes of      |
+          | reply linking and as an adjunct to dupe detection |
+          +---------------------------------------------------+
+
+FONT (font change):                                             BODY
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     15 (FONT type indicator)                      |
+          +---------------------------------------------------+
+  Data    | 8-bit Text                                        |
+          | This would describe the recommended font to use   |
+          | when displaying subsequent items.  I leave this   |
+          | vague; we need to adopt an extant standard, if    |
+          | possible.  If nothing else, pointsize.style.mod   |
+          |        (example:  10.Helvetica.Bold)              |
+          | No font is defined at the beginning of a message, |
+          | but you can use a "global" chunk to set a         |
+          | "default" font.  A font, once defined, remains in |
+          | effect until the end of the message or until      |
+          | another FONT chunk is encountered.  As is the     |
+          | case with all global chunks, if a global FONT     |
+          | chunk is defined and overridden within a message  |
+          | by a message-local FONT chunk, the font reverts   |
+          | to the globally defined font when the message     |
+          | ends.                                             |
+          +---------------------------------------------------+
+
+CHARSET (character set change):                                 CTRL/BODY
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     16 (CHARSET type indicator)                   |
+          +---------------------------------------------------+
+  Data    | 8-bit Text                                        |
+          | This would describe the recommended character set |
+          | to use when displaying subsequent items.  In the  |
+          | absence of this chunk type, 8-bit ISO 8859-1 is   |
+          | assumed at the start of a message.  Note this     |
+          | should be able to be used to introduce multi-byte |
+          | characters, too.  I leave this vague, again,      |
+          | because this is outside my one-language ignorant  |
+          | American expertise.  We should adopt extant       |
+          | standards , if possible.  You can use a "global"  |
+          | chunk to set a default character set for          |
+          | subsequent messages.                              |
+          | A character set, once defined in a message,       |
+          | remains in effect until the end of the message or |
+          | another CHARSET chunk is encountered.             |
+          +---------------------------------------------------+
+
+RICH (richly formatted text):                                   BODY
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     17 (RICH type indicator)                      |
+          +---------------------------------------------------+
+  Data    | 8-bit Text                                        |
+          +---------------------------------------------------+
+
+SUB (subtopic):                                                 CONTROL
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     18 (SUB type indicator)                       |
+          +---------------------------------------------------+
+  Data    | 8-bit Text                                        |
+          | Used with ECHO type, can be used to selectively   |
+          | subdivide conferences.  Multiple subtopics may be |
+          | separated by semi-colons.                         |
+          +---------------------------------------------------+
+
+GROUP (Group area tag identifying a conference):                CONTROL
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     19 (GROUP type indicator)                     |
+          +---------------------------------------------------+
+  Data    | 8-bit Text                                        |
+          | As for ECHO type, provided to ease migrating of   |
+          | type 2 groupmail technology                       |
+          +---------------------------------------------------+
+
+ATTACH (file attached to a message or packet):                  CONTROL
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     20 (ATTACH type indicator)                    |
+          +---------------------------------------------------+
+  Data    | 8-bit Text                                        |
+          | Name of a file that should follow the message or  |
+          | packet.  No drive or path indicators should be    |
+          | present, just a simple filename.                  |
+          | The message probably describes the file.          |
+          +---------------------------------------------------+
+
+DEST (destination address in native network's format):          CONTROL
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     21 (DEST type indicator)                      |
+          +---------------------------------------------------+
+  Data    | 8-bit Text                                        |
+          | Used to pass the "true" destination address of a  |
+          | message being sent to a non-FTN network to the    |
+          | gateway software.                                 |
+          +---------------------------------------------------+
+
+QUOTE (quoted text):                                            BODY
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     22 (QUOTE type indicator)                     |
+          +---------------------------------------------------+
+  Data    | 2-byte integer, length of user's name             |
+          +---------------------------------------------------+
+          | 8-bit Text, user's name                           |
+          | If a previous QUOTE chunk was present in the      |
+          | message and the same user is being quoted, the    |
+          | user name may be empty for subsequent QUOTE       |
+          | chunks.                                           |
+          +---------------------------------------------------+
+          | 1-byte pad if required for alignment              |
+          +---------------------------------------------------+
+          | 2-byte integer, length of text                    |
+          +---------------------------------------------------+
+          | 8-bit Text                                        |
+          +---------------------------------------------------+
+
+GLOBAL (global chunks preface):                                 CONTAINER
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     23 (GLOBAL type indicator)                    |
+          +---------------------------------------------------+
+  Data    | 4-byte long indicating total length of all        |
+          | following chunks that comprise global chunks.     |
+          +---------------------------------------------------+
+
+ENCRYPT (encrypted text):                                       BODY
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     24 (ENCRYPT type indicator)                   |
+          +---------------------------------------------------+
+  Data    | 2-byte integer, encryption method description     |
+          +---------------------------------------------------+
+          | 8-bit Text, method of encryption (probably        |
+          | the name of the software package used to encrypt  |
+          | and decrypt the following text).  If a previous   |
+          | ENCRYPT chunk was present in the message and the  |
+          | same encryption method was used, the method of    |
+          | encryption may be empty for subsequent ENCRYPT    |
+          | chunks.                                           |
+          +---------------------------------------------------+
+          | 1-byte pad if required for alignment              |
+          +---------------------------------------------------+
+          | 2-byte integer, length of encrypted text          |
+          +---------------------------------------------------+
+          | Encrypted data                                    |
+          +---------------------------------------------------+
+
+ADD (add ECHO area):                                            CONTROL
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     25 (ADD type indicator)                       |
+          +---------------------------------------------------+
+  Data    | 8-bit Text, tag of conference to add.             |
+          +---------------------------------------------------+
+
+DROP (drop ECHO area):                                          CONTROL
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     26 (DROP type indicator)                      |
+          +---------------------------------------------------+
+  Data    | 8-bit Text, tag of conference to drop.            |
+          +---------------------------------------------------+
+
+REPORT (report on ECHO areas):                                  CONTROL
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     27 (REPORT type indicator)                    |
+          +---------------------------------------------------+
+  Data    | 8-bit Text, special request, optional.            |
+          +---------------------------------------------------+
+
+PKT (packet header preface):                                    CONTAINER
+          +---------------------------------------------------+
+  Len     | 2-byte integer length (2 + length of data)        |
+          +---------------------------------------------------+
+  Type    |     28 (PKT type indicator)                       |
+          +---------------------------------------------------+
+  Data    | 4-byte long indicating total length of all        |
+          | following chunks that comprise packet header.     |
+          +---------------------------------------------------+
+
+
+
+Chunk classes:
+-------------
+
+Chunks of class CONTROL should precede chunks of class BODY to ensure
+that control information is known before large blocks of data show up.
+This allows processors to make decisions about what to do with the
+message before any paging might have to take place, if the processor
+is designed to require paging.  Chunks of class CONTAINER are container,
+or master, chunks that have as data a long 4-byte integer giving the
+length of all following (contained) subchunks.
+
+
+Experimental and strippable chunk types:
+---------------------------------------
+
+Chunk types above 41951 are reserved for experimental use.  Experimental
+chunks, and chunk 41951, may be stripped during passthrough; all other
+chunks should be preserved, even if not understood, during passthrough.
+Apply to the FTSC if you feel you have a chunk that deserves
+"canonization."  Minimum requirements for canonization are a unique
+purpose, existing, complete, published specifications covering the use
+and contents of the new chunk type, and backward compatibility with this
+specification.
+
+
+GLOBAL chunks:
+-------------
+
+The GLOBAL chunk is followed by (data) bytes of other chunks
+(subchunks).  These "global" chunks are used for information that may be
+repeated in several messages.  For example, if several messages are all
+from the same user and system, a "global" TO chunk might be used instead
+of independent TO chunks in each message.  For another, messages in
+various echos might be grouped with "global" ECHO chunks.  In yet
+another, default CHARSET and FONT chunks might be set up.  To cancel a
+previously defined "global" chunk, issue it again with no data.  To
+cancel all defined "global" chunks, use a GLOBAL chunk followed by
+(data) number of 0.  GLOBAL chunks may not occur _within_ messages, but
+must be situated _between_ messages, just like MSG chunks themselves.
+
+Chunks in the MSG override "global" chunks, but it would probably be
+preferable to omit one or the other in most cases.  Obviously, not all
+message chunks lend themselves to being global; ID and DATE chunks are
+good examples.  Global TEXT chunks, if present, should be appended to
+the end of messages.  Other chunks would normally be prepended to the
+portion of the message where they belong (a quick way to set CHARSET and
+FONT defaults).
+
+If something similar to type 2's SEEN-BYs _must_ be used (to protect
+fully enclosed polygon topologies, for instance), use a GLOBAL chunk
+containing a "global" chunk type of 41951 (note that type will ensure
+stripping at all stops).  I won't describe how you'd do it here, but I
+suggest you use full addresses separated by something strange like a
+semicolon.
+
+
+Intent:
+------
+
+The limit on the size of data + type to 32767 bytes is to ensure that
+even limited horsepower/resource machines can implement 3binary mail.
+Since several chunks can be combined to create very large messages, this
+is no severe limitation.  It is the intent of these specifications that
+chunks always be aligned on word (two byte) boundaries.  Aligning on
+four byte boundaries and using four-byte integers for length and type
+would give a slight performance improvement on 32-bit machines/operating
+systems, but at least double the overhead of a chunk and make it harder
+to implement on lesser machines.  Since the goal is communication, this
+is to be avoided.
+
+
+Packet parts -- an overview:
+===========================
+
+An extremely simplified diagram of a typical 3binary packet looks like:
+
+ +-----------------------------------------------+
+ | 0x0003  (3binary packet identifier)           |
+ +-----------------------------------------------+
+ | PKT chunk                                     |
+ +-----------------------------------------------+
+ | [MSG [and GLOBAL] chunks.....]                |
+ +-----------------------------------------------+
+ | EOP chunk                                     |
+ +-----------------------------------------------+
+
+
+Packet Header:
+-------------
+
+A type 3binary packet always begins with a 2-byte integer containing
+the binary number 3 to aid in identifying packets at the receiving node.
+This is followed immediately by a PKT chunk containing the chunks of the
+packet header.  A PKT chunk has, as data, the length of the entire
+packet header that follows, excluding itself, in the form of a long
+(4-byte) integer.  A header should contain at least a FROM chunk,
+possibly a TO chunk or an ECHO (or GROUP) chunk, and a PRODUCT chunk
+(and these chunks should be as close to the top of the header as
+possible).  PASSWORD, ORIG and ATTRIB chunks might also be used.  Note
+that if an ECHO (or GROUP) chunk is used in the header, all the messages
+in the packet are for that echo area, and no TO chunk should be present
+in the header, no ECHO chunks are required in the messages, and message
+TO chunks can be only a user name without address.
+
+
+Message Header:
+--------------
+
+A MSG chunk contains the chunks that make up a message.  The MSG chunk
+has, as data, the length of the entire message that follows, excluding
+itself, in the form of a long (4-byte) integer.  After this come FROM,
+TO, DATE and ID chunks and perhaps other control class chunks such as
+SUBJECT, ORIG, ORIGID, DEST, REF and so on.  A CHARSET chunk might also
+be appropriate.
+
+Note that a TO chunk without a user name, or a missing TO chunk, would
+mean the message is addressed to "All".  A FROM chunk without a user
+name might be considered from "Sysop," but this wouldn't be a good
+habit.  A FROM address is always required.  A TO address is required for
+netmail.  DEST and ORIG addresses are used when gating messages from
+foreign (non-FTN) networks.  FROM, TO, ID and ECHO/GROUP chunks (as
+applicable) should appear as close to the top of a message as possible.
+
+
+Message Body:
+------------
+
+Following the message header comes the message body in the form of none
+or more body class chunks.  TEXT, FONT, CHARSET, ENCRYPT, QUOTE and RICH
+chunks might be included here.  Order of chunk appearance can be
+important; fonts or character sets may be changed for specific sections
+of text, for example.  After the message body chunk(s) will be another
+MSG chunk, a GLOBAL chunk, or an EOP chunk signalling the end of the
+packet.  Future enhancements will probably bring GRAPHIC, IMAGE and
+SOUND chunks as well as others I haven't even considered yet.  Your
+input is welcomed.
+
+
+It's important to note that there's no clear break between the header
+and body of a message.  This causes no problems and allows flexibility
+for future, yet unthought of methodology.  Remember, during passthrough
+of messages, just copy chunks using FROM and TO to route as required.
+During import, ignore anything you don't understand.
+
+
+A fleshed-out diagram of a sample "theoretical" packet:
+
+ +-----------------------------------------------+
+ | 0x0003  (3binary packet identifier)           |
+ +===============================================+
+ | PKT chunk                                     +--+
+ +-----------------------------------------------+  |
+ | FROM chunk                                    |  |
+ +-----------------------------------------------+  |
+ | TO chunk                                      |  |
+ +-----------------------------------------------+  |
+ | PRODUCT chunk                                 |  |
+ +===============================================+--+
+ | GLOBAL chunk                                  +--+
+ +-----------------------------------------------+  |
+ | FROM chunk                                    |  |
+ +-----------------------------------------------+  |
+ | ECHO chunk                                    |  |
+ +===============================================+--+
+ | MSG chunk                                     +--+
+ +-----------------------------------------------+  |
+ | TO chunk (user name only)                     |  |
+ +-----------------------------------------------+  |
+ | ID chunk                                      |  |
+ +-----------------------------------------------+  |
+ | REF chunk                                     |  |
+ +-----------------------------------------------+  |
+ | SUBJECT chunk                                 |  |
+ +-----------------------------------------------+  |
+ | TEXT chunk                                    |  |
+ +===============================================+--+
+ | MSG chunk                                     +--+
+ +-----------------------------------------------+  |
+ | TO chunk (user name only)                     |  |
+ +-----------------------------------------------+  |
+ | ID chunk                                      |  |
+ +-----------------------------------------------+  |
+ | REF chunk                                     |  |
+ +-----------------------------------------------+  |
+ | SUBJECT chunk                                 |  |
+ +-----------------------------------------------+  |
+ | TEXT chunk                                    |  |
+ +===============================================+--+
+ | GLOBAL chunk                                  +--+
+ +-----------------------------------------------+  |
+ | ECHO chunk (empty)                            |  |
+ +===============================================+--+
+ | MSG chunk                                     +--+
+ +-----------------------------------------------+  |
+ | TO chunk (w/ address; netmail now)            |  |
+ +-----------------------------------------------+  |
+ | ID chunk                                      |  |
+ +-----------------------------------------------+  |
+ | REF chunk                                     |  |
+ +-----------------------------------------------+  |
+ | SUBJECT chunk                                 |  |
+ +-----------------------------------------------+  |
+ | TEXT chunk                                    |  |
+ +-----------------------------------------------+  |
+ | TEXT chunk                                    |  |
+ +===============================================+--+
+ | MSG chunk...etc.                              |
+ ~                                               ~
+ +===============================================+
+ | EOP chunk (end of packet)                     |
+ +-----------------------------------------------+
+
+
+Naming conventions:
+------------------
+
+To assure that there are no conflicts between FTN type 2 mail and type
+3binary mail, a different naming scheme for packets and bundles is used.
+Note this only discusses filenames as sent to the receiving system; how
+or what you store them as locally isn't the concern of this
+specification.
+
+"Raw" 3binary packets are named 3PAKT###.###.  Archived 3binary packets
+(bundles) are named 3BNDL###.###.  '#' in these filenames refers to
+decimal digits (0-9).  Case is not sensitive.  Where multiple files are
+present, such as multiple packets within a bundle, the filenames should
+be such that ASCII sorting puts them into the appropriate order for
+sequential processing.
+
+
+
+Comparing 3binary to Type 2:
+===========================
+
+Raw type 3binary packets are always smaller than type 2 packets.  You
+can test this for yourself by running 3BTO2.EXE on the sample 3binary
+packet 3PAKT000.000:
+  12950           3PAKT000.000
+	14512 					test.pkt
+Compression tends to negate much of this advantage, however.
+Conventional compression likes lots of text.
+
+(Note that the above test is biased in type 2's favor.  The sample
+ 3binary packet was created nastily from my message base; no GLOBAL
+ chunks were used.  Only tiny SEEN-BYs, minimal tear and Origin lines
+ and no PATH lines are in test.pkt.  Normally, the size difference would
+ be greater.)
+
+Processing of 3binary packets is far more robust than processing type 2
+packets, and is more easily handled on machines with limited resources.
+The simple sample code in the archive is limited only by available
+memory.  Slight modifications would allow limitation to available disk
+space (on non-VM systems where there is a difference).
+
+Type 3binary has the potential to carry data other than simple text,
+such as sound and graphics.  It can, in fact, carry things other than
+messages (if someone comes up with an idea for something else worthwhile
+to carry).	Type 2 doesn't have this capability.
+
+
+
+
+Mark Kimes
+Fidonet#1:380/16.0
+(318)222-3455 data USA

@@ -1,0 +1,79 @@
+Document: FSC-0038
+Version:  001
+Date:     02/22/90
+
+
+
+
+
+                   A Domain Proposal For Fidonet(r)
+
+                              jim nutt
+                          1:114/30@fidonet
+
+
+     
+
+     Information:
+
+         This FSC suggests a proposed protocol for the FidoNet
+         community, and requests discussion and suggestions for
+         improvements.  Distribution of this document is
+         unlimited.
+
+
+
+
+A. Rationale
+
+A recent proliferation of alternative networks based on Fidonet
+technology has brought to light the difficulty of maintaining a fully
+coupled addressing method for Fidonet.  Additionally, Fidonet has
+joined the Internet,  revealing a need for a transparent scheme for
+addressing messages across the networks.  It is therefore proposed that
+a system be established whereby geographical or political sub units of
+the network can be broken off into an independent network called a
+"domain".  These networks will be fully independent, even to the point
+of having duplicate net/node numbers or using a different addressing
+scheme altogether.  This will allow continued growth of Fidonet without
+necessitating that the nodelist grow to an unmanageable size (if it isn't
+already there).  Among the advantages of this type of system are reduced
+nodelist overhead, easier inter-network communication and greater autonomy
+of alternative networks.  This document will only cover the definition  of
+the necessary addressing extensions to support domain based addressing.
+It will not attempt to define standards for gating mail and conferences
+between domains.
+
+
+B. Description
+
+It is proposed that domain addressing be implemented in a fashion similar
+to the current ZONE extended addressing method.  Domain names will be case
+insensitive.  The domain extended addressing line will be comprised of a
+leading SOH (^A, 0x01) followed by the keyword "DOMAIN", the destination
+domain of the message and then the full address (zone:net/node.point) of
+the destination node in that domain, followed by the source domain of the
+message and the full address of the originating node.  The line will be
+terminated by a <CR> (0x0d) and an optional linefeed (0x0a), fields within
+the line will be separated by one or more spaces or tabs. i.e.
+
+     ^ADOMAIN  dstdmn daddress srcdmn saddress
+
+Where "dstdmn" is the name of the destination domain and "daddress" is
+the address of the destination system in a format appropriate to the
+destination domain.  "srcdmn" and "saddress" are similar, except that they
+express the origination address of the message in a format appropriate to
+the originating domain.  This allows a seamless gateway to the Internet
+and other large system networks.  The destination address in the FTS-001
+message header should be that of a gateway to the destination domain.
+
+
+C. Summary
+
+Domains are independent networks that are fully decoupled from the
+Fidonet nodelist.  Message traffic is passed back and forth between
+domains via domain gateways that can understand the DOMAIN extended
+addressing line and act accordingly upon the message.  The advantages
+include reduced nodelist size and easier communication with other
+networks.
+

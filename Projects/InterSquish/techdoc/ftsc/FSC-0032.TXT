@@ -1,0 +1,38 @@
+FSC-0032                                            May 1, 1989
+
+
+                 Uniform EchoMail Quoting Style
+     A Proposal To The FidoNet Technical Standards Committee
+
+
+
+As more and more new software appears on the network, it has
+become evident that we need a universal method for quoting text
+of previous messages in replies.
+
+Because of the way quoted text must appear, it is necessary to
+format said text with "Hard" <CR> characters, in order to keep
+the block from drifting should the new text itself be quoted.
+
+The following method should allow current and future programs
+to properly identify and handle previously quoted material.
+
+
+Newly quoted text should be preceeded by the a single space,
+a greater than symbol ('>') and another space.
+
+Optionally a field of initials may appear in front of the
+greater than symbol, like this:  " MR> ".  If you allow the
+initials to be inserted, they should only be inserted into
+lines which have not been previously quoted.  (in other words,
+don't add initials to anything already quoted)
+
+Successive quotes of previously quoted material should only add
+a single ">" in front of the existing text, which may eliminate
+the leading blank space.
+
+Blank lines in quotes should remain blank (no '>' or initials).
+
+Kludge lines, including tear lines and origins lines are not
+normally quoted, but when they are - they must never be quoted
+exactly - this definitely causes problems with other software!

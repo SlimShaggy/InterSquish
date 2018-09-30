@@ -1,0 +1,410 @@
+Document: FSC-0069
+Version:  001
+Date:     13-Dec-1992
+
+
+
+
+                              A Proposal
+                                 for
+                 A FidoNet (FTN) Domain Name Service
+                            Robert Heller
+                              1:321/153
+                            Locks Hill BBS
+
+
+
+
+Status of this document:
+
+     This FSC suggests a proposed protocol for the FidoNet(r) community,
+     and requests discussion and suggestions for improvements.
+     Distribution of this document is unlimited.
+
+     Fido and FidoNet are registered marks of Tom Jennings and Fido
+     Software.
+
+
+
+
+
+Information
+-----------
+
+The purpose of this FSC is to describe my ideas for migrating
+FidoNet(r) networks from a "static" nodelist to a domain based
+nameserver type of address resolution scheme.  This document does
+not propose a definitive scheme, only one posible scheme.  Other
+schemes are posible - this document just presents one as a starting
+point for discussion.
+
+1. Introduction
+---------------
+
+In this document I plan to present a simple domain nameserver scheme
+for FidoNet(r) networks.  This scheme could be implemented easily,
+since no new connection protocols would be needed and in fact little
+new software would be needed.
+
+Nameserver queries would be implemented as File Requests for magic
+filenames.  The files would contain the information needed to perform
+the desired address resolution. These files would be built by the
+nameserver in advance by an off-line process.  That is, they would be
+pre-computed - the querying node would not be left hanging on the line
+while the nameserver went off and did a database lookup.
+
+2. Addresses
+------------
+
+A domain nameserver based FidoNet would use three levels of
+addressing: virtual (most abstract), logical, and physical (least
+abstract).  
+
+
+2.1 Virtual Addresses
+
+A node has 1 or more virtual addresses, one of which is it primary
+address and the others are aliases.  A virtual address is a totally
+symbolic address and is formatted just like an InterNet address:
+
+    node.domain
+
+where node is the node's name and domain is a domain specification and
+can have any number of [sub-]* domains.  For example, my system could
+have a virtual address of:
+
+   LocksHill.DeepWoods.com.fidonet.org
+
+The node and domain segment strings consist of letters (upper and
+lower case are equivelant), digits, dash (-), underscore (_), and
+dollar sign ($) characters and must begin with a letter. 
+
+Virtual addresses generally convey no geographical or routing
+information.  They are intended purely for human convience purposes -
+they are really little more and a node name, with some added
+information.
+
+2.2 Logical Addresses
+
+A node can 1 or more logical addresses, although having only 1 is
+preferable. A logical address is exactly an existing 3-4D FidoNet(r)
+address: 
+
+Zone:Net_or_Region/Node
+
+or
+
+Zone:Net_or_Region/Node.Point
+
+A logical address is used by mail packers and mail routers.  It is the
+addresses exchanged in YooHoo/2U2 packets and live in the Type-2
+packet headers.
+
+2.3 Physical Addresses
+
+A node has exactly one physical address.  In FidoNet(r), this is
+typically the telephone number assigned by the telephone company.  (It
+is posible that some nodes have something else as a "physical"
+address, for example a point which is connected to its bossnode via a
+LAN connection or a hardwired COM port.)  A multi-line BBS typically
+has one line for FidoNet(r) connections or multiple logical and
+virtual address, at least one per line.  The physical address is used
+by the mailer program to actually make a connection.
+
+3. The Domain Database
+----------------------
+
+The domain database would consist of four ASCII text files, probably
+compressed: 
+
+     1) The domain table.  This text file maps between virtual
+        addresses and logical addresses.  It also defines aliases
+        as well and lists nameservers.
+
+     2) The mail-exchanger table.  This text file describes the
+        prefered netmail routing.  For each domain tail, it lists
+        one or more node names that handle incoming mail for
+        those domain tails.  This file only uses virtual
+        addresses.  Its data is consulted by high-level mail
+        routers, that take out-bound mail messages and combines
+        them into bundles that are later packed into mail packets
+        (which are routed to logical address fetched from the
+        domain table).
+
+     3) The capability file.  This file describes any extra
+        services or capabilities a node might provide.  This
+        includes (but is certainly not limited to):  gateway
+        services (to other FTN or to non-FTN networks),
+        alternitive low-level connection protocols (i.e. UUCP,
+        SLIP, etc.), and file echos (SDS, SDN, etc.).  This file
+        is meant as a catch-all for misc. optional information
+        that might be usefull.
+
+     4) The nodelist segment file. This file contains the mapping
+        from logical address to physical address, and is in fact,
+        a presnt-day NodeList file, except it is a "sparce"
+        nodelist.  That is, it only describes the nodes at the
+        immediate level of the nameserver and nodes at the level
+        above and below the nameserver.
+
+3.1 Format of the domain table file.
+------------------------------------
+
+The domain table file contains 1 or more lines of text.  Lines
+starting with a semi-colon (;) are comments and are ignored when this
+file is processd.  Each non-comment line contains two or more fields
+separated by commas:
+
+field1,field2,...,fieldN
+
+The first field is a field type keyword.  The field types defined are
+(case is not important):
+
+DEFAULT,domaintail
+
+   Defines the default domain tail to append to domain names in the
+rest of the file.  Domain tail must begin with a dot (.).  Any
+subsequent domain names that do end in a dot will get the specified
+domaintail appended before further processing.
+
+NAMESERVER,domaintail,domain,preference
+
+   Defines a domain server for domaintail.  Domain is the virtual
+address of the server node and preference is a preference value, a
+number giving a relative value when looking for a server to contact.
+A higher number means this is a better node to try and a lower number
+means this is a backup server.  The preference gives a ranking for
+multiple servers for a given domain tail.
+
+ALIAS,domain1,domain2
+
+   Defines that domain1 is an alias for domain2.  
+
+ZONE,zone-number
+REGION,region-number
+NET,net-number
+
+   Defines default values to use in subsequent ADDRESS lines.  Region
+and net lines are effectivly interchangable and are used for
+documentary reasons.
+
+ADDRESS,domain,logical-address
+
+   Defines the logical address for domain.  The logical-address can be
+missing fields.  Missing fields are supplied from prior ZONE, REGION,
+and NET lines.  Node and point numbers cannot be defaulted.
+
+3.1.1 Sample domain table.
+
+;; Domain table for Network 999 (N_Luna) of zone 444 (the Moon)
+;; (c) Copyright 2001 Network 999
+;;
+;; Our default domain
+Default,.N_Luna.moon.fidonet.org
+;; Our zone
+Zone,444
+;; Our Net
+Net,999
+;; Our NC, Jim
+Alias,N_Luna_Net,Jims_SpaceSuits
+;; Our NEC, Sally
+Alias,N_Luna_NEC,Sallys_Lunies
+;; Our namesevers
+;; Note empty domaintail - the default is used
+NameServer,,N_Luna_Net,100
+NameServer,,N_Luna_NEC,50
+;; Out of net nameservers
+;; Our Zone nameserver
+NameServer,.moon.fidonet.org.,Moon_NS.fidonet.org.,100
+;; Our IC nameserver
+NameServer,.fidonet.org.,FidoNet_NS.fidonet.org.,100
+;; Use the IC nameserver for non-fidonet addresses
+NameServer,.,FidoNet_NS.fidonet.org.,100
+;;
+;;
+;; Nodes
+;;
+Address,Jims_SpaceSuits,100
+Address,Sallys_Lunies,110
+Address,Moon_Rock_BBS,120
+Address,Monolith_HQ,200
+Address,Space1999,210
+Address,LostOnTheMoon,240
+Address,NorthLunaics,300
+;;
+;; Out of net addresses
+;;
+Address,Moon_NS.fidonet.org.,999/100
+Address,FidoNet_NS.fidonet.org.,1:1/0
+Address,naEarth_gate.moon.fidonet.org.,999/1
+Address,eurEarth_gate.moon.fidonet.org.,999/2
+Address,ozEarth_gate.moon.fidonet.org.,999/3
+Address,saEarth_gate.moon.fidonet.org.,999/4
+Address,AfricaEarth_gate.moon.fidonet.org.,999/5
+
+
+
+Some notes about the above - the underscores (_) are part of the names
+and do not indicate spaces.  The case mixing is stylistic and is an
+aid to readablity.  The above is a net level domain table. It also
+includes nameserver definations for higher levels, so nodes in N_Luna
+net can perform address resolutions to out of net addresses.
+
+3.2 Format of the mail exchanger table file.
+--------------------------------------------
+
+The mail exchanger table file contains 1 or more lines of text.  Like
+the domain table lines starting with a semi-colon (;) are comments and
+each non-comment line contains a list of three comma-separated values:
+
+domaintail,domain,preference
+
+Where domaintail is a domain suffix of a posible mail address, domain
+is the virtual-address of a node that handles the domain suffix's
+mail, and preference is a preference value (higher number is more
+prefered than a lower number).
+
+3.2.1 Sample mail exchanger table file
+
+;; Mail exchanger table for Network 999 (N_Luna) of zone 444 (the Moon)
+;; (c) Copyright 2001 Network 999
+;;
+;; Local mail can go via either the NC or NEC, with the NC
+;; getting a higher preference
+.N_Luna.moon.fidonet.org,N_Luna_Net.moon.fidonet.org,100
+.N_Luna.moon.fidonet.org,N_Luna_NEC.moon.fidonet.org,90
+;; Out of zone mail goes through the zone gates
+.naEarth.fidonet.org,naEarth_gate.moon.fidonet.org,50
+.eurEarth.fidonet.org,eurEarth_gate.moon.fidonet.org,50
+.ozEarth.fidonet.org,ozEarth_gate.moon.fidonet.org,50
+.saEarth.fidonet.org,saEarth_gate.moon.fidonet.org,50
+.AfricaEarth.fidonet.org,AfricaEarth_gate.moon.fidonet.org,50
+.JupiterNet.org,Monolith_HQ.N_Luna.moon.fidonet.org,50
+
+Some notes about the above - undefined domain tails don't have a
+defined mail exchanger - this will a node trying to send such mail to
+do a nameserver call to get mail exchanger and any other info needed.
+( The above is probably unrealistic - a more realistic mail exchanger
+ table might have a default mail gateway.  And/or a zone-local
+inter-network nameserver.)
+
+3.3 Capability file.
+--------------------
+
+The capability file lists virtual-address and any extra services it
+might provide.  Semi-colon (;) in column one means a comment.  The
+non-comment lines are of the format:
+
+virtual-address,keyword:value,keyword:value,...
+
+Where virtual-address is a node's virtual address.  There can be any
+number of lines with the same virtual-address.  The keyword:value
+pairs accumulate (as if there was only one very long line for that
+virtual-address). 
+
+3.3.1 Sample capability file.
+
+;; Capability file for Network 999 (N_Luna) of zone 444 (the Moon)
+;; (c) Copyright 2001 Network 999
+;;
+Jims_SpaceSuits.N_Luna.moon.fidonet.org,Protcol:UUCP-Z,File:SDSURISC
+Jims_SpaceSuits.N_Luna.moon.fidonet.org,File:PDNVIRTWIND,File:PDNVIRTREAL
+Monolith_HQ.N_Luna.moon.fidonet.org,Protocol:X2500,Gateway:JupiterNet.org
+Space1999.N_Luna.moon.fidonet.org,File:PDNNUKEWASTE
+
+3.4 The NodeList Segment File.
+------------------------------
+
+The nodelist segment file is just a FTS-0005 nodelist file, except it
+is "sparce", that is, it only contains just enough info to translate
+the logical addresses in the corresponding domain table file.
+
+4.0 Nameserver Implementation.
+------------------------------
+
+Nameservers would be implemented by using the existing file-request
+methods presently in existance.  Five magic filenames would be setup:
+
+   DNSDTABL   - Domain table file
+   DNSMXTBL   - Mail Exchanger table file
+   DNSCAPAF   - Capability file
+   DNSNODEL   - NodeList segment file
+   DNSALL     - An archive file containing all four of the files.
+
+All a nameserver would need to do would be to provide these five
+files, probably in some sort of commonly acceptable archive format.
+The real filenames should have some sort of predictable, but unique
+name probably based on the level of the nameserver and the number of
+the zone, region, or network the nameserver serves.
+
+4.1 Nameserver Levels.
+----------------------
+
+Nameservers would exist at various levels:
+
+     1) At the zone level.  The zone level nameserver(s) would
+        supply information for the current zone level nodes,
+        regional level nameservers, and would also have
+        information about the zone level nameservers in all other
+        zones.
+
+     2) At the regional level.  The regional level nameservers
+        would supply information for the current region level
+        nodes (indpendent nodes), the current zone nameserver(s)
+        (up level), and network level nameservers.  In some
+        smaller zones, the region level *might* be skipped. The
+        RC also makes the regional level domain info available to
+        each of the region's independent nodes.
+
+     3) At the network level.  The network level nameservers
+        would supply information about the current network level
+        nodes (regular nodes), and the current regional
+        nameserver(s).  Also, the NC delivers or makes available
+        the network level domain info to each of the nodes in the
+        local network.
+
+(If the regional level is skipped, the network nameservers would
+contain entries for zone level nameservers and zone level
+nameserver(s) would contain network nameserver info instead of
+regional nameserver info.)
+
+5.0 Database Updates and Management.
+------------------------------------
+
+Each node gets the network (region for independents) level info. These
+updates are handled much the way nodediffs get handled at present. The
+existing nodediff structure is really a generic text file difference
+editor and should work for any sort of text file. If the node needs
+additional info for regular connections, it is up to the node's sysop
+to schedule regular file requests to the nameservers that supply the
+additional info needed.  (This might require a cascade of requests,
+depending on nameserver dependencies - posibily a "make" like utility
+could be used to generate the requests.) A compiled database would be
+a merge of the data files a node gets from its NC (or RC for
+independents) and any additional info the node fetches.
+
+Because the information supplied at each level only relates to that
+level and the levels just above and below, updates are mostly local in
+nature.  There is no need to pass detailed network level info to the
+RC.  All that is needed is for the NC to pass the local info, merged
+with the regional nameserver info to the network's nameservers and
+pass the network's nameserver info to the RC.  Likewise the RC only
+needs to merge the regions indepent node info with the network
+nameserver info (passed up from the NCs) and zone level nameserver
+info (passed down from the ZC) and pass this to the regional
+nameservers and to pass info on the region's nameserver(s) to the NCs.
+Things are much the same at the zone level, except the ZCs pass their
+own zone level nameserver info to each other.  Nothing like the full
+nodelist ever gets passed around.
+
+6.0 Final Thoughts.
+-------------------
+
+This document is by no means complete. It is intended as "food for
+thought".  I hope that the members of the FTSC and others will read
+this and think about these ideas and maybe even setup experimental
+nameservers and see how it goes.  I expect lots of feedback.
+
+Robert Heller
+1:321/153
+                                                                           

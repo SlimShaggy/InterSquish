@@ -1,0 +1,963 @@
+Document: FSC-0079
+Version:  002
+Date:     21-Jul-95
+
+                                      RTF Mail
+
+                                   A Proposal for
+                                 Message Formatting
+                            In the Type 2 Message Packet
+
+                                         by
+                                     Kaleb Axon
+                                 1:280/77.0@fidonet
+                                    July 21, 1995
+
+
+       Status of this document:
+
+            This FSC suggests a proposed standard for the FidoNet(r)
+            community, and requests discussion and suggestions for
+            improvements.  Distribution of this document is subject to the
+            restrictions listed in the copyright paragraph below.
+
+            Fido and FidoNet are registered trademarks of Tom Jennings and
+            Fido Software.
+
+            Copyright 1994-1995 by Kaleb Axon.  All rights reserved.
+            A limited license is hereby granted to the FidoNet and its
+            participants to redistribute this document, provided that it is
+            distributed only without modification, and only at no charge.
+            Under no circumstances may this document be reproduced or
+            distributed as part of or packaged with any product or other
+            sales transaction for which any fee is charged.  Any and all
+            other reproduction or excerpting requires the explicit written
+            consent of the author.
+
+       Table of Contents
+
+       1. Rationale ........................................................3
+       2. Prerequisites for a Standard .....................................3
+       3. Final Choice: the Rich Text Format ...............................3
+       4. RTF Mail Implementation ..........................................4
+            4.1. Message Character Set .....................................4
+            4.2. Message Header Information ................................4
+            4.3. Character Set .............................................4
+            4.4. Kludge Lines ..............................................4
+                    4.4.1. The RTF Kludge Line..............................5
+            4.5. The RTF Text ..............................................5
+            4.6. Tear Line and Origin Line .................................5
+       5. Guidelines for Use ...............................................5
+            5.1. Direct RTF Mail ...........................................5
+                    5.1.1. RTF Capability On the Receiving System...........5
+
+                                                  RTF Mail Proposal    page 2
+
+
+                    5.1.2. Pictures and Embedded Objects in Direct RTF Mail.5
+            5.2. Routed RTF Mail ...........................................6
+                    5.2.1. RTF Capability On the Receiving System...........6
+                    5.2.2. Pictures and Embedded Objects in Routed RTF Mail.6
+            5.3. RTF Echos .................................................6
+                    5.3.1. RTF Echo Names...................................6
+                    5.3.2. RTF/ASCII Gateways...............................6
+                    5.3.3. Backbone Qualification for Dual-Format Echos.....7
+                    5.3.4. Dual-Format Echo Names...........................7
+       6. Sample RTF Messages ..............................................8
+            6.1. Sample RTF Netmail Message ................................8
+            6.2. Sample RTF Echomail Message ...............................8
+       7. Practical Limitations and Other Deviations from the RTF Standard .8
+            7.1. Line Length ...............................................8
+            7.2. Style Sheets and Color Tables .............................9
+            7.3. Headers and Footers .......................................9
+            7.4. Sections ..................................................9
+            7.5. Multiple-Column Text ......................................9
+            7.6. Keep With Next and Keep Together ..........................9
+            7.7. Absolute Positioned Objects and Frames ....................9
+            7.8. Special Characters ........................................9
+            7.9. Bookmarks ................................................10
+            7.10. Footnotes ...............................................10
+            7.11. Fields ..................................................10
+            7.12. Index and Table of Contents Entries .....................10
+            7.13. Bi-directional Language Support .........................10
+            7.14. 16-bit Characters and other Oriental Language Support ...10
+       8. Character Set Conversion Tables .................................11
+            8.1. ANSI to IBM PC Codepage 437 and Macintosh ................11
+            8.2. IBM PC Codepage 437 to ANSI ..............................15
+            8.3. IBM PC Codepage 437 to ANSI ..............................17
+            8.4. Macintosh to ANSI ........................................18
+
+                                                  RTF Mail Proposal    page 3
+
+
+
+       1.   Rationale
+
+            With the increasing popularity of graphical operating systems
+            such as Windows, OS/2, and the Macintosh, many users have begun
+            to demand text formatting capabilities.  This feature is beyond
+            the capabilities of current FidoNet standards.
+
+       2.   Prerequisites for a Standard
+
+            It was my determination that a standard for message formatting
+            must meet, at a minimum, the following prerequisites:
+
+            1.   The format used, if not an industry-wide standard, must at
+                 least have enough industry acceptance and support to warrant
+                 being chosen over other options.
+                 
+            2.   It must be either
+                 a)   easy to program, or
+                 b)   be supported by readily available off-the-shelf
+                      development products.
+                 
+            3.   It must be backward-compatible with existing distribution
+                 channels, such as the FidoNet backbones.  By this I don't
+                 mean that all existing software must be capable of reading
+                 it; only that if such mail is routed, it will not break the
+                 software along the way.
+                 
+            4.   It must support an international character set for Latin-
+                 based alphabets, and support other character sets as well.
+
+       3.   Final Choice: the Rich Text Format
+
+            After some research, I concluded that the most practical format
+            to use would be the Rich Text Format.  RTF (as it is abbreviated)
+            has the following advantages over other formats:
+
+            1.                RTF is 100% text-based; it contains _no_ binary data
+               whatsoever.  Therefore, RTF messages can be stored in Type 2
+               packets and routed through existing channels without the risk
+               of breaking existing software.  RTF echos can be created as
+               well, and RTF echomail will successfully travel through non-
+               RTF distribution channels.
+               
+            2.                RTF supports multiple character sets.  Although all FidoNet
+               RTF mail in languages using Latin-based alphabets must use the
+               ISO 8859/1 character set (Macintosh and IBM PC conversion
+               tables are included in this document), other alphabets are
+               supported as well.
+               
+
+                                                  RTF Mail Proposal    page 4
+
+
+            3.                Numerous development tools exist which do the "dirty work" of
+               implementing RTF.  It is supported directly by some operating
+               systems.
+               
+            4.                The RTF specification has been made freely available by the
+               authors.
+
+            The Rich Text Format specification is published by Microsoft.  It
+            is bundled in with this document in plain-text format.  To
+            guarantee compliance with Microsoft's distribution requirements,
+            the Microsoft Word version of the document is included as well.
+            This document includes a sample RTF reader with source code.
+
+            To avoid duplication and the possible errors that could result,
+            the Microsoft specification will serve as the standard.
+
+            The FTSC will reserve the right to freeze the RTF version used by
+            FidoNet if Microsoft's enhancements get out of hand, but such
+            action should only be taken under extreme circumstances, since
+            RTF is designed for backward-compatibility.
+
+       4.   RTF Mail Implementation
+
+       4.1.  Message Character Set
+
+            RTF Mail provides full multilingual support, including support
+            for bi-directional fonts.
+
+       4.2.  Message Header Information
+
+            From, To, and Subject shall be in the same character set as the
+            default font of the message.  However, these fields have no
+            formatting of their own; they are raw text.
+
+       4.3.  Character Set
+
+            The "ANSI" character set referred to by the RTF specification is
+            the ISO 8859/1 character set.  All RTF mail in languages using a
+            Latin-derived alphabet shall use the ISO 8859/1 character set
+            (indicated in the RTF standard as \fcharset0).  Conversion tables
+            to the IBM PC Codepage 437 and the Macintosh character sets are
+            provided at the end of this document.
+
+       4.4.  Kludge Lines
+
+            All appropriate kludge lines shall appear at the top of the
+            message, as defined by their FTS and FSC documents.  These come
+            _before_ the first opening curly brace of the RTF text, and have
+            nothing to do with that formatting.
+
+                                                  RTF Mail Proposal    page 5
+
+
+          4.4.1. The RTF Kludge Line
+
+            An RTF message shall include among its kludge lines a single
+            kludge line containing the letters RTF.  For example:
+
+                 ^aMSGID: 1:280/77.0 1ac94f53
+                 ^aTOPT: 4
+                 ^aRTF
+
+            Note that there is no colon after RTF.  That's because there is
+            no field to follow the colon.
+
+            The RTF kludge is required!  Without it, the destination system
+            has no reliable way of identifying this as an RTF message!
+
+       4.5.  The RTF Text
+
+            Following the kludge lines, the RTF text shall appear in the
+            format defined by the RTF specification.
+
+       4.6.  Tear Line and Origin Line
+
+            For compatibility reasons, these are provided after the closing
+            curly brace of the RTF text.  They are not part of the RTF text
+            itself.
+
+       5.   Guidelines for Use
+
+       5.1.  Direct RTF Mail
+
+          5.1.1. RTF Capability On the Receiving System
+
+            It is suggested that the nodelist flag RTF be used to indicate
+            that a system is capable of handling RTF Mail.  However, this may
+            be politically impractical.  When the RTF flag is not present, it
+            is up to the sender of the message to verify that the receiving
+            system is capable of handling RTF Mail.
+
+          5.1.2. Pictures and Embedded Objects in Direct RTF Mail
+
+            Pictures and embedded objects are very large.  To avoid problems
+            associated with the potentially large size of messages with
+            embedded objects, each direct RTF message shall be limited to
+            65520 bytes.  This limitation applies only to Type 2 packets.
+
+                                                  RTF Mail Proposal    page 6
+
+
+       5.2.  Routed RTF Mail
+
+          5.2.1. RTF Capability On the Receiving System
+
+            A routed RTF message will safely pass through non-RTF systems.
+            The original sender of the message must still take care to make
+            sure the final recipient of the message can handle RTF Mail.
+
+          5.2.2. Pictures and Embedded Objects in Routed RTF Mail
+
+            Pictures and embedded objects are _extremely_ large.  Therefore,
+            embedding objects in routed mail, without the prior consent of
+            all sysops along the route, is likely to be considered annoying
+            behavior.  Specific policy regarding this issue is beyond the
+            scope of this document.
+
+       5.3.  RTF Echos
+
+          5.3.1. RTF Echo Names
+
+            The names of _all_ RTF echos shall be prefixed with the four
+            characters "RTF.".  For example:
+
+                 RTF.WIN.SYSOP
+                 RTF.WINDOWS.PROG
+                 RTF.NET_DEV
+
+            This naming convention should be enforced by RTF-capable
+            software.
+
+          5.3.2. RTF/ASCII Gateways
+
+            5.3.2.1.  The Gateway Idea
+
+            Authors of RTF-capable software are encouraged to provide
+            RTF/ASCII "gateway" capability.  Using this feature, an echo
+            moderator may link an RTF and a plain ASCII echo.  In this way,
+            an echo can be available in both formats.  Of course, most if not
+            all formatting is lost upon translation to plain ASCII.
+
+            Moderators are encouraged to provide their echos in both formats.
+            Multiple-format echos are provided at moderators' discretion.
+
+            5.3.2.2.  How RTF/ASCII Gateways Work
+
+            An RTF/ASCII gateway's primary purpose is to strip formatting
+            data from RTF messages and convert them to the IBM PC
+            codepage 437 character set, so that they can be forwarded into a
+            plain ASCII echo.  This effectively allows an echo to be shared
+            by RTF and non-RTF systems.
+
+                                                  RTF Mail Proposal    page 7
+
+
+            An RTF/ASCII gateway accepts messages from one echo, strips the
+            seen-by and path lines, and then forwards them into the other
+            echo.  The seen-by and path lines must be stripped because these
+            would cause the messages to die out on the return trip through
+            the backbone.
+
+            RTF messages must be stripped of their formatting data and
+            converted to the IBM PC codepage 437 character set, before being
+            forwarded into the plain ASCII echo.  The software should provide
+            the option of converting to the less-flexible 7-bit ASCII in
+            addition to the IBM PC characters, so that the moderator can
+            choose what is most appropriate for the particular echo.
+
+            Since RTF systems recognize plain ASCII, no conversion is needed
+            when forwarding messages from plain ASCII to an RTF echo.
+
+          5.3.3. Suggested Backbone Requirements for Dual-Format Echos
+
+            If and when RTF Mail comes into common use, each backbone will
+            need to form policies regarding its use.  The following is
+            suggested as a guideline to follow:
+
+            When an echo is available in both formats, each format must
+            separately qualify to be carried on the backbone.  For example,
+            the plain ASCII version may meet the minimum backbone
+            requirements, while the RTF version may not.  The stripping of
+            seen-bys at the gateway aides in determining the separate
+            qualification of each one.
+
+          5.3.4. Dual-Format Echo Names
+
+            Echos available in both formats should carry the same name,
+            except with or without the prefix.  For example:
+
+                 ENDEAVOR.TEST
+                 RTF.ENDEAVOR.TEST
+            or
+                 NET_DEV
+                 RTF.NET_DEV
+
+            Ideally, echos with different formats would never carry the same
+            root name, unless they are actually linked.
+
+                                                  RTF Mail Proposal    page 8
+
+
+       6.   Sample RTF Messages
+
+            This section is intended to help the programmer understand the
+            RTF specifications as they apply to FidoNet RTF Mail.  This is
+            not intended to fully document the Rich Text format; only to help
+            clarify the existing specification.
+
+       6.1.  Sample RTF Netmail Message
+
+                 ^aMSGID: 1:280/77.0 1c4a972f
+                 ^aINTL: 3:632/348 1:280/77
+                 ^aRTF
+                 {\rtf1\ansi\deff0{\fonttbl{\f0\fswiss Arial;}}
+                 \f0\fs12
+                 This is a sample RTF netmail message.
+                 \par\par Use this sample as your guideline when
+                  developing software that generates RTF netmail.
+                 \par\par That's all, folks!
+                 \par\par                {\i Kaleb}
+                 \par\par}
+
+       6.2.  Sample RTF Echomail Message
+
+                 AREA:RTF.ENDEAVOR
+                 ^aMSGID: 1:280/77.0 1c4a972f
+                 ^aRTF
+                 {\rtf1\ansi\deff0{\fonttbl{\f0\fswiss Arial;}}
+                 \f0\fs12
+                 This is a sample RTF echomail message.
+                 \par\par Use this sample as your guideline when
+                  developing software that generates RTF echomail.
+                 \par\par That's all, folks!
+                 \par\par                {\i Kaleb}
+                 \par\par}
+                 --- Endeavor [alpha 1.00.021]
+                  * Origin: Kaleb's Basement (1:280/77.0)
+                 SEEN-BY: 280/77 1 2 333 666 1/214
+                 ^aPATH: 280/77 1
+
+       7.   Practical Limitations and Other Deviations from the RTF Standard
+
+       7.1.  Line Length
+
+            When routing RTF Mail, there is a possibility that some non-RTF
+            systems en-route may insert soft CRs into the message.  It's not
+            supposed to happen, but it does.
+
+            To prevent this from happening, each line of an RTF message
+            should be limited to 65 characters, including the hard CR.  This
+            is possible because the RTF standard calls for paragraphs to end
+            with the \par control word; hard CRs are ignored.
+
+                                                  RTF Mail Proposal    page 9
+
+
+       7.2.  Style Sheets and Color Tables
+
+            Some RTF writers create style sheets and color tables for a broad
+            range of styles and colors, regardless of how few, if any, of
+            those styles or colors are actually used.  This is inappropriate
+            for electronic mail, where it would result in needless
+            transmission costs.  Only define style sheets and color tables
+            that are actually used.
+
+       7.3.  Headers and Footers
+
+            An RTF message may contain a single header and footer.  These
+            would be displayed as non-scrolling regions at the top and bottom
+            of the window where the message is viewed.  Software not
+            supporting this feature should simply show the header at the top
+            of the message and the footer at the bottom.
+
+       7.4.  Sections
+
+            Sections are considered an advanced feature.  Although full
+            support for sections is not required, an RTF Mail reader must
+            always produce all the text of the message.
+
+       7.5.  Multiple-Column Text
+
+            Multiple-column text is considered an advanced feature.  RTF Mail
+            readers may simply show such text in a single column.
+
+       7.6.  Keep With Next and Keep Together
+
+            These paragraph formatting properties have no application in the
+            context of on-line browsing of electronic mail.  However, they
+            could come in handy for printing messages.  Support for this
+            feature is entirely optional.
+
+       7.7.  Absolute Positioned Objects and Frames
+
+            Absolute positioning is an advanced feature.  RTF Mail editors
+            should not count on these being supported by the reader.
+
+       7.8.  Special Characters
+
+            Special characters are supported when they make sense.  For
+            example, a page number does not ordinarily make sense in
+            electronic mail, but a non-breaking space does.
+
+            Current date and time should be displayed as the date and time
+            the message was _posted_ as opposed to the time it is being read.
+            This just makes more sense in electronic mail.  We'll use snail
+            mail as an analogy.  When letter is written and printed using a
+            word processor, the time of printing is shown, not the time that
+            the letter arrives at its destination.
+
+                                                  RTF Mail Proposal   page 10
+
+
+
+       7.9.  Bookmarks
+
+            Bookmarks might apply in really long messages, but they are
+            likely to not be supported by some software.
+
+       7.10. Footnotes
+
+            Footnotes are an optional feature.  If supported, how they are
+            displayed is determined by the software author.  Suggested
+            techniques include enclosing the footnote reference character in
+            a small button that can be clicked on to view the footnote, or
+            showing the footnotes in a separate window (or a splitter
+            window).
+
+       7.11. Fields
+
+            Support for various fields should not be assumed, and the
+            \fldrslt control word must _always_ be included, even if it looks
+            something like this:
+
+                 {\field{\*\fldinst whatever}{\fldrslt <field not
+                 supported>}}}
+
+            This requirement is so that the user will always see _something_,
+            even if that "something" tells them they're "out of luck."
+
+       7.12. Index and Table of Contents Entries
+
+            Index and Table of Contents entries have no application in the
+            context of electronic mail.
+
+       7.13. Bi-directional Language Support
+
+            Support for bi-directional language features is encouraged, but
+            is of course only applicable to software capable of recognizing
+            the alphabet of a right-to-left language.
+
+       7.14. 16-bit Characters and other Oriental Language Support
+
+            The 16-bit character sets and other extended features used for
+            some Far Eastern languages are beyond the capabilities of the
+            Type 2 message packet.
+
+                                                  RTF Mail Proposal   page 11
+
+
+       8.   Character Set Conversion Tables
+
+            RTF Mail uses the 8-bit ANSI character set for all languages that
+            use a Latin-based alphabet.  This section provides conversion
+            tables to and from the IBM PC (codepage 437) and Macintosh
+            character sets.  The Windows character set is similar to ANSI.
+
+       8.1.  ANSI to IBM PC Codepage 437 and Macintosh
+
+                    ANSI    Mac IBM PC  Character
+                  ------  ----- ------  ------------------------------------
+                   00-1F  00-1F  00-1F  non-displayable control characters
+                   20-7E  20-7E  20-7E  displayable ASCII characters
+                      7F     7F     7F  non-displayable control character
+                   80-9F     20     20  not used
+                      A0     CA     FF  no-break space
+                      A1     C1     AD  inverted exclamation point
+                      A2     A2     9B  copyright sign
+                      A3     A3     9C  pound sign
+                      A4     DB     0F  currency sign
+                      A5     B4     9D  yen sign
+                      A6     7C     7C  |
+                      A7     A4     15  section sign
+                      A8     AC    n/a  diaeresis
+                      A9     A9     43  copyright sign
+                      AA     BB     A6  feminine ordinal indicator
+                      AB     C7     AE  left pointing double angle quotation
+                                        mark
+                      AC     C2     AA  not sign
+                      AD     2D     2D  -
+                      AE     A8     52  registered trademark sign
+                      AF     F8    n/a  macron
+                      B0     A1     F8  degree sign
+                      B1     B1     F1  plus-minus sign
+                      B2    n/a     FD  superscripted 2
+                      B3    n/a    n/a  superscripted 3
+                      B4     AB    n/a  acute accent
+                      B5     B5     E6  micro sign
+                      B6     A6     14  paragraph sign
+                      B7    n/a     FA  middle dot
+                      B8     FC    n/a  cedilla
+                      B9    n/a    n/a  superscripted 1
+                      BA     BC     A7  masculine ordinal indicator
+                      BB     C8     AF  right pointing double angle quotation
+                                        mark
+                      BC    n/a     AC  one fourth
+                      BD    n/a     AB  one half
+                      BE    n/a    n/a  one third
+                      BF     C0     A8  inverted question mark
+
+                                                  RTF Mail Proposal   page 12
+
+
+            ANSI to IBM PC Codepage 437 and Macintosh (continued)
+
+                    ANSI    Mac IBM PC  Character
+                  ------  ----- ------  ------------------------------------
+                      C0     CB     41  latin capital letter A with grave
+                                        accent
+                      C1     E7     41  latin capital letter A with acute
+                                        accent
+                      C2     E5     41  latin capital letter A with
+                                        circumflex accent
+                      C3     CC     41  latin capital letter A with tilde
+                      C4     80     8E  latin capital letter A with diaeresis
+                      C5     81     8F  latin capital letter A with ring
+                                        above
+                      C6     AE     92  latin capital letter A with E
+                      C7     82     80  latin capital letter C with cedilla
+                      C8     E9     45  latin capital letter E with grave
+                                        accent
+                      C9     83     90  latin capital letter E with acute
+                                        accent
+                      CA     E6     45  latin capital letter E with
+                                        circumflex accent
+                      CB     E8     45  latin capital letter E with diaeresis
+                      CC     ED     49  latin capital letter I with grave
+                                        accent
+                      CD     EA     49  latin capital letter I with acute
+                                        accent
+                      CE     EB     49  latin capital letter I with
+                                        circumflex accent
+                      CF     EC     49  latin capital letter I with diaeresis
+                      D0     44     44  latin capital letter D, dashed out
+                      D1     84     A5  latin capital letter N with tilde
+                      D2     F1     4F  latin capital letter O with grave
+                                        accent
+                      D3     EE     4F  latin capital letter O with acute
+                                        accent
+                      D4     EF     4F  latin capital letter O with
+                                        circumflex accent
+                      D5     CD     4F  latin capital letter O with tilde
+                      D6     85     99  latin capital letter O with diaeresis
+                      D7     78     78  multiplication sign
+
+                                                  RTF Mail Proposal   page 13
+
+
+            ANSI to IBM PC Codepage 437 and Macintosh (continued)
+
+                    ANSI    Mac IBM PC  Character
+                  ------  ----- ------  ------------------------------------
+                      D8     AF     ED  latin capital letter O with oblique
+                                        stroke
+                      D9     F4     55  latin capital letter U with grave
+                                        accent
+                      DA     F2     55  latin capital letter U with acute
+                                        accent
+                      DB     F3     55  latin capital letter U with
+                                        circumflex accent
+                      DC     86     9A  latin capital letter U with diaeresis
+                      DD     59     59  latin capital letter Y with acute
+                                        accent
+                      DE    n/a    n/a
+                      DF     A7     E1  latin small leter sharp s,
+                                        greek capital letter beta
+                      E0     88     85  latin small letter a with grave
+                                        accent
+                      E1     87     A0  latin small letter a with acute
+                                        accent
+                      E2     89     83  latin small leter a with circumflex
+                                        accent
+                      E3     8B     61  latin small letter a with tilde
+                      E4     8A     84  latin small letter a with diaeresis
+                      E5     8C     86  latin small letter a with ring above
+                      E6     BE     91  latin small letter a with e
+                      E7     8D     87  latin small letter c with cedilla
+                      E8     8F     8A  latin small letter e with grave
+                                        accent
+                      E9     8E     82  latin small letter e with acute
+                                        accent
+                      EA     90     88  latin small letter e with circumflex
+                                        accent
+                      EB     91     89  latin small letter e with diaeresis
+                      EC     93     8D  latin small letter i with grave
+                                        accent
+                      ED     92     A1  latin small letter i with acute
+                                        accent
+                      EE     94     8C  latin small letter i with circumflex
+                                        accent
+                      EF     95     8B  latin small letter i with diaeresis
+                      F0     6F     6F
+
+                                                  RTF Mail Proposal   page 14
+
+
+            ANSI to IBM PC Codepage 437 and Macintosh (continued)
+
+                    ANSI    Mac IBM PC  Character
+                  ------  ----- ------  ------------------------------------
+                      F1     96     A4  latin small letter n with tilde
+                      F2     98     95  latin small letter o with grave
+                                        accent
+                      F3     97     A2  latin small letter o with acute
+                                        accent
+                      F4     99     93  latin small letter o with circumflex
+                                        accent
+                      F5     9B     6F  latin small letter o with tilde
+                      F6     9A     94  latin small letter o with diaeresis
+                      F7     D6     F6  division sign
+                      F8     BF     ED  latin small letter o with oblique
+                                        stroke
+                      F9     9D     97  latin small letter u with grave
+                                        accent
+                      FA     9C     A3  latin small letter u with acute
+                                        accent
+                      FB     9E     96  latin small letter u with circumflex
+                                        accent
+                      FC     9F     81  latin small letter u with diaeresis
+                      FD     79     79  latin small letter y with acute
+                                        accent
+                      FE    n/a    n/a
+                      FF     D8     98  latin small letter y with diaeresis
+
+                                                  RTF Mail Proposal   page 15
+
+
+       8.2.  IBM PC Codepage 437 to ANSI
+
+                  IBM PC   ANSI  Character
+                  ------ ------  ------------------------------------
+                   00-0E  00-0E  non-displayable control characters
+                      0F     A4  currency sign
+                   10-13  10-13  non-displayable control characters
+                      14     B6  paragraph sign
+                      15     A7  section sign
+                   16-1D  16-1D  non-displayable control characters
+                      1E    n/a  increment
+                      1F     1F  non-displayable control character
+                   20-7E  20-7E  displayable ASCII characters
+                      7F     7F  non-displayable control character
+                      80     C7  latin capital letter C with cedilla
+                      81     FC  latin small letter u with diaeresis
+                      82     E9  latin small letter e with acute accent
+                      83     E2  latin small letter a with circumflex accent
+                      84     E4  latin small letter a with diaeresis
+                      85     E0  latin small letter a with grave accent
+                      86     E5  latin small letter a with ring above
+                      87     E7  latin small letter c with cedilla
+                      88     EA  latin small letter e with circumflex accent
+                      89     EB  latin small letter e with diaeresis
+                      8A     E8  latin small letter e with grave accent
+                      8B     EF  latin small letter i with diaeresis
+                      8C     EE  latin small letter i with circumflex accent
+                      8D     EC  latin small letter i with grave accent
+                      8E     C4  latin capital letter A with diaeresis
+                      8F     C5  latin capital letter A with ring above
+                      90     C9  latin capital letter E with acute accent
+                      91     E6  latin small letter a with e
+                      92     C6  latin capital letter A with E
+                      93     F4  latin small letter o with circumflex accent
+                      94     F6  latin small letter o with diaeresis
+                      95     F2  latin small letter o with grave accent
+                      96     FB  latin small letter u with circumflex accent
+                      97     F9  latin small letter u with grave accent
+                      98     FF  latin small letter y with diaeresis
+                      99     D6  latin capital letter O with diaeresis
+                      9A     DC  latin capital letter U with diaeresis
+                      9B     A2  copyright sign
+                      9C     A3  pound sign
+                      9D     A5  yen sign
+                      9E    n/a  latin capital letter P with small t
+                      9F    n/a  latin small letter script f,
+                                 florin sign
+
+                                                  RTF Mail Proposal   page 16
+
+
+            IBM PC Codepage 437 to ANSI (continued)
+
+                  IBM PC   ANSI  Character
+                  ------ ------  ------------------------------------
+                      A0     E1  latin small letter a with acute accent
+                      A1     ED  latin small letter i with acute accent
+                      A2     F3  latin small letter o with acute accent
+                      A3     FA  latin small letter u with acute accent
+                      A4     F1  latin small letter n with tilde
+                      A5     D1  latin capital letter N with tilde
+                      A6     AA  feminine ordinal indicator
+                      A7     BA  masculine ordinal indicator
+                      A8     BF  inverted question mark
+                      A9    n/a  backwards not sign
+                      AA     AC  not sign
+                      AB     BD  one half
+                      AC     BC  one fourth
+                      AD     A1  inverted exclamation point
+                      AE     AB  left pointing double angle quotation mark
+                      AF     BB  right pointing double angle quotation mark
+                   B0-B2    n/a  hatched box-drawing characters
+                   B3-DA    n/a  line-drawing characters
+                   DB-DF    n/a  solid box-drawing characters
+                      E1     DF  latin small leter sharp s,
+                                 greek capital letter beta
+                      E2    n/a
+                      E3    n/a  greek small letter pi
+                      E4    n/a  summation
+                      E5    n/a
+                      E6     B5  micro sign
+                      E7    n/a
+                      E8    n/a
+                      E9     B5
+                      EA    n/a  greek capital letter omega
+                      EB    n/a
+                      EC    n/a  infinity sign
+                      ED     D8  latin capital letter O with oblique stroke
+                      EE    n/a
+                      EF    n/a
+                      F0    n/a
+                      F1     B1  plus-minus sign
+                      F2    n/a  greater than or equal to
+                      F3    n/a  less than or equal to
+                      F4    n/a
+                      F5    n/a
+                      F6     F7  division sign
+                      F7    n/a  almost equals
+
+                                                  RTF Mail Proposal   page 17
+
+
+       8.3.  IBM PC Codepage 437 to ANSI
+
+                  IBM PC   ANSI  Character
+                  ------ ------  ------------------------------------
+                      F8     B0  degree sign
+                      F9    n/a
+                      FA     2E  middle dot
+                      FB    n/a  radical sign
+                      FC    n/a  superscripted latin small letter n
+                      FD     B2  superscripted 2
+                      FE     2A  bullet
+                      FF     A0  no-break space
+
+                                                  RTF Mail Proposal   page 18
+
+
+       8.4.  Macintosh to ANSI
+
+                    Mac   ANSI  Character
+                  ----- ------  ------------------------------------
+                  00-1F  00-1F  non-displayable control characters
+                  20-7E  20-7E  displayable ASCII characters
+                     7F     7F  non-displayable control character
+                     80     C4  latin capital letter A with diaeresis
+                     81     C5  latin capital letter A with ring above
+                     82     C7  latin capital letter C with cedilla
+                     83     C9  latin capital letter E with acute accent
+                     84     D1  latin capital letter N with tilde
+                     85     D6  latin capital letter O with diaeresis
+                     86     DC  latin capital letter U with diaeresis
+                     87     E1  latin small letter a with acute accent
+                     88     E0  latin small letter a with grave accent
+                     89     E2  latin small letter a with circumflex accent
+                     8A     E4  latin small letter a with diaeresis
+                     8B     E3  latin small letter a with tilde
+                     8C     E5  latin small letter a with ring above
+                     8D     E7  latin small letter c with cedilla
+                     8E     E9  latin small letter e with acute accent
+                     8F     E8  latin small letter e with grave accent
+                     90     EA  latin small letter e with circumflex accent
+                     91     EB  latin small letter e with diaeresis
+                     92     ED  latin small letter i with acute accent
+                     93     EC  latin small letter i with grave accent
+                     94     EE  latin small letter i with circumflex accent
+                     95     EF  latin small letter i with diaeresis
+                     96     F1  latin small letter n with tilde
+                     97     F3  latin small letter o with acute accent
+                     98     F2  latin small letter o with grave accent
+                     99     F4  latin small letter o with circumflex accent
+                     9A     F6  latin small letter o with diaeresis
+                     9B     F5  latin small letter o with tilde
+                     9C     FA  latin small letter u with acute accent
+                     9D     F9  latin small letter u with grave accent
+                     9E     FB  latin small letter u with circumflex accent
+                     9F     FC  latin small letter u with diaeresis
+                     A0    n/a  dagger
+                     A1     B0  degree sign
+                     A2     A2  copyright sign
+                     A3     A3  pound sign
+                     A4     A7  section sign
+                     A5     2A  bullet
+                     A6     B6  paragraph sign
+                     A7     DF  latin small leter sharp s,
+                                greek capital letter beta
+
+                                                  RTF Mail Proposal   page 19
+
+
+            Macintosh to ANSI (continued)
+
+                    Mac   ANSI  Character
+                  ----- ------  ------------------------------------
+                     A8     AE  registered trademark sign
+                     A9     A9  copyright sign
+                     AA    n/a  trademark ligature
+                     AB     B4  acute accent
+                     AC     A8  diaeresis
+                     AD    n/a  not equal to
+                     AE     C6  latin capital letter A with E
+                     AF     D8  latin capital letter O with oblique stroke
+                     B0    n/a  infinity sign
+                     B1     B1  plus-minus sign
+                     B2    n/a  less than or equal to
+                     B3    n/a  greater than or equal to
+                     B4     A5  yen sign
+                     B5     B5  micro sign
+                     B6    n/a  partial differential sign
+                     B7    n/a  summation
+                     B8    n/a  repeated product
+                     B9    n/a  greek small letter pi
+                     BA    n/a  integral sign
+                     BB     AA  feminine ordinal indicator
+                     BC     BA  masculine ordinal indicator
+                     BD    n/a  greek capital letter omega
+                     BE     E6  latin small letter a with e
+                     BF     F8  latin small letter o with oblique stroke
+                     C0     BF  inverted question mark
+                     C1     A1  inverted exclamation point
+                     C2     AC  not sign
+                     C3    n/a  radical sign
+                     C4    n/a  latin small letter script f,
+                                florin sign
+                     C5    n/a  almost equals
+                     C6    n/a  increment
+                     C7     AB  left pointing double angle quotation mark
+                     C8     BB  right pointing double angle quotation mark
+                     C9    n/a  horizontal ellipsis
+                     CA     A0  no-break space
+                     CB     C0  latin capital letter A with grave accent
+                     CC     C3  latin capital letter A with tilde
+                     CD     D5  latin capital letter O with tilde
+                     CE    n/a  latin capital ligature O with E
+                     CF    n/a  latin small ligature o with e
+
+                                                  RTF Mail Proposal   page 20
+
+
+            Macintosh to ANSI (continued)
+
+                    Mac   ANSI  Character
+                  ----- ------  ------------------------------------
+                     D0     2D  en-dash
+                     D1     2D  em-dash
+                     D2     22  left double quotation mark
+                     D3     22  right double quotation mark
+                     D4     27  left single quotation mark
+                     D5     27  right single quotation mark
+                     D6     F7  division sign
+                     D7    n/a  lozenge
+                     D8     FF  latin small letter y with diaeresis
+                     D9     59  latin capital letter y with diaeresis
+                     DA     2F  division
+                     DB     A4  currency sign
+                     DC     3C  single left pointing angle quotation mark
+                     DD     3E  single right pointing angle quotation mark
+                     DE    n/a  fi ligature small
+                     DF    n/a  fl ligature small
+                     E0    n/a  double dagger
+                     E1     2E  middle dot
+                     E2     27  single low quotation mark
+                     E3     22  double low quotation mark
+                     E4    n/a  permille sign
+                     E5     C2  latin capital letter A with circumflex accent
+                     E6     CA  latin capital letter E with circumflex accent
+                     E7     C1  latin capital letter A with acute accent
+                     E8     CB  latin capital letter E with diaeresis
+                     E9     C8  latin capital letter E with grave accent
+                     EA     CD  latin capital letter I with acute accent
+                     EB     CE  latin capital letter I with circumflex accent
+                     EC     CF  latin capital letter I with diaeresis
+                     ED     CC  latin capital letter I with grave accent
+                     EE     D3  latin capital letter O with acute accent
+                     EF     D4  latin capital letter O with circumflex accent
+                     F0    n/a  Apple logo
+                     F1     D2  latin capital letter O with grave accent
+                     F2     DA  latin capital letter U with acute accent
+                     F3     DB  latin capital letter U with circumflex accent
+                     F4     D9  latin capital letter U with grave accent
+                     F5    n/a  latin small letter i without dot above
+                     F6     5E  circumflex accent
+                     F7    n/a  nonspacing tilde
+
+                                                  RTF Mail Proposal   page 21
+
+
+
+
+            Macintosh to ANSI (continued)
+
+                    Mac   ANSI  Character
+                  ----- ------  ------------------------------------
+                     F8     AF  macron
+                     F9    n/a  breve
+                     FA    n/a  dot above
+                     FB    n/a  ring above
+                     FC     B8  cedilla
+                     FD    n/a  double acute accent
+                     FE    n/a  ogonek
+                     FF    n/a  caron

@@ -1,0 +1,136 @@
+Document: FSC-0067
+Version:  001
+Date:     02-Aug-1992
+
+
+
+
+                 A Proposal For Sensible New Kludge Lines
+                 ========================================
+                               
+                              Mark Kimes
+                           FidoNet 1:380/16
+
+
+
+
+Status of this document:
+
+     This FSC suggests a proposed protocol for the FidoNet(r) community,
+     and requests discussion and suggestions for improvements.
+     Distribution of this document is unlimited.
+
+     Fido and FidoNet are registered marks of Tom Jennings and Fido
+     Software.
+
+
+
+
+MSGTO:  This kludge line, together with a MSGID: kludge (see FTS-0009),
+        would provide full address specs for both the originating and
+        destination nodes of a netmail message (MSGTO should _not_ be
+        used in echo mail).  Its format is simple:
+          ^aMSGTO: <FTN address>
+        MSGTO (coupled with MSGID) would eliminate the need for the
+        INTL, FMPT, TOPT and DOMAIN kludges.  A MSGTO kludge line should
+        go just below any MSGID and REPLY kludge lines.  See also
+        discussion on FTN address representation below.
+
+ASSOC:  ASSOC introduces a filename that should follow the message (is
+        associated with the message). Format is, again, simple:
+          ^aASSOC: <filename>
+        A message tosser would forward the file along with the message,
+        if so configured for the AREA: of the message (assuming
+        echomail) or other criteria.  Paths would probably not be useful
+        in the <filename> field and should not normally be included or
+        used if found to be present.  ASSOC kludge lines should go below
+        any addressing kludge lines.
+
+SPTH:   Clint Adams described this as a "5D, sensible order,
+        top-of-the-message path" line.  I like that.  Stands for "Sticky
+        PaTH."  SPTH displaces the current PATH line.  Instead of being
+        located at the bottom of the message, it's located at the top of
+        the message.  Instead of being 2-D (net/node), it's 5-D
+        (domain#zone:net/node.point).  It's sticky like a normal PATH
+        line so that the size doesn't get outrageous.  Because it's 5-D
+        instead of 2-D it can be used for dupe checking (which a normal
+        2-D PATH line cannot; is 1/1 Fidonet#1:1/1 or Dufusnet#2:1/1?).
+        Because it's 5-D we would no longer have to go through hideous
+        gyrations when gating echo mail from one domain to another; just
+        let it flow.  Using SPTH it becomes trivial to cut SEEN-BYs down
+        to Tiny Seenbys (only required for backward compatibility with
+        old mail processors that barf without some SEEN-BYs, and to
+        protect fully enclosed polygon topology).
+
+        SPTH is to be used only in echo mail.  It's format is basically:
+
+            ^aSPTH: <address> <address> ... <address>
+
+        SPTH lines, like PATH lines, contain only addresses of mail
+        processors that actually processed the message.  SPTH lines are
+        specifically not sorted and are "sticky" so that they carry the
+        least amount of information that will convey a full address when
+        coupled with preceding addresses.  For example, if
+        1:380/16.0@Fidonet, 1:380/16.1@Fidonet, 1:380/100.0@Fidonet,
+        1:396/100.0@Fidonet, 2:4177/1.0@Fidonet and 2:4177/1.0@Othernet
+        processed a message, in that order, you'd have:
+
+         ^aSPTH: Fidonet#1:380/16 .1 100 :396 #2:4177/1 Othernet
+
+        Note that point 0 is assumed if missing and that punctuation
+        *precedes* an address element except in the case of a domain
+        change (and when the net element is the first change -- this
+        dictates that domain names begin with an alphabetical
+        character).  This compacts SPTH entries as much as possible for
+        most typical topologies.
+
+        When an SPTH-aware processor forwards a message containing (a)
+        PATH line(s) but no SPTH line(s), it should create a new SPTH
+        line (or lines as required; SPTH lines shouldn't get longer than
+        80 characters, including terminating carriage return) containing
+        "fleshed-out" addresses from the PATH line(s), then add itself.
+        If this is done at all zone/domain gates, the SPTH will always
+        be current even if intermediate nodes are not SPTH-aware.  In
+        the event an SPTH-aware processor receives a message containing
+        both SPTH line(s) and PATH line(s), it should concatenate the
+        "fleshed-out" addresses from the PATH line(s) to the SPTH
+        line(s), then add itself.  The PATH line(s) may then be
+        discarded from the message.  When exporting new messages, only a
+        SPTH line should be created; no PATH line should be generated.
+        Tiny Seenbys should be added at the end of the message for the
+        reasons noted above.
+
+
+Note that all the kludge lines above are in actual use and have been for
+some time; they do work, and work as presented.  Code is available on
+request, but implementation is trivial (only SPTH takes any real work at
+all).
+
+
+
+FTN address representation:
+==========================
+
+The current convention for representing an FTN address has become:
+
+    zone:net/node[.point]@domain
+
+I propose we change this to:
+
+    domain#zone:net/node[.point]
+
+Why?  It's all in one order, highest to lowest; it's consistent.  "@" is
+used, in the former method, in a way rather opposed to normal usage in
+network addressing.
+
+While we're on the subject of domains, let's knock off using
+"fidonet.org" in FTN addresses.  That only means something in Internet.
+It's going to gum up the works for FTN domains, where we'll want things
+like "fidonet.eu" to mean Fidonet Europe some day.
+
+I'm done now.
+
+
+Mark Kimes
+Fidonet#1:380/16
+(318)222-3455 data

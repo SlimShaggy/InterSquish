@@ -1,0 +1,85 @@
+Document: PIDLIST.TXT (FSC-0046)
+Date:     30-Aug-94
+
+
+
+                     A list of used product idenfifiers
+
+                            Joaquim Homrighausen
+                      2:270/17@fidonet or joho@abs.lu
+
+
+
+Product identifiers
+
+Product                Version  ID        Author
+-----------------------------------------------------------------------------
+!!MessageBase           1.6+    !!MB      Holger Lembke          2:240/500.20
+Alert                   2.1+    Alert     Richard Kail           2:310/25.2
+ANet                    921213+ ANet      Thomas Ekstroem        2:201/411
+ArcMail RISC OS         1.04+   AM        Philip Blundell        2:440/34.4
+Artmail Mailer System   1.00+   ART       Klaus Landefeld        2:247/402
+Auto Message Taker      1.00+   AMT       Patrik Torstensson     n/a
+AVALON                  3.10+   AVALON    Stephan Slabihoud      2:2401/103.6
+CrossPoint              2.10+   XP        Peter Mandrella        2:243/97.80
+EchoSprint              1.02+   ES        Ben Elliston           3:620/262
+Enhanced Mail MAnager   .01+    EMMA      Johan Zwiekhorst       2:292/118
+Enhanced Message EDitor .02+    EMED      Johan Zwiekhorst       2:292/118
+EZMail                  .67+    EZMail    Torben Paving          2:234/41
+F_POINT                 1.1+    F_POINT   Florian Rupp           2:248/107.2
+FastEcho                1.21a+  FastEcho  Tobias Burchhardt      2:245/39
+FileScan                1.5+    FileScan  Matthias Duesterhoeft  2:241/4513
+Freqit (Windows)        1.0+    FIW       Marvin Hart            1:106/462
+Freqit (MS-DOS)         1.0+    FID       Marvin Hart            1:106/462
+FrontDoor APX           1.00+   FDAPX     Joaquim Homrighausen   2:270/17
+FrontDoor (Editor)      2.00+   FM        Joaquim Homrighausen   2:270/17
+FrontDoor (Mailer)      2.00+   FD        Joaquim Homrighausen   2:270/17
+FrontEnd FX             1.00+   FEFX      Eric Theriault         1:132/220
+GEcho                   1.00+   GE        Gerard van der Land    2:2802/110
+GeeMail                 2.00+   GeeMail   Lech Szychowski        2:480/4.7
+HbToSca                 1.00+   HTS       Jani Laatikainen       2:220/150
+HyperBBS                2.00+   HyperBBS  Jani Laatikainen       2:220/150
+JetMail                 1.00+   JetMail   Daniel Roesen          2:243/93.8
+LazyBBS                 .5+     LazyBBS   Franck Arnaud          2:320/100
+Mail FX                 1.00+   MFX       Eric Theriault         1:132/220
+MsgTrack                3.20+   MT        Andrew Farmer          1:243/1
+NewsFlash               1.01+   NwF       Chris Lueders          2:2402/330
+NodeDiff Processor      3.00+   NDP       Serge Vikulov          2:5080/5
+Notify                  2.1     Notify    Frank Schuhardt        2:247/160
+OFFFax                  3.03    OFFFax    Frank Schuhardt        2:247/160
+Pobble                  0.15+   Pobble    Josh Parsons           3:771/340
+QBBed                   2.64+   qbbed     Werner Berghofer       2:310/90.100
+RemoteAccess            1.10+   RA        Andrew Milner          2:270/18
+RASS                    1.00+   RASS      Yossi Gottlieb         2:403/139.75
+SendFile                1.00+   SendFile  Mike Shoyher           2:5020/17.3
+Synchronet              1.00+   SYNC      Rob Swindell           1:103/705
+TB-Edit                 1.10+   TB-Edit   Arjen Lentz            2:283/512
+TB-Mailer               1.97+   TB-Mailer Arjen Lentz            2:283/512
+TB-Point                .10+    TB-Point  Arjen Lentz            2:283/512
+TechBBS                 1.00    TECHBBS   Marcel Tegelaar        2:281/409
+TechMail                1.00    TECHMAIL  Raymond van der Holst  2:281/409.2
+TosScan                 1.10+   TosScan   Joaquim Homrighausen   2:270/17
+TPCS                    .89b    TPCS      Krister Hansson-Renaud 2:201/201.7
+                                          Mikael Kjellstrom      2:201/201.10
+XRobot                  3.00+   XRobot    Joaquim Homrighausen   2:270/17
+Xrs Alternative Packer  1.04+   XAP       Jeroen Smulders        2:512/1.8
+ZeroToss                1.00    ZeroToss  Jeff Masud             1:103/115
+-----------------------------------------------------------------------------
+
+
+Product identifier registration
+
+Simply fill in the required information and send this form to the author of
+this document via private netmail.
+
+ Product: _________________________________________
+
+ Version: __________
+
+PID info: _________________________________________
+
+  Author: _________________________________________
+
+ Address: ___________________________ (eMail address)
+
+--- end of file "pidlist.txt" ---

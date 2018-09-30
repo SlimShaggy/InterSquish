@@ -1,0 +1,494 @@
+Document: FSC-0051
+Version:  003
+Date:     25-Feb-91
+
+
+                                    I51
+
+         A System-Independent Way of Transferring Special Characters
+
+                                 Draft III
+
+                               Tomas Gradin,
+                             2:200/108@fidonet
+
+
+
+Status of this document:
+
+     This FSC suggests  a proposed protocol  for the FidoNet(r)  community,
+     and   requests   discussion   and   suggestions   for    improvements.
+     Distribution of this document is unlimited.
+
+     Fido  and  FidoNet  are  registered  marks  of  Tom  Jennings and Fido
+     Software.
+
+
+Contents
+
+     Introduction
+     How does it work?
+     Advantages and problems
+     Technical description
+     The fallback method of displaying an extra character
+     How to use I51 in mail
+     Acknowledgements
+     Appendix A - The Latin-1 standard
+     Appendix B - A list of combined characters
+     Appendix C - Sample code
+     Appendix D - Comments on the base set
+     Appendix E - Comments on the escape character
+     Appendix F - When the change to I51 is taking place
+     Appendix G - Comments to the author
+
+
+Introduction
+
+     This document proposes a method for transferring characters, including
+     accented and otherwisely special  ones, in ordinary FidoNet  messages,
+     and is the result of some of the thougts put forward in the discussion
+     of foreign characters at TechCon  I, as well as extensive  discussions
+     in the Swedish equivalent of NET_DEV.
+
+     The proposed standard will allow for the transmission of all  variants
+     of  letters  in  the  latin  alphabet,  as  well  as  several  special
+     characters  commonly  used.  At  the  same  time  the  standard  makes
+     inclusion of additional characters painless. The standard implements a
+     way of  automatically displaying  these characters  as resemblingly as
+     possible on systems that doesn't yet support them, using the  built-in
+     fallback method described in this document.
+
+     One main  advantage of  this standard  is that  even though  it uses a
+     well-spread character set as its base, it is not limited to that  set.
+     It is therefore possible to include as many characters as needed.  The
+     only restriction is that the additional characters implemented  should
+     be based on the latin alphabet.
+
+
+How does it work?
+
+     The base character set used  in this standard is ISO  8859-1, commonly
+     known as 'ISO Latin-1'.  All  characters present in that set are  used
+     as is. The advantages of this  character set are well known, and  will
+     not be discussed in this document. However, the most obvious advantage
+     of Latin-1 is that characters can be easily case shifted.
+
+     All accented and  special characters not  present in the  base set are
+     considered 'extra'  characters, and  are obtained  by using  a form of
+     character combination.   To let  message editors  etc.   know when  to
+     combine characters,  and when  not to,  all combination  sequences are
+     preceded by a  special 'escape' character.   This escape character  is
+     0x02, ie. ^B (STX).
+
+
+Advantages and problems
+
+     A system that strips eight  bit characters when displaying them  is no
+     problem,  since  it  doesn't  support  this  proposed standard at this
+     moment. When eventually doing so (which I hope most systems will), the
+     hi-bit characters are treated as they should.
+
+     A system  that treats  eight bit  characters as  other characters will
+     give the effect  that extra characters  transmitted with the  proposed
+     method look strange if the system isn't supporting this method.
+
+       * The method will never break anything fully FTS-compliant.
+
+       * It will give strange characters on systems that don't support this
+         method, but that is not worse than the current situation.
+
+       * It  will  give  systems  supporting  this  method  the  ability to
+         transfer national, accented and  special characters to systems  on
+         other computer platforms (ie. the characters look the same on a PC
+         and a Macintosh).
+
+       * Systems that support this method, but are implemented on computers
+         that don't  have the  ability to  display certain  characters will
+         automatically show the most resembling character the computer  can
+         provide, if the character in question is one of the extended ones.
+         For the 96 hi-bit characters developers hopefully will include the
+         needed translation tables  in their programs.  Such tables can  be
+         provided upon request.
+
+       * Conferences  on  FidoNet  in  English will be  minimally affected,
+         since the English language seldom uses other characters than those
+         in  pure  ASCII.  The  possibility  to  use  other characters will
+         however be present, if  needed. Those that frequently  use special
+         characters will benefit a  lot, without causing trouble  for those
+         that don't.
+
+       * In fact, the minimum requirement to be I51-compatible is that your
+         system can handle Latin-1 codes, plus the I51 fallback.  When  the
+         base set of I51 (ie. Latin-1) is implemented, you can obtain  full
+         I51 compliance by  just adding I51  fallback. After that,  you can
+         choose which ones of the I51 extra characters to implement, if any
+         at all. The automatic fall-back system takes care of the rest  for
+         you! The  additional work  to get  a  Latin-1 compatible system to
+         fully support I51 is indeed negligable.
+
+
+Technical description
+
+     The format of a representation of an extra character is as follows:
+
+<escape character><modifier><base character>
+
+     I will be  using 0x02 as  escape character in  the examples below.  It
+     will however be represented with a '.', since it is non-printable.
+
+  Examples:
+
+     02 2d 7e (.-~) will display as an about equals sign ('˜').
+
+     02 50 74 (.$P) is used to represent a peseta symbol ('û').
+
+     02  02  represents  a  single  02,  if  that  code ever is needed in a
+     message. I propose that the use of 0x02 in messages for other  reasons
+     than in this method of character transmission should be prohibited.
+
+
+The fallback method of displaying an extra character
+
+     If  the  system  where  you  are  implementing  this method of special
+     character transmission doesn't support a certain extra character,  the
+     following procedure should be used. To display a special character  as
+     resemblingly as possible, just skip the modifier! Ie. the sequence  02
+     67 6a  (.ga) is  displayed as  'a', 02  5e 73  as 's'. It is therefore
+     preferred  that  the  FTSC  in  assigning  sequences to any additional
+     characters take this into account.
+
+
+How to use I51 in mail
+
+     In transit  mail in  I51 format  _must_ be  passed on  un-altered, per
+     FTS-0001. However,  it is  possible to  store messages  locally in any
+     desired format. As long as  the BBS programs doesn't have  options for
+     users to change their character setup and representation, this may  be
+     desirable.
+
+     The I51 method of representing  special characters is also allowed  in
+     headers of messages,  if account is  taken to the  fact that the extra
+     characters occupy more bytes  than the 'normal' characters.
+
+     Since the  character codes  0x80 -  0x9f are  undefined in ISO 8859-1,
+     their  presence  in  an  I51  message  is  prohibited,  if not defined
+     in an FTS document (eg. 'soft CR').
+
+
+Acknowledgements
+
+     I would like to thank those present at TechCon I (in Antwerp, Belgium,
+     july  1990)  during  the  discussion  of  foreign  characters  for the
+     fundamental ideas that lead to this proposal.
+
+     I would also like to thank  all those that have made comments  on this
+     document, both in netmail and echomail.
+
+
+Appendix A - The Latin-1 standard
+
+     The  following  list  comprises  the  hi-bit characters present in the
+     Latin-1 standard, with  is used as  the base set  of I51.
+
+  hex value  byte  character description            charcacter (PC codepage) *
+
+   a0 160     †    non-breaking space               ff   (437)
+   a1 161     °    inverted exclamation mark        ad ≠ (437)
+   a2 162     ¢    cent sign                        bd õ (437)
+   a3 163     £    pound sign                       9c ú (437)
+   a4 164     §    currency sign                    cf œ (850)
+   a5 165     •    yen sign                         be ù (437)
+   a6 166     ¶    broken bar                       dd › (850)
+   a7 167     ß    paragraph sign                   f5 ı (850) *
+   a8 168     ®    diaeresis                        f9 ˘ (850)
+   a9 169     ©    copyright sign                   b8 ∏ (850)
+   aa 170     ™    feminine ordinal indicator       a6 ¶ (437)
+   ab 171     ´    left angle quotation mark        ae Æ (437)
+   ac 172     ¨    not sign                         aa ™ (437)
+   ad 173     ≠    soft hyphen                      f0  (850)
+   ae 174     Æ    registered trade mark sign       a9 © (850)
+   af 175     Ø    macron                           ee Ó (850)
+   b0 176     ∞    degree sign                      f8 ¯ (437)
+   b1 177     ±    plus-minus sign                  f1 Ò (437)
+   b2 178     ≤    superscript two                  fd ˝ (437)
+   b3 179     ≥    superscript three                fc ¸ (850)
+   b4 180     ¥    acute accent                     ef Ô (850)
+   b5 181     µ    small greek letter mu            e6 Ê (437)
+   b6 182     ∂    pilcrow sign                     f4 Ù (850) *
+   b7 183     ∑    middle dot                       fa ˘ (437)
+   b8 184     ∏    cedilla                          f7 ˜ (850)
+   b9 185     π    superscript one                  fb ˚ (850)
+   ba 186     ∫    masculine ordinal indicator      a7 ß (437)
+   bb 187     ª    right angle quotation mark       af Ø (437)
+   bc 188     º    vulgar fraction one quarter      ac ¨ (437)
+   bd 189     Ω    vulgar fraction one half         ab ´ (437)
+   be 190     æ    vulgar fraction three quarters   f3 Û (850)
+   bf 191     ø    inverted question mark           a8 ® (437)
+   c0 192     ¿    A with grave accent              b7 ∑ (850)
+   c1 193     ¡    A with acute accent              b5 µ (850)
+   c2 194     ¬    A with circumflex accent         b6 ∂ (850)
+   c3 195     √    A with tilde                     c7 « (850)
+   c4 196     ƒ    capital letter A with diaeresis  8e é (437)
+   c5 197     ≈    capital letter A with ring above 8f è (437)
+   c6 198     ∆    ligature AE                      92 í (437)
+   c7 199     «    C with cedilla                   80 Ä (437)
+   c8 200     »    E with grave accent              d4 ‘ (850)
+   c9 201     …    E with acute accent              90 ê (437)
+   ca 202          E with circumflex accent         d2 “ (850)
+   cb 203     À    E with diaeresis                 d3 ” (850)
+   cc 204     Ã    I with grave accent              de ﬁ (850)
+   cd 205     Õ    I with acute accent              d6 ÷ (850)
+   ce 206     Œ    I with circumflex accent         d7 ◊ (850)
+   cf 207     œ    I with diaeresis                 d8 ÿ (850)
+   d0 208     –    Icelandic Eth                    e8 Ë (850)
+   d1 209     —    N with tilde                     a5 • (437)
+   d2 210     “    O with grave accent              e3 „ (850)
+   d3 211     ”    O with acute accent              e0 ‡ (850)
+   d4 212     ‘    O with circumflex accent         e2 ‚ (850)
+   d5 213     ’    O with tilde                     e5 Â (850)
+   d6 214     ÷    O with diaeresis                 99 ô (437)
+   d7 215     ◊    multiplication sign              9e û (850)
+   d8 216     ÿ    slash O                          9d ù (850)
+   d9 217     Ÿ    U with grave accent              eb Î (850)
+   da 218     ⁄    U with acute accent              e9 È (850)
+   db 219     €    U with circumflex accent         ea Í (850)
+   dc 220     ‹    U with diaeresis                 9a ö (437)
+   dd 221     ›    Y with acute accent              ed Ì (850)
+   de 222     ﬁ    capital Icelandic Thorn          d1 — (850)
+   df 223     ﬂ    small german letter sharp s      e1 · (437)
+   e0 224     ‡    a with grave accent              85 Ö (437)
+   e1 225     Ì    a with acute accent              a0 † (437)
+   e2 226     ‚    a with circumflex accent         83 É (437)
+   e3 227     „    a with tilde                     c6 ∆ (850)
+   e4 228     ‰    a with diaeresis                 84 Ñ (437)
+   e5 229     Â    a with ring above                86 Ü (437)
+   e6 230     Ê    small ae-ligature                91 ë (437)
+   e7 231     Á    c with cedilla                   87 á (437)
+   e8 232     Ë    e with grave accent              8a ä (437)
+   e9 233     È    e with acute accent              82 Ç (437)
+   ea 234     Í    e with circumflex accent         88 à (437)
+   eb 235     Î    e with diaeresis                 89 â (437)
+   ec 236     Ï    i with grave accent              8d ç (437)
+   ed 237     Ì    i with acute accent              a1 ° (437)
+   ee 238     Ó    i with circumflex                8c å (437)
+   ef 239     Ô    i with diaeresis                 8b ã (437)
+   f0 240         small Icelandic Eth              e7 Á (850)
+   f1 241     Ò    n with tilde                     a4 § (437)
+   f2 242     Ú    o with grave accent              95 ï (437)
+   f3 243     Û    o with acute accent              a2 ¢ (437)
+   f4 244     Ù    o with circumflex accent         93 ì (437)
+   f5 245     ı    o with tilde                     e4 ‰ (850)
+   f6 246     ˆ    o with diaeresis                 94 î (437)
+   f7 247     ˜    division sign                    f6 ˆ (437)
+   f8 248     ¯    small o slash                    9b õ (850)
+   f9 249     ˘    u with grave accent              97 ó (437)
+   fa 250     ˙    u with acute accent              a3 £ (437)
+   fb 251     ˚    u with circumflex accent         96 ñ (437)
+   fc 252     ¸    u with diaeresis                 81 Å (437)
+   fd 253     ˝    y with acute accent              ec Ï (850)
+   fe 254     ˛    small icelandic thorn            d0 – (850)
+   ff 255          y with diaeresis                 98 ò (437)
+
+* The pilcrow  and paragraph signs  are also found  in CP 437,  at 0x14 and
+  0x15 respectively.  All  characters with CP listed  as 437 have the  same
+  codes in CP 850 -  thus, viewing this list with  CP set to 850 will  give
+  all the right characters.
+
+
+Appendix B - A list of combined characters
+
+     The  following  list  contains  the  escaped  representations  of  the
+     majority of the IBM PCs special and accented characters not present in
+     the base set,  as well as  some others. To  standardize how a  certain
+     additional character is to be represented the FTSC will publish a list
+     of such characters, similar to this one. The use of  other combination
+     sequences than the ones approved by the FTSC is discouraged.
+
+  hex string   bytes   character description          character (PC codepage)
+
+  02 20 30     . 0     superscript zero               -
+  02 20 34     . 4     superscript four               -
+  02 20 35     . 5     superscript five               -
+  02 20 36     . 6     superscript six                -
+  02 20 37     . 7     superscript seven              -
+  02 20 38     . 8     superscript eight              -
+  02 20 39     . 9     superscript nine               -
+  02 2e 30     . 0     subscript zero                 -
+  02 20 69     . i     dot-less i                     d5 ’ (850)
+  02 20 49     . I     I with dot                     -
+  02 20 6e     . n     superscript n                  fc ¸ (437)
+  02 22 55     ."U     U with double acute accent     -
+  02 22 75     ."u     u with double acute accent     -
+  02 2e 31     ..1     subscript one                  -
+  02 2e 32     ..2     subscript two                  -
+  02 2e 33     ..3     subscript three                -
+  02 2e 34     ..4     subscript four                 -
+  02 2e 35     ..5     subscript five                 -
+  02 2e 36     ..6     subscript six                  -
+  02 2e 37     ..7     subscript seven                -
+  02 2e 38     ..8     subscript eight                -
+  02 2e 39     ..9     subscript nine                 -
+  02 24 50     .$P     peseta sign                    9e û (437)
+  02 24 66     .$f     guilder sign                   9f ü (437)
+  02 2c 41     .,A     A with cedilla                 -
+  02 2c 45     .,E     E with cedilla                 -
+  02 2c 53     .,S     S with cedilla                 -
+  02 2c 61     .,a     a with cedilla                 -
+  02 2c 65     .,e     e with cedilla                 -
+  02 2c 73     .,s     s with cedilla                 -
+  02 2d 3c     .-<     equal or less than             f3 Û (437)
+  02 2d 3d     .-=     defined as                     f0  (437)
+  02 2d 3e     .->     equal or greater than          f2 Ú (437)
+  02 2d 7e     .-~     about equal                    f7 ˜ (437)
+  02 2d 43     .-C     complement of                  -
+  02 2d 49     .-I     part of lot                    ee Ó (437)
+  02 2d 53     .-S     Polish S with dash             -
+  02 2d 5a     .-Z     Polish Z with dash             -
+  02 2d 73     .-s     Polish s with dash             -
+  02 2d 7a     .-z     Polish z with dash             -
+  02 2e 53     ..S     Polish S with dot              -
+  02 2e 5a     ..Z     Polish Z with dot              -
+  02 2e 73     ..s     Polish s with dot              -
+  02 2e 7a     ..z     Polish z with dot              -
+  02 2f 4c     ./L     Polish L slash                 -
+  02 2f 6c     ./l     Polish l slash                 -
+  02 5e 47     .^G     G with inversed circ. accent   -
+  02 5e 53     .^S     S with inversed circ. accent   -
+  02 5e 67     .^g     g with inversed circ. accent   -
+  02 5e 73     .^s     s with inversed circ. accent   -
+  02 67 47     .gG     capital gamma                  e2 ‚ (437)
+  02 67 61     .ga     alpha                          e0 ‡ (437)
+  02 74 6d     .tm     trade mark sign                -
+
+<end of list>
+
+     The  number  enclosed  in  brackets  is  the IBM PC codepage number. A
+     hyphen denotes a character that does not exist on the IBM PC.
+
+
+Appendix C - Sample code
+
+     Here is some sample C code. The first function combines sequences into
+     their proper representation  in IBM PC  codepage 437, the  second does
+     the reverse, ie. converts characters not found in the I51 base set  to
+     their combination sequences.
+
+void   cmbch(char *s)
+{
+    int     z, x, sl;
+
+    sl = strlen(s);
+    for (z = 0, x = 0; x <= sl; z++, x++)
+        if (s[x] == '¿')
+            switch (s[++x]) {
+                case '-':   switch (s[++x]) {
+                    case '<':   s[z] = 'Û'; break;
+                    case '=':   s[z] = ''; break;
+                    case '>':   s[z] = 'Ú'; break;
+                    case '~':   s[z] = '˜'; break;
+                    case 'I':   s[z] = 'Ó'; break;
+                    default:    s[z] = s[x]; break;
+                }; break;
+                case 'g':  switch (s[++x]) {
+                    case 'G':   s[z] = '‚'; break;
+                    case 'a':   s[z] = '‡'; break;
+                    default:    s[z] = s[x]; break;
+                }; break;
+                default:    s[z] = s[++x];
+            }
+    else
+        s[z] = s[x];
+}
+
+char *encode(char *s)
+{
+    char *t = s;
+
+    while (*s) {
+        switch (*s) {
+            case '¸':    *t++ = '\0x02'; *t++ = ' '; *t++ = 'n'; break;
+            case 'û':    *t++ = '\0x02'; *t++ = '$'; *t++ = 'P'; break;
+            case 'ü':    *t++ = '\0x02'; *t++ = '$'; *t++ = 'f'; break;
+            case 'Û':    *t++ = '\0x02'; *t++ = '-'; *t++ = '<'; break;
+            case '':    *t++ = '\0x02'; *t++ = '-'; *t++ = '='; break;
+            case 'Ú':    *t++ = '\0x02'; *t++ = '-'; *t++ = '>'; break;
+            case '˜':    *t++ = '\0x02'; *t++ = '-'; *t++ = '~'; break;
+            case 'Ó':    *t++ = '\0x02'; *t++ = '-'; *t++ = 'I'; break;
+            case '‚':    *t++ = '\0x02'; *t++ = 'g'; *t++ = 'G'; break;
+            case '‡':    *t++ = '\0x02'; *t++ = 'g'; *t++ = 'a'; break;
+            default: *t++ = *s;
+        }
+        s++;
+    }
+    return (t);
+}
+
+      The code neccessary to translate between I51 hibit characters and any
+      ordinary 8 bit character  set is trivial and  left as an exercise  to
+      the reader..:-)
+
+
+Appendix D - Comments on the base set
+
+     It is of  course possible to  use any character  set as the  base set,
+     even pure 7-bit ASCII. Earlier revisions of this standard were in fact
+     based on ASCII. But, the usage  of ASCII as the base set  will require
+     all non-ascii characters  to be encoded.   That would cause  a lot  of
+     unneccessary  trouble  for  almost  all  foreign languages, and is not
+     desirable. No one would want all 'strange' characters of his  language
+     to be encoded, just because 'we  can't use 8 bits'. Mail sessions  are
+     conducted in 8 bit, packets contain 8 bit data - so we can.
+
+     Then, of course, it is unwise not to use an 8 bit set as the base set,
+     since it will  save a lot  of space compared  to a 7  bit set, not  to
+     mention a lot of  trouble. It is my  belief that among 8  bit sets ISO
+     8859-1 is the most well-spread  and common around, and that  qualifies
+     it to be the proposed base set of this standard.
+
+
+Appendix E - Comments on the escape character
+
+     The escape character  can in fact  be almost any  character, if proper
+     measurements are  taken to  make the  ordinary use  for the  character
+     chosen possible at  the same time.  To avoid too  much trouble, it  is
+     wise to  select a  character seldom  found in  mail. 0x01  would be  a
+     perfect escape character, were it not for the fact that it is  already
+     used for  other purposes.  The next  character, however,  is currently
+     unused. I therefore felt it wise  to use 0x02 as the escape  character
+     in this standard. There are  several advantages related to the  use of
+     this character  as the  escape character.  There are  of course  other
+     characters (eg.  '\' or '~') that could be used, but there are reasons
+     not to use  them.  '\',  for instance, is  commonly used in  Europe to
+     represent a national character, and is therefore not well suited.  The
+     '~' on  the other  hand is  not often  used, but  can't be  used as an
+     escape character  due to  the fact  that it  itself is  an accent (see
+     below).
+
+
+Appendix F - During the change to I51, co-existence with other methods
+
+     Any message  in which  the I51  standard is  used (whether  with extra
+     codes present or not) will, during a limited period of time, have  the
+     following kludge line in it:
+
+^AI51<cr>
+
+     With this kludge line present, a message editor at once will know that
+     a certain message should be 'de-I51-ified'. How to interpret  messages
+     lacking  this line is upon you decide. However, should you find a 0x02
+     in a message lacking the kludge line, the message is to be  considered
+     an I51 message.
+
+     When a non-I51 message is quoted, its contents should be translated to
+     the corresponding I51 codes, if possible. Characters not found in  the
+     I51 standard (as defined in this document) are to be ignored, unless a
+     similar I51 representation can be found.
+
+
+Appendix G - Comments to the author
+
+     Please feel free to contact me on 2:200/108 if you have any questions,
+     comments  or   suggestions  regarding   this  document,   or  anything
+     associated  with  it.   I  appreciate  any  suggestions  on additional
+     'extra' characters to be added to this standard.
+

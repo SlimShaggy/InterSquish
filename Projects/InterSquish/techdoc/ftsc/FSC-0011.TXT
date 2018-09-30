@@ -1,0 +1,356 @@
+FSC-0011   by Bob Hartman
+
+These are some thoughts that I had on FSC001 after implementing things in
+BinkleyTerm.  The state tables I show I believe reflect a little bit more of
+reality than the older tables.  I think that BT corresponds to 99% of the
+stuff that I wrote, and it can talk to everything that is out there.  The
+biggest thing is to be able to trick everyone currently in existance into
+doing what they do best without killing someone that can't do all the fancy
+stuff (ie Fido 11w).  Let me know if I can be of any help deciphering any of
+it.  I think it is pretty straightforward.  I would prefer if it was not
+published in FSC001 (since that really should not change, except perhaps for
+typos and the EOT stuff mentioned below), but this can be an addendum (I'll
+write something a bit more involved if you want) to be given to developers so
+that they can be most efficient in transfers with other systems.  I just put
+all this stuff in, and looking at the time (3:33am) I may have goofed in some
+places.  Let me know if you see anything that looks fishy.  Let me know if
+you want me to go any further with this (I probably will anyway, simply as an
+example of the type of documentation on features that I think would be
+acceptable in the future).
+
+
+This is the current state table for sending mail:
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | S0  | SendInit |                         | dial modem              | S1  |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | S1  | WaitCxD  | 1 carrier detected      | delay 1-5 seconds       | S2  |
+    |     |          | 2 busy, etc.            | report no connection    | exit|
+    |     |          | 3 voice                 | report no carrier       | exit|
+    |     |          | 4 carrier not detected  | report no connection    | exit|
+    |     |          |   within 60 seconds     |                         |     |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | S2  | WhackCRs | 1 over 30 seconds       | report no response <cr> | exit|
+    |     |          | 2 ?? <cr>s received     | delay 1 sec             | S3  |
+    |     |          | 3 <cr>s not received    | send <cr> <sp> <cr> <sp>| S2  |
+    |     |          |                         |   delay ??? secs        |     |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | S3  | WaitClear| 1 no input for 0.5 secs | send TSYNCH = AEH       | S4  |
+    |     |          | 2 over 60 seconds       | hang up, report garbage | exit|
+    |     |          |   and line not clear    |                         |     |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | S4* | SendMail |                         | (XMODEM send packet XS0)| S5  |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | S5  | CheckMail| 1 XMODEM successful     | (Fido registers success)| S6  |
+    |     |          | 2 XMODEM fail or timeout| hang up, report mail bad| exit|
+    |-----+----------+-------------------------+-------------------------+-----|
+    | S6* | SendFiles|                         | (BATCH send files BS0)  | S7  |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | S7  | CheckFile| 1 BATCH send successful |                         | S8  |
+    |     |          | 2 BATCH send failed     | hang up, rept files fail| exit|
+    |-----+----------+-------------------------+-------------------------+-----|
+    | S8  | TryPickup| 1 wish to pickup        | note send ok            | R2* |
+    |     |          | 2 no desire to pickup   | delay 5 secs            | exit|
+    |     |          |                         |   hang up, rept send ok |     |
+    `-----+----------+-------------------------+-------------------------+-----'
+ 
+This note is mentioned:
+
+    Although  the  above  shows  the  sender  emitting only one  TSYNCH,  it  is
+    recommended  that a timeout of 5-20 seconds should initiate another TSYNCH.
+    The receiver should tolerate multiple TSYNCHs.
+ 
+
+The correct state table should be:
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | S0  | SendInit |                         | dial modem              | S1  |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | S1  | WaitCxD  | 1 carrier detected      | delay 1-5 seconds       | S2  |
+    |     |          | 2 busy, etc.            | report no connection    | exit|
+    |     |          | 3 voice                 | report no carrier       | exit|
+    |     |          | 4 carrier not detected  | report no connection    | exit|
+    |     |          |   within 60 seconds     |                         |     |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | S2  | WhackCRs | 1 over 30 seconds       | report no response <cr> | exit|
+    |     |          | 2 ?? <cr>s received     | delay 1 sec             | S3  |
+    |     |          | 3 <cr>s not received    | send <cr> <sp> <cr> <sp>| S2  |
+    |     |          |                         |   delay ??? secs        |     |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | S3  | WaitClear| 1 no input for 0.5 secs | send TSYNCH = AEH       | S4  |
+    |     |          | 2 over 60 seconds       | hang up, report garbage | exit|
+    |     |          |   and line not clear    |                         |     |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | S4* | TSyncChk | 1 'C' or NAK (peeked at)| (XMODEM send packet XS1)| S5  |
+    |     |          | 2 over 2 seconds        | eat noise, resend TSync | S4  |
+    |     |          | 3 over 30 seconds       | hang up report not Fido | exit|
+    |-----+----------+-------------------------+-------------------------+-----|
+    | S5  | CheckMail| 1 XMODEM successful     | (Fido registers success)| S6  |
+    |     |          | 2 XMODEM fail or timeout| hang up, report mail bad| exit|
+    |-----+----------+-------------------------+-------------------------+-----|
+    | S6* | SendFiles|                         | (BATCH send files BS0)  | S7  |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | S7  | CheckFile| 1 BATCH send successful |                         | S8  |
+    |     |          | 2 BATCH send failed     | hang up, rept files fail| exit|
+    |-----+----------+-------------------------+-------------------------+-----|
+    | S8  | TryPickup| 1 wish to pickup        | note send ok            | R2* |
+    |     |          | 2 no desire to pickup   | delay 5 secs            | exit|
+    |     |          |                         |   hang up, rept send ok |     |
+    `-----+----------+-------------------------+-------------------------+-----'
+ 
+In state S4, the phrase "peeked at" means that the character is not removed
+from the buffer.  Therefore when XS1 is started the proper character for
+beginning the Xmodem transfer will be detected.  Notice also that XS1 is a
+change from the XS0 that is given in the original.  XS0 is for doing Telink,
+not Xmodem.  Since the first part (the mail packet) is sent Xmodem, the
+proper place to enter is XS1 (I think).
+
+This next is the current table for Xmodem receiving:
+
+    XMODEM/TeLink Receiver
+ 
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | XR0 | RecStart | 1 prefer crc mode       | Send "C"                | XR1 |
+    |     |          | 2 want checksum mode    | send NAK                | XR1 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | XR1 | WaitFirst| 1 10 retries or 1 minute| report receive failure  | exit|
+    |     |          | 2 > 3 retries or 30 secs| set want checksum mode  | XR0 |
+    |     |          | 3 EOT received          | send ACK, report no file| exit|
+    |     |          | 4 TeLink block recd     | send ACK, set crc/cksm  | XR2 |
+    |     |          | 5 data block recd       | send ACK, set crc/cksm  | XR2 |
+    |     |          | 6 bad block or 2-10 secs| incr retry count        | XR0 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | XR2 | WaitBlock| 1 10 retries or 1 minute| report receive failure  | exit|
+    |     |          | 2 EOT received          | send ACK, report recd ok| exit|
+    |     |          | 3 data block received   | send ACK                | XR2 |
+    |     |          | 4 bad block or 2-10 secs| send NAK, incr retry cnt| XR2 |
+    `-----+----------+-------------------------+-------------------------+-----'
+ 
+The following inserts the small fix I mentioned in FTSC about the EOT probs:
+
+    XMODEM/TeLink Receiver
+ 
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | XR0 | RecStart | 1 prefer crc mode       | Send "C"                | XR1 |
+    |     |          | 2 want checksum mode    | send NAK                | XR1 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | XR1 | WaitFirst| 1 10 retries or 1 minute| report receive failure  | exit|
+    |     |          | 2 > 3 retries or 30 secs| set want checksum mode  | XR0 |
+    |     |          | 3 EOT received          | delay 1 sec, purge input| exit|
+    |     |          |                         | send ACK, report no file|     |
+    |     |          | 4 TeLink block recd     | send ACK, set crc/cksm  | XR2 |
+    |     |          | 5 data block recd       | send ACK, set crc/cksm  | XR2 |
+    |     |          | 6 bad block or 2-10 secs| incr retry count        | XR0 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | XR2 | WaitBlock| 1 10 retries or 1 minute| report receive failure  | exit|
+    |     |          | 2 EOT received          | delay 1 sec, purge input| exit|
+    |     |          |                         | send ACK, report recd ok|     |
+    |     |          | 3 data block received   | send ACK                | XR2 |
+    |     |          | 4 bad block or 2-10 secs| send NAK, incr retry cnt| XR2 |
+    `-----+----------+-------------------------+-------------------------+-----'
+ 
+As I mentioned in the FTSC conference, the delay to eat characters is needed
+in order to purge the extra EOT's that some software sends out.  The delay can
+be shorter than 1 second (in practice 2/10ths seems to work well), but 1 sec
+fit nicely in the little box.
+
+This is the current Modem7 filename sender:
+
+    MODEM7 Filename Sender
+ 
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         |  St |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | MS0 | WaitNak  | 1 20 retries or 1 minute| filename send failed    | exit|
+    |     |          | 2 NAK received          | send ACK & 1st ch of fn | MS1 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | MS1 | WaitChAck| 1 ACK rcd, fname done   | send SUB = 1AH          | MS2 |
+    |     |          | 2 ACK rcd, fname ~done  | send next ch of fname   | MS1 |
+    |     |          | 3 other char or 1 sec   | send "u", incr retry cnt| MS0 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | MS2 | WaitCksm | 1 cksum recd and ok     | send ACK, report fn ok  | exit|
+    |     |          | 2 cksum recd but bad    | send "u", incr retry cnt| MS0 |
+    |     |          | 3 no cksum in 1 sec     | send "u", incr retry cnt| MS0 |
+    `-----+----------+-------------------------+-------------------------+-----'
+
+The drawbacks of this one are that it does not take into account the
+possibility of a SEAdog at the other end (or other software) that does not
+wish to do Modem7 filename transfer.  The other end will send a "C" instead
+of the usual NAK, and that should be accounted for:
+
+    MODEM7 Filename Sender
+ 
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         |  St |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | MS0 | WaitNak  | 1 20 retries or 1 minute| filename send failed    | exit|
+    |     |          | 2 NAK received          | send ACK & 1st ch of fn | MS1 |
+    |     |          | 3 C received            | return fn skipped       | exit|
+    |-----+----------+-------------------------+-------------------------+-----|
+    | MS1 | WaitChAck| 1 ACK rcd, fname done   | send SUB = 1AH          | MS2 |
+    |     |          | 2 ACK rcd, fname ~done  | send next ch of fname   | MS1 |
+    |     |          | 3 other char or 1 sec   | send "u", incr retry cnt| MS0 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | MS2 | WaitCksm | 1 cksum recd and ok     | send ACK, report fn ok  | exit|
+    |     |          | 2 cksum recd but bad    | send "u", incr retry cnt| MS0 |
+    |     |          | 3 no cksum in 1 sec     | send "u", incr retry cnt| MS0 |
+    `-----+----------+-------------------------+-------------------------+-----'
+ 
+If a C is received, it should trigger that the other end does not wish to do
+a Modem7 filename transfer.  Since the data in a Telink header block (as well
+as SEAlink header block) makes the Modem7 filename redundant, the sender can
+return a good filename and slip into Telink send with no problem.  Substituting
+SEAlink send for Telink send is also a viable possibility.
+
+Currently this is the state machine for Modem7 receiver:
+
+    MODEM7 Filename Receiver
+ 
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         |  St |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | MR0 | SendNak  | 1 20 tries or 1 minute  | report filename failure | exit|
+    |     |          | 2                       | send NAK, incr try cnt  | MR1 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | MR1 | WaitAck  | 1 rcd ACK               |                         | MR2 |
+    |     |          | 2 rcd EOT               | report no files remain  | exit|
+    |     |          | 3 5 secs & no ACK/EOT   |                         | MR0 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | MR2 | WaitChar | 1 recd EOT (can happen?)| report no files remain  | exit|
+    |     |          | 2 recd SUB              | send checksum byte      | MR3 |
+    |     |          | 3 recd "u"              |                         | MR0 |
+    |     |          | 4 recd char of name     | send ACK                | MR2 |
+    |     |          | 5 no char in 1 second   |                         | MR0 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | MR3 | WaitOkCk | 1 recd ACK within 1 sec | report recd filename ok | exit|
+    |     |          | 2 recd "u" or other char|                         | MR0 |
+    `-----+----------+-------------------------+-------------------------+-----'
+
+To get rid of the necessity for the Modem7 filename, do the following:
+
+    MODEM7 Filename Receiver
+ 
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         |  St |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | MR0 | SendC    | 1 5 tries               | cannot skip, must do it | MR0b|
+    |     |          | 2                       | send C  , incr try cnt  | MR0a|
+    |-----+----------+-------------------------+-------------------------+-----|
+    | MR0a| WaitSkip | 1 SOH or SYN peeked at  | return fname skipped    | exit|
+    |     |          | 2 1 second passes       |                         | MR0 |
+    |     |          | 3 other char received   | eat character           | MR0 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | MR0b| SendNak  | 1 20 tries or 1 minute  | report filename failure | exit|
+    |     |          | 2                       | send NAK, incr try cnt  | MR1 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | MR1 | WaitAck  | 1 rcd ACK               |                         | MR2 |
+    |     |          | 2 rcd EOT               | report no files remain  | exit|
+    |     |          | 3 5 secs & no ACK/EOT   |                         | MR0 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | MR2 | WaitChar | 1 recd EOT (can happen?)| report no files remain  | exit|
+    |     |          | 2 recd SUB              | send checksum byte      | MR3 |
+    |     |          | 3 recd "u"              |                         | MR0 |
+    |     |          | 4 recd char of name     | send ACK                | MR2 |
+    |     |          | 5 no char in 1 second   |                         | MR0 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | MR3 | WaitOkCk | 1 recd ACK within 1 sec | report recd filename ok | exit|
+    |     |          | 2 recd "u" or other char|                         | MR0 |
+    `-----+----------+-------------------------+-------------------------+-----'
+
+This allows the filename receiver to notice that he has triggered the other
+system into skipping the Modem7 filename stuff.  Once that happens, as in
+the Modem7 sender, the filename can be done away with and simple Telink or
+SEAlink transfer can commence.  Note that once again, the byte received is
+peeked at, so that it can remain in the buffer to start the Telink/SEAlink
+transfer.  Returning fname skipped, rather than fname ok signals the other
+states not to send an originating NAK (see below):
+
+    BATCH File Receiver
+ 
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | BR0*| RecvName |                         | (MODEM7 FName recv MR0) | BR1 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | BR1 | CheckFNm | 1 MODEM7 no more files  | report files recd ok    | exit|
+    |     |          | 2 MODEM7 Filename ok    | (TeLink recv file XR0)  | BR2 |
+    |     |          | 3 MODEM7 Filename skip  | (TeLink recv file XR1)  | BR2 |
+    |     |          | 4 MODEM7 Filename bad   | report name recv bad    | exit|
+    |-----+----------+-------------------------+-------------------------+-----|
+    | BR2 | CheckFile| 1 TeLink recv ok        |                         | BR0 |
+    |     |          | 2 TeLink recv bad       | report file recv bad    | exit|
+    `-----+----------+-------------------------+-------------------------+-----'
+
+Now, the sender must also have a slight adjustment:
+
+    BATCH File Sender
+ 
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | BS0*| MoreFiles| 1 more files to send    | (MODEM7 FName send MS0) | BS1 |
+    |     |          | 2 no more files to send |                         | BS3 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | BS1 | CheckFNm | 1 MODEM7 Filename ok    | (TeLink send file XS0)  | BS2 |
+    |     |          | 2 MODEM7 Filename skip  | (Telink send file XS0a) | BS2 |
+    |     |          | 3 MODEM7 Filename bad   | report name send bad    | exit|
+    |-----+----------+-------------------------+-------------------------+-----|
+    | BS2 | CheckFile| 1 TeLink send ok        |                         | BS0 |
+    |     |          | 2 TeLink send bad       | report file send bad    | exit|
+    |-----+----------+-------------------------+-------------------------+-----|
+    | BS3 | EndSend  | 1 rec NAK for next file | send EOT, report send ok| exit|
+    |     |          | 2 10 seconds no NAK     | send EOT, report no NAK | exit|
+    `-----+----------+-------------------------+-------------------------+-----'
+
+Here is the modified Xmodem sender:
+
+    XMODEM/TeLink Sender
+ 
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | XS0a| SendTeLnk|                         | send TeLink, incr tries | XS0 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | XS0 | WaitTeLnk| 1 over 40-60 seconds    | report sender timeout   | exit|
+    |     |          | 2 over 2 tries          | note TeLink block failed| XS1 |
+    |     |          | 3 NAK or "C" received   | send TeLink, incr tries | XS0 |
+    |     |          | 4 ACK received          | TeLink ok, set crc/cksm | XS2 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | XS1 | WaitStart| 1 over 40-60 seconds    | report sender timeout   | exit|
+    |     |          | 2 over 20 tries         | report send failed      | exit|
+    |     |          | 3 NAK received          | set checksum mode       | XS2 |
+    |     |          | 4 "C" recd, I can crc   | set crc mode            | XS2 |
+    |     |          | 5 "C" recd, I can't crc |                         | XS1 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | XS2 | SendBlock| 1 more data available   | send next data block    | XS3 |
+    |     |          |                         |   as checksum or crc    |     |
+    |     |          | 2 last block has gone   | send EOT                | XS4 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | XS3 | WaitACK  | 1 10 retries or 1 minute| report send failed      | exit|
+    |     |          | 2 ACK received          |                         | XS2 |
+    |     |          | 3 NAK (or C if 1st blk) | resend last block       | XS3 |
+    |-----+----------+-------------------------+-------------------------+-----|
+    | XS4 | WaitEnd  | 1 10 retries or 1 minute| report send failed      | exit|
+    |     |          | 2 ACK received          | report send successful  | exit|
+    |     |          | 3 NAK received          | resend EOT              | XS4 |
+    `-----+----------+-------------------------+-------------------------+-----'
+ 

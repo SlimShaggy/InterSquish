@@ -1,0 +1,163 @@
+FSC-0030
+
+		MESSAGE IDENTIFICATION AND REPLY FOR FIDONET
+		*DRAFT* FIDONET TECHNICAL COMMENT
+
+		Author:  John Cowan
+		Fido:	1:107/711 (formerly 1:107/111)
+		Arpa:	cowan@magpie.masa.com
+		Uucp:	{backbones}!rutgers!hombre!magpie!cowan
+		Vox:	+1-212-236-9153
+
+ABSTRACT
+
+The following document proposes a standard for message identification and
+message reply identification for Fidonet and Fidonet-based electronic mail
+system.  It is based on the Usenet standard, RFC 850 and successors.
+The proposed standard will assist in duplicate-message detection and will
+permit the support of true reply threading across the network.  The standard
+consists of mandatory and suggested portions; however the term "mandatory"
+does not mean that any Fidonet product must implement this standard -- it
+simply means that those that do claim to implement this standard must do
+so in the way described.
+
+BACKGROUND
+
+Currently, Fidonet messages are not uniquely identified.  A variety of schemes
+are in place to determine whether a message received by a Fidonet node has
+been previously processed by the node, but all of them involve a probabilistic
+component which may allow duplicates to slip through.  This can happen with
+particular ease where non-Fidonet gateways are involved which may reformat
+a message.
+
+In addition, Fidonet provides no clear and definite indication of whether
+a message is a reply to some other message, and if so, which message.  This
+is a consequence of the previous problem -- there is no way to refer to a
+message that is valid across all nodes.  Programs like TBBS, therefore,
+which do support the notion of detailed reply threading (each reply refers
+to some definite "parent" message) have to use a semi-guesswork algorithm
+which frequently leads to the wrong answer -- the latest message with a
+common Subject header is taken to be the parent, even when examination of the
+context by a human being indicates that the message is in reply to some
+earlier message.
+
+The Usenet network, which shares much of its problem domain with Fidonet,
+solves these problems by tagging every outgoing message with a unique
+Message ID string.  Other messages can then refer to this Message ID and
+provide an unambiguous indication of which message, or messages, they are
+in reply to.
+
+IFNA KLUDGE LINES "MESSAGE-ID" AND "IN-REPLY-TO"
+
+Fidonet supports a general method for sending additional information embedded
+in a message known as the "IFNA kludge line".  This is a line of text beginning
+with the ASCII SOH character.  The characters following SOH are a word
+indicating the type of kludge line, and the remainder of the line contains
+information specific to that type.
+
+This standard introduces two new types of kludge lines, the MESSAGE-ID line
+and the IN-REPLY-TO line.  These names, and the kludge line formats, are
+taken directly from Usenet.  MESSAGE-ID is used to tag an outgoing message
+with a unique string, different from any other message on the network.
+IN-REPLY-TO is used by threading message processors to specify the Message ID
+of the "parent" of a reply message.  These kludge lines are generated and
+interpreted by message editors; tosser/scanner and mailer products need only
+leave them undisturbed.  They are applicable to both regular network mail
+and Echomail.
+
+FORMAT OF A MESSAGE ID -- MANDATORY
+
+This format is drawn directly from Usenet; it may seem a little arcane, but
+is flexible enough to handle a large variety of needs.  Generally, a Message ID
+looks like this:
+	<unique-part@domain-name>
+The <, @, and > characters are fixed, and are used to help in parsing the
+Message ID.  The "unique-part" may consist of any characters -- the only
+requirement is that it be different for every message generated on a given
+node or point.  Possible implementations of "unique-part"s include a simple
+serial number, a date+time, or something completely different.
+
+The "domain-name" must be a valid Internet domain name.  Luckily, every
+Fidonet system has a valid domain name now!  The format here is as follows:
+	The domain name of the node a:bbb/ccc is
+		Fccc.Nbbb.Za.FIDONET.ORG
+	and the domain name of the point a:bbb/ccc.ddd is
+		Pddd.Fccc.Nbbb.Za.FIDONET.ORG
+The periods, magic letters, and the magic name "FIDONET.ORG" make the
+domain name unique in the world.  Of course, Fidonet systems that already
+have a different domain name (e.g. circle.UUCP) are free to use that name
+instead.
+
+A system which generates Message IDs must guarantee that no Message ID will
+be reused for at least two years.  This implies that if multiple message
+editors exist on a system they must cooperate at least to the extent of not
+using the same Message IDs for different messages.  In particular, a message
+editor that uses a simple serial number should make provision for the user
+to set the starting serial number to a value other than zero, so that different
+starting values can be used by different products.  Note that the numeric
+name of a .MSG file is >not< suitable as a unique-part, because it is neither
+unique nor permanent.
+
+FORMAT OF A MESSAGE ID -- SUGGESTED
+
+It is suggested, though not required, that the unique-part of all Message IDs
+consist only of decimal digits, and not more than 9 of these, so that the
+unique-part can be stored as a 32-bit signed integer.  A serial number
+scheme meets this standard, as does a Unix-style timestamp (seconds since
+midnight Jan 1 1970, Universal Time).  There many other possible schemes.
+
+
+CREATION OF THE IN-REPLY-TO LINE -- MANDATORY
+
+The most important thing about the IN-REPLY-TO line is that the Message ID
+specified by it should be the actual Message ID of the message being replied
+to, and not a Message ID invented by the sender of the reply.  This implies
+that message editors which generate IN-REPLY-TO lines should be able to
+store the Message IDs of all incoming and locally generated messages for
+as long as the messages themselves remain on-line.  It is worth repeating,
+however, that there is nothing mandatory about generating the IN-REPLY-TO
+line at all.  A message editor may generate both MESSAGE-ID and IN-REPLY-TO
+lines, only MESSAGE-ID lines, or neither.
+
+Due to problems with existing software, message editors should be prepared
+to receive (and either discard or display uninterpreted) IN-REPLY-TO lines
+which are >not< in standard format.  Standard format lines will have a <
+character just after the keyword and a > character at the end of the line.
+
+DUPLICATE MESSAGE ELIMINATION
+
+Usenet makes use of a "history file" which maintains the Message IDs of
+messages received in the last 15 days (this number is configurable by the
+sysop).  Fidonet has a similar scheme, but this is inherently less reliable,
+depending as it does on the exact layout of each message.  With MESSAGE-ID
+kludge lines, dupe eliminators can take advantage of them to help kill
+dupes once and for all, using existing mechanisms as a backup when needed.
+
+IMPLICATIONS FOR USENET GATEWAYS
+
+Currently, Fidonet<->Usenet gateways generate Message IDs for messages
+passing from Fidonet to Usenet, and discard them for messages passing the
+other way.  With this standard in place, such gateways should be modified
+to watch for MESSAGE-ID and IN-REPLY-TO kludge lines and translate them
+to Usenet "Message-ID:" and "In-Reply-To:" header lines, and vice versa.
+This will improve the behavior of threading systems like TBBS on the Fidonet
+side and 'notes' on the Usenet side.  Fidonet messages which don't have a
+MESSAGE-ID line will, of course, need to have one generated when passing over
+to Usenet, as is now the case.
+
+IMPLEMENTATIONS
+
+The Magpie tree-structured BBS is now being enhanced to provide Fidonet
+access to its users.  Magpie depends heavily on the notion of parent
+messages; every message on a Magpie system (except one) has a parent.
+Magpie/Fidonet systems will use the above technique to pass the parent
+information they need transparently through the Fidonet, so that incoming
+Fidonet messages can be connected at the correct place in the Magpie tree.
+(A backup algorithm similar to TBBS's will be used for Fidonet messages
+without parent information.)
+
+We are publishing this information as a Fidonet technical comment in hopes
+that other Fidonet products will eventually incorporate all or part of this
+standard as well, and that it will eventually form part of a Fidonet
+Technical Standard.
+

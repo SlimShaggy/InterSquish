@@ -1,0 +1,875 @@
+
+  | Document: FSC-0083
+  | Version:  001
+  | Date:     17 June 1995
+  |
+  | Jonathan de Boyne Pollard, FIDONET#2:440/4.0
+
+			A proposed standard for message IDs on FTN systems.
+
+									by
+
+				Jonathan de Boyne Pollard, FIDONET#2:440/4.0
+
+						Version 0.02, Sun 19950507
+
+	This document is (c) Copyright 1995 Jonathan de Boyne Pollard, all
+	rights reserved.  Originally written on Tuesday 19950131.
+
+	Permission is hereby granted to copy and use this document without
+	modification in any way that you see fit, provided that you do not
+	attempt to make money from it, and that you understand that I take no
+	responsibility whatsoever for any effect that it may have on your
+	machine, data, marital status, or cat.
+
+	Especial permission to freely use and redistribute this document in
+	its original form is given to developers of FTN softwares and whatever
+	FIDONET Technical Standards bodies may exist from time to time.
+
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+ÍÍÍ 0.0 Definition of terms ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	This document assumes familiarity with several terms in common use in
+	discussion of mail systems, such as `User Agent', `Message Transport
+	Agent', and so forth.
+
+	Robot mail programs qualify as UAs, incidentally.
+
+	0.1 Knackered Backward Form
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	This specification uses a modified BNF notation for discussion of
+	textual representation of message IDs.
+
+	Literal syntax elements (terminal nodes of the grammar) are enclosed
+	in single quotes.
+
+		'MSGID:'	'@'    '<'	  '"'
+
+	Non-terminal nodes are enclosed in angle brackets (greater than and
+	less then signs).
+
+		<quoted-text>		<hex-text>		<q-p-site-identifier>
+
+	Production rules comprise a non-terminal, followed by productions.
+	Alternate productions for the same non-terminal are separated by a
+	vertical bar.
+
+		<qtext-chars> ::=
+				  '"' '"'
+				| <any-character-except-quotes-NUL-or-CR>
+
+	Optional sequences within a production are indicated in two ways.
+	Square brackets enclose a sequence that may occur exactly once or not
+	at all.
+
+		[ '@' <dns-name> ':' ]
+
+	Curly braces enclose a sequence that may be repeated any number of
+	times.	A leading numeric prefix (usually 0 or 1) indicates the
+	minimum number of repetitions.
+
+		1*{ <hex-character> }
+
+	0.1.1 Some standard production rules
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+		<whitespace-char> ::= <tab> | <space>
+
+		<whitespace> ::= 1*{ <whitespace-char> }
+
+		<hex-character> ::=
+			'0'|'1'|'2'|'3'|'4'|'5'|'6'|'7'|'8'|'9'|
+			'A'|'B'|'C'|'D'|'E'|'F'|
+			'a'|'b'|'c'|'d'|'e'|'f'
+
+		<upper-hex-char> ::=
+			'0'|'1'|'2'|'3'|'4'|'5'|'6'|'7'|'8'|'9'|'A'|'B'|'C'|'D'|'E'|'F'
+
+		<qtext-char> ::=
+				'"' '"'
+			  | <any-ASCII-character-except-quotes-NUL-or-CR>
+
+		<quoted-text> ::= '"' 0*{ <qtext-char> } '"'
+
+		<quoted-char> ::=
+				<any-ASCII-character-except-quotes-backslash-NUL-or-CR>
+			  | '\' <any-ASCII-character-execpt-NUL-or-CR>
+
+		<quoted-string> ::= '"' 0*{ <quoted-char> } '"'
+
+		<word> ::= 1*{ <any-ASCII-character-above-SPACE-and-below-DEL> }
+
+	Note the difference between the two forms of quoting.  <quoted-text>
+	is a string with embedded quotation marks represented by double
+	quotation marks (the way that most BASIC languages do).  However,
+	<quoted-string> is a string with all quotation marks and backslashes
+	(and, indeed, any other character) escaped by the backslash character,
+	in the style of the C and C++ languages.
+
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+ÍÍÍ 1.0 Definition and use of message IDs ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	For the purposes of this document, the network is considered to form a
+	vast distributed database of messages, which uses replication and
+	store and forward distribution to ensure that all carriers of the
+	database are kept up to date.  Every message, whether netmail or
+	echomail, carries a primary message ID that uniquely identifies it,
+	and zero or more reference message IDs that uniquely identify any
+	messages that it refers to.
+
+	A primary message ID is a globally unique key that is used for
+	uniquely identifying any single given mail message in the database
+	(that is, counting all replicas of a message over all of the network
+	as "one").  The reference message IDs are used by user agents to form
+	a reply graph, allowing the the user to easily navigate the
+	messagebase.
+
+	Message transport protocols may require the data in a message ID to be
+	encoded so that it may be safely transported.  This standard
+	distinguishes between the "underlying" message IDs and the encoded
+	forms.  This chapter discusses the underlying message IDs and the
+	concepts behind them without reference to a particular encoding, and
+	subsequent chapters discuss the various encoded forms.
+
+	1.1 Components of a message ID
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	A message ID comprises two parts, namely a site identifier and a local
+	part.  Both of these parts are arbitrary 8-bit binary data, that
+	implementations are free to store in any way they choose, but which
+	they should never alter.  There are no distinguished characters in
+	either the site identifier or local part, especially not terminating
+	characters.  So implementations must usually store an additional
+	length count for both.
+
+	The "minimum maximum" lengths for the site ID and local part are 64
+	octets each, and conforming implementations may not impose shorter
+	maximum length restrictions.  In fact, implementations are encouraged
+	to impose no length restrictions on message IDs whatsoever (for
+	example, it is not unreasonable to expect site IDs to exceed 256
+	octets on occasion).
+
+	1.2 Preservation of uniqueness
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	A site that creates messages (by entering them into the distributed
+	database) must also issue message IDs, and must ensure that the global
+	uniqueness property of message IDs is preserved.
+
+	A site MUST ensure that it issues unique local parts to individual
+	messages.  Two or more sites may not have the same site identifier,
+	unless they *all* co-operate to ensure that they do not issue
+	duplicate local parts.
+
+	The administrative procedures necessary to obtain a unique site
+	identifier are beyond the scope of this document.  Usually site
+	identifiers will be FTN 5D addresses, or fully qualified DNS names,
+	because administrative procedures for assigning such are already in
+	place.  However, they are not restricted to be such.
+
+	The means by which a site invents new local parts is beyond the scope
+	of this document.  A discussion of some example options for
+	implementors to consider is given in an appendix.
+
+	1.3 Reference message IDs
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	Reference message IDs in a message denote messages to which it is
+	related, comprising a "local subset" of the overall reply graph (i.e.
+	the direct and indirect ancestors of the message), which each message
+	carries around with it.
+
+	Carrying around multiple reference message IDs provides overlap,
+	allowing for the overall reply graph to be reconstructed even in the
+	absence of intermediate messages (if they had expired, or had not yet
+	arrived due to propagation lag, for example).
+
+	UAs that conform to this standard MUST ensure that only messages that
+	start new threads (i.e. messages entered into the network not in
+	response to any existing message) have no reference message IDs.
+
+	All other messages that they create MUST contain at least one
+	reference message ID, being that of the message that is being
+	responded to.
+
+	[[ Luckily, schemes already in existence mean that in practice
+	   non-conforming User Agents will generally preserve this single back
+	   link, as well.  ]]
+
+	When responding to a message, user agents must create the reference
+	message ID list of the response by taking the list of reference
+	message IDs from the original message, and appending the primary
+	message ID of the original message to the tail.
+
+	A reference message ID list should not be truncated, unless transport
+	or storage limitations are in danger of being exceeded.  In which
+	case, message IDs may only be removed from the head of the list.
+	Removing from the tail would eliminate links to immediate ancestor
+	messages, and removing from the middle would alter the reply graph.
+
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+ÍÍÍ 2.0 Quoted printable encoding for storing 8-bit data in 7-bit transports ÍÍ
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	To encode the 8-bit data in message IDs for transport by 7-bit
+	transport layers, we use a variation on the widely used Quoted
+	Printable form [RFC1521] [RFC1522].
+
+	2.1 Grammar of Quoted Printable encoding
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	The grammar of the 7-bit encoding of 8-bit data in a quoted printable
+	word is as follows.
+
+		<q-p-word> ::=
+				<word>
+			  | <quoted-text>
+			  | [ '=' ] 1*{ <q-p-character> } [ '=' ]
+
+		<q-p-character} ::=
+				<any-ASCII-character-bar-ctls-wspace-quote-and-equals>
+			  | <q-p-quoted-char>
+
+		<q-p-quoted-char> ::= '=' <upper-hex-char> <upper-hex-char>
+
+	2.2 Conversion from 8-bit to 7-bit
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	Rule #1 (non-quoted transparent 7-bit): Where the 8-bit data consist
+		of nothing but ASCII characters above SPACE and below DEL, they
+		may be copied literally to the 7-bit representation.
+
+	Rule #2 (quoted transparent 7-bit):  Where the 8-bit data consist of
+		nothing but ASCII characters except CR and NUL, they may be
+		converted to the 7-bit representation by enclosing them in quotes,
+		and escaping every embedded quotation mark with a second quotation
+		mark.
+
+	Rule #3 (8-bit quoted): Where the 8-bit data contain CR or NUL, or any
+		non-ASCII characters, they are converted to a 7-bit representation
+		in two stages.
+
+		Firstly, all non-ASCII characters, all ASCII control characters,
+		SPACE, DEL, '"', and '=', are converted to "quoted" form.  Quoted
+		form is an '=' character followed by the hexadecimal value of the
+		character represented as two uppercase hexadecimal digits.
+
+		Secondly, the entire string is then enclosed by one leading and
+		one trailing '=' character.
+
+	2.3 Conversion from 7-bit to 8-bit
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	Where the 7-bit field is delimited by equals signs, it is a fair bet
+	that it comprises 8-bit data to which Rule 3 has been applied.
+	However, it is possible that sites in the 7-bit world may produce data
+	with leading and trailing equals signs.
+
+	Reverse of Rule #3 : If, after stripping the leading and trailing '=',
+		the remaining text can be converted back using the reverse of Rule
+		3, then that 8-bit data is the actual message ID.  Otherwise the
+		reverse of Rule 2 should be applied to the original 7-bit data.
+
+	Reverse of Rule #2 : If the 7-bit data are enclosed by quotes the
+		reverse of Rule 2 should be applied to remove the enclsing quotes
+		and any embedded quotes (8-bit form does not have delimiter
+		characters and so does not require quoting).  Otherwise the
+		reverse of Rule 1 should be applied.
+
+	Reverse of Rule #1 : The 7-bit data are copied to the 8-bit data.
+
+	2.4 Rationale
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	The intention is that <q-p-word> tokens will not be parsed as separate
+	words by most 7-bit grammars.  The elimination of quotes, whitespace,
+	and control characters by Rule 3 is part of achieving this.
+
+	Rules 1 and 2 allow message IDs created by 7-bit standards to enter
+	and travel within the 8-bit world, and be restored to their original
+	form when they return to the 7-bit world.  Returning 7-bit message IDs
+	to their original form means that 7-bit duplicate checking is not
+	broken by 8-bit gateways.
+
+	The unfortunate side-effect is that any 8-bit data generated in the
+	7-bit world will be returned to the 7-bit world as 7-bit data in Q-P
+	encoded form.  However, the original 8-bit data are unlikely to work
+	in the 7-bit world in the first place, so this is no great loss.
+
+	Rule 3 is the most general rule of the three.  Rule 3 applies to true
+	8-bit message IDs generated in the 8-bit world that use 8-bit
+	characters, allowing them to travel across the 7-bit world with a
+	reasonable chance of remaining intact.
+
+	The elimination of the equals sign by Rule 3, replacing it with its
+	Q-P encoding, ensures that the decoding process can assume that an
+	equals sign not followed by two uppercase hex characters is not a
+	valid Rule 3 encoding, and so fall back to decoding Rule 2.
+
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+ÍÍÍ 3.0 Storage of message IDs in type 2.0, 2.0+, and 2.2 message packets ÍÍÍÍÍ
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	Type 2.0 message packets [FTS0001], type 2.0+ message packets
+	[FSC0039], and type 2.2 message packets [FSC0045] are used for message
+	transport over much of FIDONET.  They do not have space in their
+	message headers available for message IDs (along with a lot of other
+	things), therefore message IDs must be transferred to the body of the
+	message for transport in these forms, and retrieved from the body of
+	the message afterwards.
+
+	The existing "kludge line" mechanisms [FSC0068] are used to do this.
+
+	There are two concerns here.
+
+	Firstly, it is preferable that as much of the reply graph as possible
+	is preserved, even in the face of tools that use existing MSGID/REPLY
+	schemes [FTS0009].
+
+	Secondly, message IDs are 8 bit data, and must be encoded into a 7-bit
+	form that will be reliably transported in the bodies of type 2.0,
+	2.0+, and 2.2 message packets.
+
+	3.1 Conversion to and from kludge lines
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	The primary message ID of a message is stored to and retrieved from a
+	"MSGID:" kludge line.
+
+	All of the reference message IDs of a message are stored, in order
+	from first to last, in a single "REFER:" kludge line.  The last
+	reference message ID of a message (its immediate ancestor, in other
+	words) is stored in a "REPLY:" kludge line.  Note that the information
+	in the "REFER:" kludge line is a superset of the information in the
+	"REPLY:" kludge line.
+
+	If a message has zero reference message IDs (it is the start of a new
+	thread), then the "REFER:" and "REPLY:" kludge lines are omitted.
+
+	If, upon decoding from type 2.0, 2.0+, or 2.2 message transport
+	format, a "REFER:" kludge line exists, then its contents are assumed
+	to be the complete list of reference message IDs (in encoded form) for
+	the message, and the "REPLY:" kludge line is ignored.  Otherwise, the
+	content of the "REPLY:" kludge line (if any) is used for the single
+	reference message ID of the message.
+
+	3.2 Compatibility with existing MSGID/REPLY schemes
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	There are two compatibility considerations.  It is important that
+	encoded message IDs be correctly parsed by implementations using older
+	less versatile standards.  It is also important that implementations
+	expecting older MSGID/REPLY pairs will destroy as little linking
+	information as possible.
+
+	3.2.1 Grammar considerations
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	There are two valid interpretations of FTS-0009, both of which
+	(should) use the following grammar :
+
+		<msgid> ::= <soh> 'MSGID: ' <address-text> <whitespace> <hex-text>
+		<reply> ::=	<soh> 'REPLY: ' <address-text> <whitespace> <hex-text>
+
+		<soh> ::= ASCII SOH character
+		<address-text> ::= <quoted-text> | <word>
+		<hex-text> ::= 1*{ <hex-character> }
+
+	The "VFIDO" interpretation assumes that MSGID/REPLY kludges are the
+	textual representation of an (address, number) ordered pair.  Systems
+	using this interpretation may change the case of <hex-text> or may
+	renormalise <quoted-text> if they find it to be a FTN 5D address.
+
+	Message IDs from this standard that are stored in MSGID/REPLY kludges
+	will be mangled by software applying the VFIDO interpretation of
+	FTS-0009.  Such software is not compatible with this standard.
+
+	The "Mark Kimes" interpretation assumes that MSGID/REPLY kludges are
+	text separated by whitespace, and preserves the contents of
+	<quoted-text> and <hex-text> without change.
+
+	The encoding scheme outlined in section 2.2 produces two whitespace
+	separated text fields.	So software applying the "Mark Kimes"
+	interpretation of FTS-0009 will not mangle the encoded message IDs.
+
+	In many cases, softwares using the "Mark Kimes" interpretation will in
+	fact parse <hex-text> as
+
+		<hex-text> ::= <word>
+
+	As long as software applying the "Mark Kimes" interpretation of
+	FTS-0009 is not written to truncate either field, or complain about a
+	non-numeric <hex-text> portion, it is compatible with this standard.
+
+	3.2.2 Reply linking
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	FTS-0009 implementations will generate MSGID kludges, transfer the
+	content (Mark Kimes interpretation) of the MSGID kludge data of an
+	original message into the REPLY data of a response message, and will
+	not generate a REFER kludge.
+
+	So reply linking will be preserved, but reference information beyond
+	the immediate ancestor of a message will be lost.
+
+	3.3 Quoted printable encoding
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	The 8-bit data in message IDs is encoded into 7-bit MSGID/REPLY data
+	for transport in type 2.0, 2.0+, and 2.2 message packets by using the
+	quoted printable encoding outlined in chapter 2, along with the
+	following grammar.
+
+		<msgid> ::= <soh> 'MSGID: ' <7-bit-encoding>
+		<reply> ::= <soh> 'REPLY: ' <7-bit-encoding>
+		<refer> ::= <soh> 'REFER: '
+						<7-bit-encoding> 0*{ <whitespace> <7-bit-encoding> }
+
+		<7-bit-encoding> ::= <q-p-site-ID> <whitespace> <q-p-local-part>
+
+		<q-p-site-ID> ::= <q-p-word>
+		<q-p-local-part> ::= <q-p-word>
+
+	Applying Rule 1 of Q-P encoding to local parts is safe as long as
+	<hex-text> (from the FTS-0009 grammar) is in actuality treated as
+	<word> by most implementations, as outlined in the compatibility
+	notes.
+
+	Rule 2 should not be applied to local parts, because the grammar of
+	FTS-0009 does not allow for quoted text in the <hex-text> portion.
+
+	The restrictions in Rule 3 have deliberate effect here.  FTS-0009
+	sites will rarely produce data with leading and trailing equals signs,
+	so reversing Rule 3 will be unlikely to be subject to spurious data.
+	In theory, relaxing Rule 3 reversal to include decoding lowercase
+	hexadecimal as well as uppercase hexadecimal would mean that sites
+	that convert the case of MSGID/REPLY (as part of the "VFIDO"
+	interpretation) would not break Q-P encoding.
+
+	However, the "VFIDO" interpretation will usually do far more damage
+	than simple case conversion, which will be impossible to restore.
+	Rather than attempt the reverse conversion (which could have the
+	undesirable effect of causing different messages to end up with the
+	same 8-bit message ID if the local part were truncated to eight
+	characters in the 7-bit world), any "VFIDO" mangling that occurs will
+	prevent Q-P decoding from succeeding.
+
+	This means that 8-bit message IDs that look like incomplete or damaged
+	Q-P encodings are not gateway problems, but are more likely to be the
+	result of a site using the "VFIDO" interpretation in the 7-bit world.
+
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+ÍÍÍ 4.0 Storage of message IDs in type 2.3 message packets ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	The storage format of type 2.3 messages (so-called "extensible type 2"
+	[TYPE2EXT]) provides space in the message headers for both a primary
+	message ID and an arbitrary list of reference message IDs.
+
+	All message IDs are stored as 8-bit binary strings, using length
+	counts rather than delimiters.	Therefore message IDs can be stored
+	directly in type 2.3 messages.
+
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+ÍÍÍ 5.0 Storage of message IDs in type 3.x message packets ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	There is such a wide variety of type 3 message formats that this
+	standard doesn't hope to cover them all.
+
+	For those with binary "chunks", chunk types 'PMID' (primary message
+	ID) and 'RFER' (reference message IDs) are expected to have the
+	following form :
+
+	 ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	 ³ Length of site identifier					WORD32 ³
+	 ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+	 ³ Site identifider 							 ...   ³
+	 ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+	 ³ Length of local part 						WORD32 ³
+	 ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+	 ³ Local part									 ...   ³
+	 ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+	Those schemes that use text format headers and require field
+	delimiters may care to use the Q-P encoding outlined in chapter 2.
+
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+ÍÍÍ 6.0 Storage of message IDs in RFC822 and RFC1036 messages ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	The grammar of "Internet" messages is defined by the standards for
+	ARPA text messages [RFC0822] and for Usenet news messages [RFC1036].
+
+	6.1 Restrictions on interconversion
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	Interconversion between a FIDO message ID and an RFC822 Message-ID is
+	restricted by several factors.  The major factor is that RFC0822
+	actually places greater restrictions upon Message-IDs than this
+	standard does upon FIDO message IDs (in part because this standard is
+	designed to also be able to handle X.400 message identifiers and
+	others transparently as well).  It mandates that the <address> portion
+	of a Message-ID be a valid DNS name.
+
+	A secondary factor is reversibility, in that many gateways exist
+	between FTN and RFC822, and so message IDs that cross the boundary
+	more than once will retain as much of their original ID information as
+	possible.  There is more information contained within a FIDO message
+	ID than in an RFC822 Message-ID.  In particular, the <address>
+	portions of RFC822 Message-IDs are not case sensitive, whereas the
+	site ID of a FIDO message ID is treated as 8-bit data for the purposes
+	of comparison.
+
+	These are handled by restricting the allowable conversions that a
+	conformant gateway may use on a message ID, by ensuring that all of
+	the FIDO information is not lost when converted to the (narrower
+	bandwidth) RFC822 Message-ID format, and by allowing gateway softwares
+	to infer a meaning from the site identifier portion of a message ID.
+
+	This is the *only* part of this standard where it is allowed for
+	softwares to place a meaning on the site identifier of a message ID.
+
+	6.1 Converting to RFC822 form
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	6.1.1 Site identifier recognition
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	Gateway softwares are allowed to examine a site identifier of a
+	message ID and determine whether it is in a format that they recognise
+	or not.  This standard specifies what gateway softwares should do when
+	they encounter a site identifier that is a recognisable DNS name or
+	one that is recognisable FIDO 5D address, and what form the DNS name
+	for RFC822 must take.
+
+	Site identifiers that are not FIDO 5D addresses are really beyond the
+	scope of FIDONET documentation.  If an implementation recognises
+	another form of site identifier (such as X.400 O/R addresses) then it
+	is free to translate that site identifier to and from DNS form, as
+	long as it knows how (there are RFCs on how to perform X.400
+	conversion).
+
+	This message ID standard imposes no restrictions on site identifiers,
+	allowing any scheme to be administered on FIDONET.  It is therefore up
+	to the site identification schemes themselves to provide their own
+	mappings to and from DNS names.
+
+	Gateways are free to drop messages with message IDs that they do not
+	understand how to convert.  Both the FIDONET and RFC worlds depend
+	heavily upon message IDs for detecting messages duplicates, and so it
+	is better that a gateway should NOT distribute messages with message
+	ID formats that it doesn't understand how to convert to RFC822 form,
+	rather than that it does so incorrectly.
+
+	6.1.1.1 Site identifiers that are DNS names
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	If the site identifier of a message ID can be parsed as a legal DNS
+	name according to the grammar of RFC822 then, even if it cannot be
+	resolved to an IP address or MX record, it must be used as the domain
+	name of the RFC message ID, and the local part must be passed through
+	unchanged.
+
+	This allows for RFC message IDs to enter and leave 8-bit FIDONET
+	without change, even via gateways that have no knowledge of or
+	connectivity to the originating RFC host.
+
+	6.1.1.2 Site identifiers that are FIDO 5D addresses
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	The conversion process for message IDs where the site identifier can
+	be parsed as a FIDO 5D address in the forms DOMAIN#Z:N/N.P or
+	Z:N/N.P@DOMAIN depends from the "domain" (in the FIDO sense of the
+	word) of the address.
+
+	6.1.1.2.1 Site identifiers that are 5D addresses in FIDONET
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	If the site identifier of a message ID is parseable as a FIDO 5D
+	address of the form Z:N/N.P@FIDONET or FIDONET#Z:N/N.P (i.e. in the
+	FIDONET domain itself), then the DNS name used for the RFC message ID
+	must be the DNS equivalent of that address.
+
+	This is because MX records exist in the DNS for all of the zone:net
+	pairs for 5D addresses in the FIDONET "domain", in the form
+
+		p#.f#.n#.z#.fidonet.org
+
+	where # is a number without leading zeroes giving the appropriate
+	portion of the 5D address.  Therefore this is the conversion that must
+	be used.
+
+	6.1.1.2.2 Site identifiers that are 5D addresses outside of FIDONET
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	Most other "domains" (in the FIDO sense of the word), are free to
+	choose their own DNS domain name, but have not yet done so.
+
+	Therefore, constructs such as p3.f0.n444.z81.os2net.ftn (which several
+	people have INCORRECTLY inferred from other FTS documentation) are NOT
+	ALLOWED as the DNS name in an RFC Message-ID.  .ftn is NOT a valid
+	top-level DNS domain, for a start, and there is no guarantee that
+	OS2NET would adopt that DNS name, either.
+
+	(p#.f#.n#.z#.os2net.fidonet.org anyone ?)
+
+	6.1.1.2.3 Conversion of local parts
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	Where a gateway has recognised a site identifier to represent a FIDO
+	5D address that it knows the DNS name for, the local part must then be
+	encoded.
+
+	According to the grammar in RFC822, any ASCII character (from NUL to
+	DEL) is legal in the local part of an RFC822 Message-ID, because
+	<quoted-pair> (q.v.) allows any special characters to be escaped.
+
+	Since RFC822 transport is merely 7-bit just like type 2.0, 2.0, and
+	2.2 message packets are, we use the quoted-printable scheme given in
+	chapter 2.
+
+	However,
+
+	6.1.1.3 Site identifiers that are not recognisable 5D addresses
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	No implementation may extend the FIDO 5D address to DNS name
+	conversions for site IDs that are given above.  If the message ID is
+	"almost, but not quite" a FIDO 5D address, then the message should for
+	preference be discarded at the gateway rather than being passed
+	through.
+
+	Message IDs with abitrary site identifiers are perfectly acceptable to
+	this standard, since it ascribes no meaning to site identifiers within
+	FIDONET.  However, RFC822 and the existing RFC domain name system
+	can only handle a restricted subset of the whole range of FIDO 5D
+	addresses.
+
+	6.1.1.4 Other site identifiers
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	As mentioned before, gateways are allowed to support other site
+	identification schemes that are not FIDO 5D addresses, and convert
+	site identifiers in those forms to DNS names as they please.
+
+	It should be borne in mind when designing such conversion schemes that
+	the domain part of an RFC 822 message ID can only contain ASCII
+	characters that are not control characters, whitespace, or special
+	delimiter characters, because of the definition of <atom> in that
+	standard (q.v.).  The quoted printable encoding outlined in chapter 2
+	of this document is probably not sufficient for handling full 8-bit
+	site identifier schemes, in which case the scheme in RFC1522 should be
+	investigated.
+
+	6.1.2 Preserving information
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	Although this standard recognises two forms for a FIDO 5D address,
+	there is only one valid form for that address in the DNS.  For reverse
+	conversions to succeed, when an RFC message re-enters 8-bit FIDONET
+	(possibly via another gateway), the *exact form* of the original site
+	identifier must be reconstructed, otherwise FIDO softwares will treat
+	the two message IDs as different.
+
+	Although other schemes exist, which encode the 5D address in the local
+	part, and use a "generic" domain name of "fidonet.org" (which is not a
+	valid host name), it is preferred that the semantics of a message ID
+	("WXYZ local part generated at ABCDE site") be preserved, especially
+	as FIDONET sites are visible to the RFC world via the DNS anyway.
+
+	It is therefore suggested that the original FIDONET site identifier
+	(since it will be 7-bit text) be encoded as a <comment> token
+	immediately following the relevant message ID, using quoting to escape
+	any embedded punctuation (q.v. the grammar in RFC 822).
+
+	6.2 Converting from RFC822 form
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	When converting from RFC822 form back to 8-bit FIDONET message IDs,
+	gateways should determine whether the address portion of the
+	Message-ID is a hostname under the fidonet.org domain.
+
+	If it is, a comment token should be scanned for to find the original
+	form of the 5D address, and the site identifier should be
+	reconstructed from it if found, or from the given DNS name in the form
+	DOMAIN#Z:N/N.P if no comment token were present.  The inverse of the
+	quoted printable encoding outlined in chapter 2 should then be applied
+	to the local part.
+
+	Otherwise, the 7-bit RFC822 Message-ID should be stored in the 8-bit
+	FIDONET message ID without change.
+
+	6.3 Reply linking
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	According to RFC1036, message IDs occur in the Message-ID:  and in the
+	References:  header for news (echomail).  Although RFC822 specifies an
+	In-Reply-To:  header for mail (netmail), it makes it difficult to use,
+	because it need not contain a message ID.
+
+	The model for message identification used by RFC1036 closely matches
+	the model outlined in this standard (it is probable that there is only
+	one way to skin this particular cat).  There is thus a direct mapping
+	between the primary message ID defined by this standard and the
+	RFC1036 Message-ID:  header, and also between the reference message
+	IDs defined by this standard and the RFC1036 References:  header.
+
+	This means that in normal use the reference message ID list will be
+	properly maintained by Usenet softwares.
+
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+ÍÍÍ A.0 Discussion on generating unique local parts ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ
+	ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	How any given site generates unique local parts is up to it.  So this
+	appendix should only be taken as a guideline.
+
+	On sites where there is only one piece of software assigning message
+	IDs (e.g.  there is only one UA, or the MTA itself assigns message
+	IDs), then a simple "take a ticket" scheme could work.	Multiple
+	instances of that piece of software running simultaneously would need
+	to arbitrate access to that "ticket dispenser" amongst themselves.
+
+	A discussion of `sequencers' (which is the proper name for this idea)
+	and how atomic operations on them can be implemented, can be found in
+	any good computer science textbook on concurrent systems.
+
+	Unfortunately, in today's heterogeneous world, it is difficult to the
+	point of impossibility to get every piece of software to agree to use
+	one single central sequencer.
+
+	It is obvious that using just the date/time for a message ID is
+	insufficient on multitasking systems, or even on single tasking
+	systems that can generate multiple messages per clock tick.
+
+	What is less obvious is that it is not a good idea to use the name of
+	the software generating the message ID and a sequencer maintained by
+	that software as the unique local part.  The problem here is that it
+	is not guaranteed that different softwares will use different names
+	(especially if they are called "Message Editor" (-:), so it is
+	possible that different softwares could generate duplicate local
+	parts.
+
+	Some form of "product ID code" would of course rectify this, but given
+	the amount of software in use and under development these days, a
+	centrally administered product ID database hasn't been a viable option
+	for decades now.
+
+	There are, of course, simpler schemes, that can guarantee to produce
+	unique local parts, because they rely on features that are guaranteed
+	unique to every individual application running, and do not rely on
+	different applications co-operating to use the same central
+	facilities, such as a site-wide sequencer.
+
+	One commonly used scheme is to use a combination of the current date
+	and time and the process and thread IDs of the software creating the
+	message ID.
+
+	e.g.  1995Jan31.123426.26.1
+	  or  1995013112343600260001
+
+	This doesn't have to be human-readable calendar time, of course.  It
+	could equally well be the POSIX 1003.1 time (seconds since The Epoch),
+	or the Julian date plus the time of day.
+
+	If the time isn't granular enough, a sequence number (which can be
+	maintained individually by each process) can be added to increase its
+	granularity.
+
+	On just about every operating system in the world, including
+	multi-user ones, the <time,process,thread,seq> 4-tuple will be unique
+	on one machine *forever* (or until the clock wraps around, at least).
+
+	e.g.  1995Jan31.123426.26.1.2
+	  or  19950131123436002600010003
+
+	On multiple machine sites, where all machines share the one site
+	identifier, the above scheme can be extended to include the "hidden"
+	local machine name, which will be assumed to be made available (in
+	some fashion) to the softwares generating the message IDs.
+
+	This yields a unique <machine,time,process,thread,seq> 5-tuple.
+
+	e.g.  utopium.1995Jan31.123848.26.1.4
+	  or  utopium.19950131123907002600010005
+
+	Again, the "intra-site" machine name can be anything, from the local
+	uname() (for UNIX people) to the NETBIOS machine name (for PC based
+	LAN systems).
+
+   ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+ÍÍÍ Bibliography and Author ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ
+   ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+	[FTS0001] A Basic FIDONET Technical Standard, version 15.  Randy Bush,
+			  Pacific Systems Group.  FIDONET#1:105/6.0.  30th August
+			  1990.
+
+			  ( Defines the type 2.0 packet message transport format.  )
+
+	[FTS0009] A standard for message identifiers and reply chain linkage,
+			  version 1. Jim Nutt.	FIDONET#1:114/30.0.  17th December
+			  1991.
+
+			  ( Defines the MSGID/REPLY kludges.  )
+
+	[FSC0034] Gateways to and from FIDONET.  Technical, administrative,
+			  and policy considerations.  Randy Bush, Pacific Systems
+			  Group.  FIDONET 1:105/6.0.  30th August 1990.
+
+			  ( Discussion on features that should be preserved across
+				gateways, and on good gateway behaviour in general.  )
+
+	[FSC0039] A type 2 packet extension proposal, version 4. Mark A.
+			  Howard.  FIDONET#1:260/340.  29th September 1990.
+
+			  ( Defines the type 2.0+ packet message transport format.	)
+
+	[FSC0045] A proposal for a new packet format, version 1. Thom
+			  Henderson.  FIDONET#1:107/542.1.	17th April 1990.
+
+			  ( Defines the type 2.2 packet message transport format.  )
+
+	[FSC0068] A proposed replacement for FTS-0004, version 1. Mark Kimes.
+			  FIDONET#1:380/16.0.  13th December 1992.
+
+			  ( Defines kludge lines.  )
+
+	[RFC0822] Standard for the format of ARPA Internet text messages.
+			  David Crocker, University of Delaware.  13th August 1982.
+
+			  ( Defines the grammar and semantics of RFC messages.	)
+
+	[RFC1036] Standard for the interchange of USENET messages.	M Horton,
+			  AT&T bell labs; and R. Adams, Centre for seismic studies.
+			  December 1987.
+
+			  ( Defines changes to the grammar and semantics of RFC822
+				that are required for news instead of mail, including
+				reply linking.	)
+
+	[RFC1521] MIME (Multipurpose Internet Mail Extensions) Part One:
+			  Mechanisms for specifying and describing the format of
+			  Internet message bodies.	N. Borenstien, Bellcore; and N.
+			  Freed, Innosoft.	September 1993.
+
+			  ( Defines Quoted Printable encoding of text.	)
+
+	[RFC1522] MIME (Multipurpose Internet Mail Extensions) Part One:
+			  Message header extensions for non ASCII text.  K. Moore,
+			  University of Tennesee.  September 1993.
+
+			  ( Defines how to use Q-P encoding in message headers.  )
+
+	[TYPE2EXT] An extension to type 2.0, 2.0+, and 2.2 message transport
+			   formats to eliminate most kludge lines from the message
+			   body.  Jonathan de Boyne Pollard.  FIDONET#2:440/4.0.
+			   [ Not yet released.	]
+
+	ÄÄÄÄÄÄÄÄÄÄÄ
+	Jonathan de Boyne Pollard
+	FIDONET#2:440/4.0

@@ -1,0 +1,270 @@
+
+  | Document: FSC-0081 Part B
+  | Version:  001
+  | Date:     01 Mar 1995
+  |
+  | Mikael Ståldal, 2:201/337
+
+           How the TYPE-3 packet format can coexist with TYPE-2
+                           in the same network.
+                    Mikael Ståldal, 2:201/337@FidoNet
+
+
+Introduction
+============
+This document describes how to convert between the old TYPE-2 format and the
+new TYPE-3 format. The TYPE-2 format is documented in FTS-1 and FSC-39. This
+document only describes how to convert the packed messages, it should be
+obvious how to deal with the packet header if you read FSC-39 and the TYPE-3
+specification.
+
+Read FSC-39, rev 4 for information on how to determine which format to use
+when sending packets to other nodes.
+
+An FTN address in text format must, unless otherwise stated, be in the
+Zone:Net/Node[.Point] format, where .Point must be excluded if point is
+zero, included otherwise.
+
+The field names in FTS-1 are used.
+
+"kludge" means a line beginning with 01h in TYPE-2 messages.
+
+
+TYPE-2 => TYPE-3
+================
+
+General
+-------
+In Attribute, the Private, Crash, FileAttach, HoldForPickup, FileRequest,
+and FileUpdateReq bits is transferred to the MsgFlags field. The other bits
+are ignored. If a FLAGS kludge exists, it's checked for DIR, IMM, MCH, RRQ,
+CFM and PER which are used to set Direct, IMM, Machine, RRQ, CRQ and
+Permanent respectively. If IRR or ICR exists in a FLAGS kludge, they are used
+to set RRQ/IRR or CRQ/IRR.
+
+DateTime is used to create the MsgDate field. If that fails, the MsgDate
+field is set to the current time.
+
+If any FROMUSER3, TOUSER3 and/or SUBJECT3 kludges exist, they are used to
+create the FromUser, ToUser and Subject fields. Otherwise fromUserName,
+toUserName and subject are used.
+
+If a TYPE3 kludge exists, it's used to create the MsgType and CharSet
+fields.
+
+If any  CHRS, CHARSET or I51 kludges exist, they are used to create the
+CharSet field. I51 means CharSet=1. If any CHRS or CHARSET kludge indicates
+a character set not supported by TYPE-3, the message must be converted. If
+no such kludge exist, the CharSet field is set to 0. This is not performed
+if a TYPE3 kludge exists.
+
+If a PTH kludge exist, it's used to create the Path field. Otherwise, the
+Path field is set to your address only.
+
+If a MSGID kludge exists, the serial number is used to create the MsgID
+field. Otherwise it's set to null.
+
+If an ORIG kludge exists, it's used to create the OrigAddr field, otherwise
+the address in the MSGID kludge is used. If the address doesn't contain
+organization, the name of your organization is added. If the ORIG kludge
+indicates that the message comes from another organization, set the Foreign
+flag. If non of these kludges exists the OrigAddr field is set to null.
+
+If a REPLY kludge exists, the address is used to create the ReplyAddr field
+and the serial number is used to create the ReplyID field.
+
+A split message (containing a SPLIT3 kludge) is rejoined.
+
+If a TYPE3 kludge exists and contains UU, the text after it are UUdecoded
+and placed in the MsgData field.
+
+Any quoted text in the FSC-32 format is converted to the TYPE-3 format.
+
+Any binary extension fields (BIN3 kludges) are decoded.
+
+Any FMPT, TOPT, INTL, BIN3, SPLIT3, CHARSET, CHRS, I51, ORIG, MSGID, REPLY,
+EID, PTH, PATH, RESCANNED and TYPE3 kludges are removed from the message
+text. Any other kludges are converted to extension lines, except kludges
+before any TYPE3 kludge which are converted to header extension fields.
+
+destNode, destNet, together with any TOPT and INTL kludges are used to create
+the MsgDest field. If TOPT is missing, the Point field is set to 0. If INTL
+is missing, the Zone field is set to your zone.
+
+If a DEST kludge with organization (called "domain" in FSC-58, rev 2)
+exists, the message is considered to be inter-organization and the DEST
+kludge is converted to a DEST header extension field. If a DEST kludge
+without organization exists, it's removed from the message text. In
+inter-organization messages, any ROUTE and ROUTD kludges are converted to
+header extension fields. However, a ROUTE kludge with the same address as
+MsgDest (check the organization too) must be removed.
+
+
+NetMail only
+------------
+origNode, origNet, together with any FMPT and INTL kludges are used to create
+the MsgOrig field. If FMPT is missing, the Point field is set to 0. If INTL
+is missing, the Zone field is set to your zone.
+
+
+EchoMail only
+-------------
+The address in the Origin line is used to create the MsgOrig field. If no
+valid origin line exists, it is created as in NetMail.
+
+The AREA line is used to create the Area field.
+
+The AREA and SEEN-BY lines are removed from the message text.
+
+If a RESCANNED kludge exists, the NoForward flag is set.
+
+
+TYPE-3 => TYPE-2
+================
+
+General
+-------
+In MsgFlags, the Pvt, Crash, File, Hold, FileReq and UpdReq bits is
+transferred to the Attribute field. If Direct, IMM, Machine and/or Permanent
+is set, a FLAGS kludge is created and set to DIR, IMM, MCH and/or PER
+respectively. If RRQ but not IRR is set, RRQ is added to the FLAGS kludge. If
+CRQ but not IRR is set, CFM is added to the FLAGS kludge. If RRQ and IRR is
+set, IRR is added to the FLAGS kludge. If CRQ and IRR is set, ICR is added
+to the FLAGS kludge. If IRR but not RRQ or CRQ is set, it's an error and
+should be ignored.
+
+MsgDate is used to create the DateTime field. It must be set to the primary
+format specified in FTS-1.
+
+FromUser, ToUser and Subject are transferred to the fromUserName, toUserName
+and subject fields. If they are too long, they are truncated. If any of them
+are too long, the whole field is put in a FROMUSER3, TOUSER3 and/or SUBJECT3
+kludge.
+
+If CharSet is set to 1, a "CHRS: LATIN-1 2" kludge is created. If CharSet is
+set to 151, a "CHRS: IBMPC 2" kludge is created.
+
+If the message originates in another organization (use the Foreign flag to
+check), the OrigAddr field is used to create an ORIG kludge.
+
+MsgOrig is used to create the origNode and origNet fields. If Point is
+nonzero, a FMPT kludge must be created. An INTL kludge must always be
+created.
+
+MsgDest is used to create the destNode and destNet fields. If Point is
+nonzero, a TOPT kludge must be created. An INTL kludge must always be
+created.
+
+If MsgID is nonzero, OrigAddr and MsgID is used to create a MSGID kludge.
+The hexadecimal serial number must be in lowercase.
+
+If ReplyAddr is nonzero, ReplyAddr and ReplyID is used to create a REPLY
+kludge. The hexadecimal serial number must be in lowercase.
+
+Path is used to create a PTH kludge. This kludge must be the last one before
+any kludges coming from header extension fields.
+
+A TYPE3 kludge is always created, it contains the value of MsgType in
+decimal followed by the value of CharSet in decimal. If the whole MsgData is
+UUencoded (as described later), the values must be followed by "UU". E.g.
+TYPE3 0 34
+TYPE3 1 123 UU
+
+All other kludges kludges mentioned here must be before the TYPE3 kludge.
+Everything after the TYPE3 kludge is from MsgData, except Origin, SEEN-BY
+and PATH in EchoMail.
+
+Any header extension fields are converted to kludges. They must be immediate
+before the TYPE3 kludge.
+
+If MsgType is nonzero or CharSet indicates a 16- or 32-bit character set,
+the whole MsgData is UUencoded immediate after the TYPE3 kludge. The first
+line must be "begin 666 TYPE3" and the last line must be "end". It's
+possible to do this with all messages, but that will make it impossible to
+read them when in TYPE-2 format. Here is an example:
+begin 666 TYPE3
+MX.=E!/\#CG$13<92M*A7V][HV%;+\EHS?HTD=\?,QGP JT"R1D6 7:@2S=Z8
+M5?4(%E>RG;(D#=NBD(/U*QZ&5@&I#5Y',GH0WN1ORH!-M%DJ[1"H%#*M9R#]
+MUH[M13O:BHW<LM0I@RQJ"P*/"?:SPYOA9;I_4M16E7//<T,+)B]($"X)ANGY
+' +]"
+end
+
+Any extension lines are converted to kludges. They must be after the TYPE3
+kludge. This is not performed if the whole MsgData is UUencoded.
+
+Any quoted text is converted to the FSC-32 format. This is not performed if
+the whole MsgData is UUencoded.
+
+Any binary extension fields are UUencoded and put behind BIN3 kludges. The
+first line must be "begin 666 short" or "begin 666 long" depending on if
+it's a short or long binary extension field. The last line must be "end".
+Note that this must be done before any splitting and it's possible to split
+a message in the middle of an binary extension field. This is not performed
+if the whole MsgData is UUencoded. Here is an example (all lines must have
+the kludge char 01h first):
+BIN3 begin 666 short
+BIN3 MX.=E!/\#CG$13<92M*A7V][HV%;+\EHS?HTD=\?,QGP JT"R1D6 7:@2S=Z8
+BIN3 M5?4(%E>RG;(D#=NBD(/U*QZ&5@&I#5Y',GH0WN1ORH!-M%DJ[1"H%#*M9R#]
+BIN3 MUH[M13O:BHW<LM0I@RQJ"P*/"?:SPYOA9;I_4M16E7//<T,+)B]($"X)ANGY
+BIN3 ' +]"
+BIN3 end
+
+If the message is larger than 64 KB, it's split in several smaller
+messages. All kludges mentioned in this document except MSGID and REPLY must
+be in all parts. MSGID and REPLY must only be in the first part. Kludges not
+mentioned in this document (those coming from extension lines) are treated
+as normal text. All parts have a SPLIT3 kludge which contains the MSGID
+followed by a space, the part's number, a slash ("/", 2Fh) and the number of
+parts. The SPLIT3 kludge must be the first kludge except INTL, FMPT and
+TOPT. In all parts, a space, a left parenthesis, the part's number, a slash
+the number of parts and a right parenthesis is added to the subject field; the
+last chars of it are overwritten if there isn't enough room. If no MSGID
+exists because MsgID was zero, the message comes from TYPE-2 and should not
+be larger than 64 KB; if it is, it should not be split. Note: you may use
+a smaller maxlength than 64 KB (such as 16 KB). All parts must be in the
+right order immediately after each other in the same packet or the rejoining
+may not work.
+Example:
+Subject: Hello boys!
+FMPT 5
+MSGID: 1:234/567.5 12345678
+REPLY: 2:345/678 23456789
+CHRS: IBMPC 2
+          |
+          V
+Subject: Hello boys! (1/3)
+FMPT 5
+SPLIT3 1:234/567.5 12345678 1/3
+MSGID: 1:234/567.5 12345678
+REPLY: 2:345/678 23456789
+CHRS: IBMPC 2
+          +
+Subject: Hello boys! (2/3)
+FMPT 5
+SPLIT3 1:234/567.5 12345678 2/3
+CHRS: IBMPC 2
+          +
+Subject: Hello boys! (3/3)
+FMPT 5
+SPLIT3 1:234/567.5 12345678 3/3
+CHRS: IBMPC 2
+
+
+EchoMail only
+-------------
+Area is used to create a AREA line. If Area contains multiple AreaTags, one
+message for each area are created.
+
+If the NoForward flag is set, a RESCANNED kludge is created.
+
+If no origin line exist an origin line with only address are created and the
+address is set to MsgOrig. No search for Origin is performed if the whole
+MsgData is UUencoded.
+Example:
+ * Origin: (1:234/567)
+
+Create SEEN-BY line(s) with all addresses in Path after the last zone change
+that isn't points. Including those with "!" after.
+
+Create PATH line(s) with all addresses in Path after the last zone change
+that isn't points. Except those with "!" after.

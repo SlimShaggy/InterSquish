@@ -1,0 +1,140 @@
+Date: 11 Jul 88 00:30:18
+From: Roeland Meyer on 132/101, BBS Source Ar of New England-N, Nashua NH
+To:   Randy Bush on 105/6, DawgGone Disg of VanPort Net, Portland OR
+Subj: Bundle name format
+
+I thought I'd bring back something we discussed a few months ago for your 
+enjoyment. I am doing a router and thought I might try to add this 
+capability as an option.
+ 
+As you can see, this is already part of a .H file. The router will only 
+build this type of bundle if specifically told to do so. Otherwise, it will 
+build a standard Opus style bundle. It will be able to process a mix of 
+both types.
+ 
+Oh yeah, the router will also "peek" at the Inbound area for any PassThru 
+bundles. The router is specifically designed to work with Binkley as the 
+mailer. There is no nonsense about delta addresses and such. The name of 
+the bundle is the address of where it has to go. If this is not the current 
+system then the router will tell Binkley to send it.
+ 
+If there exists a bundle of the same name and sequence number on the target 
+machine then Binkley will automatically increment the sequence number. This 
+is a current feature of Binkley.
+ 
+Notice the special Flags for Files and EchoMail. The router will allow 
+routing for both, if desired. There is also full Zone and Point support, 
+something which oMMM is desparately lacking.
+ 
+There are three major routing goals:
+        1) least cost routing.
+        2) Conservation of disk space.
+        3) Zone and Point support.
+ 
+How do I propose this nameing convention to the FTSC?
+ 
+ 
+
+/****************************************************************************
+      New address specifier
+         This is designed for the new bundle nameing convention of
+ 
+         ZNNNOOPP.Fxx
+         | | | |  ||
+         | | | |  |`--> Incrementing sequence number, base 10, max = 99d          
+         | | | |  |           Starts at 0 and counts to '99' then wraps
+         | | | |  |           back to 0. No "Day-of-week" bullshit.
+         | | | |  |           This is strictly to avoid bundle collisions.
+         | | | |  |           An 'empty' version of the bundle is kept
+         | | | |  |           around to help the router remember what the
+         | | | |  |           last sequence number was.
+         | | | |  |
+         | | | |  `-----> Flag to indicate bundle type
+         | | | |              Allowed values:
+         | | | |                 '1' to 'V' are not allowed here.
+         | | | |                 'W' - <Reserved>
+         | | | |                 'X' - File bundle
+         | | | |                 'Y' - Echo Mail bundle
+         | | | |                 'Z' - Normal mail bundle
+         | | | |
+         | | | `--------> Point address, base 32, max =  1,024d
+         | | |                Allowed values: '00' to 'VV'
+         | | |                This is the Point part of the destination
+         | | |                address of the bundle.
+         | | |                Special values:
+         | | |                 '00' - Destination is the Node given by
+         | | |                        ZNNNOO, not forwarded to any Points.          
+         | | |                 'VV' - This a broadcast bundle to ALL Points          
+         | | |                        under the Node given by ZNNNOO, as
+         | | |                        well as, the Node given by same.
+         | | |
+         | | `----------> Node address,  base 32, max =  1,024d
+         | |                  Allowed values: '00' to 'VV'
+         | |                  This is the Node part of the destination
+         | |                  address of the bundle.
+         | |                  Special values:
+         | |                   '00' - Destination is the Net Host given by          
+         | |                          ZNNN, not forwarded to any Nodes.
+         | |                   'VV' - This a broadcast bundle to ALL Nodes          
+         | |                          in the Net given by ZNNN, as
+         | |                          well as, the Net Host given by same.          
+         | |
+         | `------------> Net   address, base 32, max = 33,824d
+         |                    Allowed values: '000' to 'VVV'
+         |                    This is the Net part of the destination
+         |                    address of the bundle.
+         |                    Special values:
+         |                     '000' - Destination is the ZoneGate given by          
+         |                             Z, not forwarded to any Nets.
+         |                     'VVV' - This a broadcast bundle to ALL Nets          
+         |                             in the Zone given by Z, as well as,          
+         |                               the ZoneGate given by same.
+         |
+         `--------------> Zone  address, base 32, max =     32d
+                              Allowed values: '0' to 'V'
+                              This is the Zone part of the destination
+                              address of the bundle.
+                              Special values:
+                               '0' - Destination is the current ZoneGate.                                
+                               'V' - This a broadcast bundle to ALL
+                                     ZoneGates given by the NodeList, as
+                                     well as, the ZoneGate given by same.  
+ EXAMPLES:
+ 
+ 10020304.Z01 - Destination = 1:2/3.4 Point 4 under 1:2/3
+ 10020300.Z01 - Destination = 1:2/3.0 Node address Zone 1 Net 2 Node 3
+ 10020000.Z01 - Destination = 1:2/0.0 Net Host of Zone 1 Net 2
+ 10000000.Z01 - Destination = 1:0/0.0 ZoneGate of Zone 1
+ 00000000.Z01 - Destination = 0:0/0.0 ZoneGate of current Zone
+ 100203VV.Z01 - Destination = ALL Points under 1:2/3
+ 1002VV00.Z01 - Destination = ALL Nodes under 1:2/0, no Points.
+ 1VVV0000.Z01 - Destination = ALL Net Hosts in Zone 1 only, no one else.
+ V0000000.Z01 - Destination = ALL ZoneGates in the Nodelist.
+ 1002VVVV.Z01 - Destination = ALL Nodes and Points in Zone 1 Net 2.
+ 1VVVVVVV.Z01 - Destination = ALL Points, Nodes, and Nets in Zone 1.
+ VVVVVVVV.Z01 - Destination = All Points, Nodes, and Nets in all Zones.
+ VVVV0000.Z01 - Destination = All Net Hosts and ZoneGates in all Zones only.
+ 1002VVVV.Z01 - Destination = All Nodes and Points in Zone 1 Net 2.
+ 1VVV00VV.Z01 - Destination = All Points on all NetHosts in Zone 1
+ 0VVVVV00.Z01 - Destination = All Nets and Nodes in the current Zone
+ 
+
+****************************************************************************/
+ 
+typedef struct
+   {
+      Byte  Zone  ;      /* Binary 00 to 32    Zone  address  */
+      Word  Net   ;      /* Binary 00 to 33824 Net   address  */
+      Word  Node  ;      /* Binary 00 to 1024  Node  address  */
+      Byte  Point ;      /* Binary 00 to 1024  Point address  */
+   } NetAddr, *NetAddrPtr;
+ 
+The router will only generate this type of bundle if it is told that a 
+particular target Node can accept it. If it receives this type of bundle, 
+and the router has not been told that the Node it is sending to can process 
+it, than the router will transform the bundle into the current style of 
+bundle acceptable by Opus. This means more processing, but, should allow 
+for a smoother transition.
+
+--- ConfMail V3.31
+ * Origin: Computer Linguistics,Huntington Beach,CA (1:103/507.2)

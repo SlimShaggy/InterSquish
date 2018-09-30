@@ -1,0 +1,598 @@
+Document: FSC-0065
+Version:  001
+Date:     02-Aug-1992
+
+
+
+
+                          Type 3 ASCII:  A proposal
+                          =========================
+
+                                 Mark Kimes
+                              FidoNet 1:380/16           
+
+
+
+
+Status of this document:
+
+     This FSC suggests a proposed protocol for the FidoNet(r) community,
+     and requests discussion and suggestions for improvements.
+     Distribution of this document is unlimited.
+
+     Fido and FidoNet are registered marks of Tom Jennings and Fido
+     Software.
+
+
+
+
+Introduction:
+============
+
+This document describes a type of mail packet called type 3 ASCII.  Type
+3 ASCII was designed with how Fidonet Technology Networks (FTNs) handle
+mail (netmail, echomail, groupmail) in mind.  It was also designed to
+allow new distribution methods to be introduced.  For instance, it is
+possible to combine the best of echomail and groupmail methods using
+type 3 ASCII packets.  Finally, type 3 ASCII provides reliability, space
+and speed advantages over the current mail packet type 2 (see "Type 3
+ASCII vs. Type 2" section below).
+
+
+
+Packet structure:
+================
+
+(See "Definitions" section below for the meaning of any arcane symbols)
+
+Type 3 ASCII packets and archived bundles will ride existing transport
+services (mailers) as attached files.  Type 2 mail and type 3 ASCII mail
+can both be sent to a node without conflicts.  Naturally, the receiving
+node should be able to process type 3 ASCII mail before it is sent.
+
+Type 3 ASCII packets are named <fileroot><.><3KT> when sent to a remote
+site. Archives containing type 3 packets are named <fileroot><.><3?A>
+when sent to remote sites.  How these files are stored or named locally
+is not within the scope of this document.
+
+A type 3 ASCII packet consists of a packet header, followed by a
+carriage return, followed by zero or more messages, followed by a NUL.
+A type 3 ASCII message consists of a message header, followed by a
+carriage return, followed by zero or more characters of message text,
+followed by a NUL.
+
+Diagramatically speaking,
+
+        (Text in brackets [] indicates optional data)
+
+  Type 3 ASCII packet:      header
+                            <cr>
+                            [messagehdr1
+                             <cr>
+                             [text]
+                             NUL
+                             messagehdr2
+                             <cr>
+                             [text]
+                             NUL
+                             ...
+                             messagehdrn
+                             <cr>
+                             [text]
+                             NUL
+                            ]
+                            NUL
+
+
+Breakdown:
+=========
+
+        (See "Description of Fields" section below for information on
+         individual fields.)
+
+  Packet header:
+  =============
+
+    <3ASCII><cr>
+    From<cr>
+    [To]<cr>
+    Creator<cr>
+    [Password]<cr>
+    [Area]<cr>
+    [Tag1<sp>data1<cr>]
+    [Tag2[<sp>data2]<cr>]
+    ...
+    [Tagn[<sp>datan]<cr>]
+
+  Message header:
+  ==============
+
+    From<cr>
+    [To]<cr>
+    [Subject]<cr>
+    Date<cr>
+    [Area]<cr>
+    ID<cr>
+    [Ref]<cr>
+    [Tag1<sp>data1<cr>]
+    [Tag2[<sp>data2]<cr>]
+    ...
+    [Tagn[<sp>datan]<cr>]
+
+
+  Message body:
+  ============
+
+    Free-flowing, NUL-terminated text.  May be composed of any combination
+    of ASCII characters > 31 (from the space character, ASCII character
+    32, onward) and may include <cr> as a "paragraph terminator."  Systems
+    which display message text should wrap long lines to suit their
+    application.
+
+    To be in compliance with this document, implementations must be able
+    to forward messages with at least 131,072 (128K) characters of text
+    (including the terminating NUL).  Network politics may outlaw
+    messages of lesser size, but that is beyond the scope of this
+    document.  If a compliant implementation encounters a message longer
+    than the 128K limit, it may truncate the message text before
+    forwarding.  However, since it is easy to support messages of a
+    length limited only by available disk space, it is encouraged that
+    you do so and not impose artificial restrictions.  The purpose of
+    this limit is to guarantee a minimum size that will be passed, _not_
+    to restrict implementations to the "minimum."
+
+    Line feeds (ASCII character 10) are reserved and should not normally
+    appear in message text.  Future plans call for their use as "escape
+    codes."  So called "soft carriage returns" (ASCII character 141)
+    should not be contained in transmitted message text unless the actual
+    character itself is desired.
+
+    Tabs (ASCII character 9) should not be used in message text as their
+    use often leads to unreadable messages.  How many spaces should be
+    used at a remote site to represent them?
+
+
+
+
+Description of Fields:
+=====================
+
+  Note:  the maximum length of any field line (excluding, of course,
+         message text) is 255 characters including the terminating <cr>.
+         In practice, a bit of restraint should be practiced to keep
+         fields as small as possible.  The maximum length of any header
+         is 32767 bytes, including terminating <cr>.  In practice, this
+         limit should never be approached.
+
+  Date:
+  ====
+
+    YYYYMMDDhhmmss<optional time zone>
+
+    where
+      YYYY = year with century, as in 1991 or 2001
+      MM   = month, as in 01 to 12
+      DD   = day of month, as in 01 or 28
+      hh   = hour of day, as in 00 to 23
+      mm   = minute of hour, as in 00 to 59
+      ss   = second of minute, as in 00 to 59
+      <optional time zone> = offset from GMT in 15 min. increments
+                             (i.e. "+4" (sans quotes) for GMT + one
+                             hour)
+
+    All numbers are represented in decimal.
+
+    Samples:  19990419143200
+                (April 19, 1999 at 2:32:00 pm)
+              19921223020303+8
+                (December 23, 1922 at 02:03:03 GMT + 2 hours)
+
+    The Date field is required.
+
+
+  From and To:
+  ===========
+
+    The From field contains the writer's name followed by a valid FTN
+    network address. For the purposes of this document and current
+    implementations of type 3 ASCII packets, the format of a valid FTN
+    network address is:
+
+      Domain<#>Zone<:>Net</>Node[<.>Point]
+
+      where
+
+        Domain is a text string from 1 to 8 characters in length
+        containing only alphabetical [A-Za-z] and/or numerical [0-9]
+        characters.
+
+        Zone is a decimal number from 1 to 65533.
+
+        Net is a decimal number from 1 to 65533.
+
+        Node is a decimal number from 0 to 65533.
+
+        Point is a decimal number from 0 to 65535 (may be omitted if 0).
+
+      The FTSC or whatever body guards tech specs may change this
+      definition in the future as it sees fit.
+
+    The full format of a type 3 ASCII From or To field is:
+
+    [User Name<@>]Domain<#>Zone<:>Net</>Node[<.>Point]
+
+    If User Name<@> is missing, assume user name is Sysop.  User Name
+    may be composed of any combination of ASCII characters > 31 (from
+    the space character, ASCII character 32, onward) excluding <@>.
+
+    If <.>point is missing, assume point 0.
+
+    The To field contains the recepient's name and address as above.
+    The To field is optional.  If it is missing, message/packet is
+    broadcast mail (no definite, single recipient).  In this case there
+    must be an area (if the To field is omitted in the packet header,
+    there must be an area in the packet header and all messages must be
+    broadcast mail for that area.  If omitted in the message header, the
+    message or the packet must have an area and message may be displayed
+    as being addressed to "All@Anywhere").  A <cr> must still be present
+    as a "space holder."  In broadcast mail, it is permissible to give
+    only the name of the user (without following address) in a message
+    header; however, the name must end with <@> (to distinguish it from
+    an address with no User Name).  Note this means a single broadcast
+    mail packet can be sent to many nodes.
+
+    The From field is required.
+
+    In the case of From and To fields in the packet header,
+    [user name<@>] is probably unimportant.
+
+    In the interests of saving space, domains such as "Fidonet.org"
+    should be replaced with just "Fidonet," as the ".org" modifier has
+    no meaning to an FTN site.  Domains should be treated case
+    insensitively.
+
+    Sample:   John Doe@Fidonet#1:380/16
+                (User "John Doe" in domain "Fidonet" zone 1 net 380
+                 node 16, implied point 0)
+
+
+  Creator:
+  =======
+
+    Name of the product that produced the packet.  This field is
+    required.
+
+
+  Password:
+  ========
+
+    A password to use for security.  This field is optional.  If
+    omitted, a <cr> must still be present as a "space holder."  How this
+    field is used is implementation-defined.
+
+
+  Subject:
+  =======
+
+    The subject field should contain text hinting at the subject of the
+    message text.  It may be composed of any combination of ASCII
+    characters > 31 (from the space character, ASCII character 32,
+    onward).  The subject field is optional.  If omitted, a <cr> must
+    still be present as a "space holder."
+
+
+  Area:
+  ====
+
+    Area fields consist of a string of alphanumeric characters plus
+    space, "-" and "_" (ASCII characters 32, 45 and 95 respectively).
+    Area fields are optional with the following consequences:
+
+      If the area field in a packet header is missing, the messages in
+      the packet will have area fields present for broadcast mail,
+      omitted for personal mail.
+
+      If the area field in a packet header is present, all the messages
+      in the packet will be broadcast mail for the area specified in the
+      packet header.  The message area fields will not be present.
+
+    When an area field is omitted, a <cr> must still be present as a
+    "space holder."
+
+
+  ID:
+  ==
+
+    An ID consists of the originating address of the message plus a
+    serial number, in the form:
+
+      origaddr<sp>serialno
+
+     The originating address should be specified in a form that
+     constitutes a valid return address for the originating network. If
+     the originating address is enclosed in double-quotes,  the entire
+     string between the beginning and ending double-quotes is considered
+     to be the orginating address.  A double-quote character within a
+     quoted address is represented by by two consecutive double-quote
+     characters.  The serial number may be any eight character
+     hexadecimal number,  as long as it is unique - no two messages from
+     a given system may have the same serial number within one year. The
+     manner in which this serial number is generated is left to the
+     implementor.
+
+       Notes:  The "old" format of
+                 Zone<:>Net</>Node[<.>Point][<@>Domain]
+               for FTN addresses is allowed in this field.
+
+               The address portion of the ID may be omitted if it is
+               exactly the same as the From address (less User Name<@>).
+               In this case, the ID field should begin with a space
+               followed immediately by the serial number.
+
+               In the case of foreign network addresses, this address
+               gives you the "true" origin, and the From address gives
+               you the gateway at which the message entered FTN
+               territory.  This allows you to gate replies to "foreign"
+               sites.
+
+
+         Samples:  some.other.net.addr ABCDEF12
+                    12345ABC
+
+         (Assume From field of second sample contained
+          "Joe Blow@Fidonet#1:380/16",so complete constructed ID would be
+          Fidonet#1:380/16 12345ABC
+          Note address would be copied exactly from the From field.)
+
+    The ID field is required.
+
+
+  Ref:
+  ===
+
+    A Ref consists of the ID of the original message to which this message
+    refers (usually as a reply).
+
+         Sample:   Fidonet#1:380/16 12345ABC
+                   (would reference the second ID sample above)
+
+    The reference field is optional.  If omitted, a <cr> must still be
+    present as a "place holder."
+
+                   
+  Tag<sp>Data:
+  ===========
+
+    The tag+data lines are type 3 ASCII's method of automatically
+    expanding its headers.  A tag consists of a sequence of uppercase
+    alphabetic (A-Z inclusive) and/or numeric sequence of characters and
+    possibly a hyphen (ASCII character 45) and/or underline (ASCII
+    character 95), up to 12 characters in length (a name).  A tag name
+    can be followed optionally by a space (ASCII character 32) and data.
+    Data may be composed of any combination of ASCII characters > 31
+    (from the space character, ASCII character 32, onward).
+
+    To aid in developer experimentation with tags in type 3 ASCII, it is
+    guaranteed that the FTSC or whatever body guards tech specs will
+    never "canonize" a tag beginning with the two characters "X-" (ASCII
+    character 88 followed immediately by ASCII character 45).  Thus,
+    tags may use this combination before tag names to guarantee
+    uniqueness.
+
+    Experimental tags may be stripped by conforming implementations
+    during message passthrough.  This helps prevent experimental tags
+    from escaping from test sites.
+
+      Samples (tag names are invented):
+
+        FOLLOW AFILEN.AME
+        X-TAG SOMEDATA
+        LONETAG
+
+    Tag<sp>data fields are optional and may be completely omitted when
+    creating a packet.  Exception:  all tag<sp>data fields except,
+    possibly, experimental fields, should be passed through with a
+    message being forwarded.
+
+    Predefined tags:
+    ===============
+
+    Tag         Where         Data        Meaning
+    ---         -----         ----        -------
+    PRIV        Msg Hdr       None        Message is private
+    FOROK       Pkt Hdr       None        Packet may be forwarded without
+                                          unpacking -- all messages are
+                                          to the To: address in the packet
+                                          header
+
+
+
+Type 3 ASCII vs. Type 2:
+=======================
+
+Type 3 ASCII saves between 6% to 11% in raw packet size over type 2
+(using Tiny Seenbys with the type 2 packets to make the test as fair as
+possible), depending on how area tags for echos are used in the type 3
+ASCII packet (in packet header vs. message headers).  7% smaller would
+be the norm for the way we do echomail business now.  The tests
+conducted were most unscientific but should be close to everyday
+echomail-oriented reality.
+
+Compressed packets are a slightly different story.  Type 3 ASCII
+compresses the same as type 2 when using area tags for echos in the
+message headers.  Type 2 compresses approximately 2.5% better when area
+tags are used in the type 3 ASCII packet headers instead.  Either way,
+compressed type 3 ASCII packets are smaller than comparable type 2
+packets due to the smaller raw packet size.  Even compression ratios
+would be the norm for the way we do echomail business now.
+
+Type 3 ASCII imports between 2% to 5% faster (depending on algorithms
+used).  There is no discernable difference on export.  Keep in mind that
+this particular test has too many variables (software, hardware, relative
+efficiency of code, etc.) to be considered a real benchmark.  Most of the
+speed savings is in not having to process SEEN-BY and PATH lines.  The
+lack of end-of-text control information is a real boon.
+
+Type 2 has no method for reliably obtaining the full 5-D origin address
+of a message.  Type 3 ASCII provides a reliable method of obtaining
+full origin address information for both the true origin (in whatever
+network) and the gateway which brought the message into FTN territory
+(if from a foreign network).  This means that even if a message
+originated in a network with which your software has no idea how to
+communicate, you can still send a reply to an FTN node for gating.
+
+Type 2 has no reliable method for stopping dupes.  Type 3 ASCII has a
+mandatory ID field, very similar to type 2's optional MSGID, which can
+be used for reliable dupe checking.
+
+Type 2 echomail has control information scattered throughout the message
+body, including SEEN-BY and PATH information at the end of the message.
+This causes problems for developers, who often opt for fixed-length
+buffers and arbitrary message length limits.  All control information
+for Type 3 ASCII is in the extensible message header.  Moreover, type 3
+ASCII has generous set limits to which programmers can work, and which
+users can therefore rely on.
+
+
+
+Definitions:
+===========
+
+  Except where noted otherwise, numbers are in decimal.
+
+  Although the ASCII character set is normally defined as being limited
+  to characters from 0 to 127, this document acknowledges the existence
+  of an eighth bit in most bytes and uses the term (loosely) to mean
+  characters from 0-255.  Network politics may or may not "outlaw" the
+  use of some of those bytes; that is outside the scope of this document.
+
+  Note:  text in brackets [] indicates an optional field.  See
+         "Definitions" section below for meaning of text in <>.  See
+         "Description of Fields" section below for information on
+         individual fields.
+
+
+  Alphabetic:
+  ==========
+
+  A-Z and a-z, ASCII characters 65 to 90 and 97 to 122 inclusive.
+
+
+  Numeric:
+  =======
+
+  0-9, ASCII characters 48 to 57 inclusive.
+
+
+  Alphanumeric:
+  ============
+
+  All characters alphabetic and numeric.
+
+
+  Hexadecimal:
+  ===========
+
+  0-9 and A-F (or a-f), ASCII characters 48 to 57 and 65 to 70 (or 97 to
+  102) inclusive.
+
+
+  NUL:
+  ===
+
+    ASCII character 0.
+
+
+  <cr>:
+  ====
+
+    Carriage return, ASCII character 13.
+
+  <lf>:
+  ====
+
+    Line feed, ASCII character 10.
+
+  <sp>:
+  ====
+
+    Space, ASCII character 32.
+
+  <@>:
+  ===
+
+    @, ASCII character 64.
+
+
+  <#>:
+  ===
+
+    #, ASCII character 35.
+
+  <:>:
+  ===
+
+    :, ASCII character 58.
+
+  </>:
+  ===
+
+    /, ASCII character 47.
+
+  <.>:
+  ===
+
+    ., ASCII character 46.
+
+
+  <3ASCII>:
+  ========
+
+    The literal string "3ASCII" (not including quotation marks).  This
+    text, followed by a <cr>, identifies a type 3 ASCII packet.
+    Implementations should *not* processes a file unless this identifier
+    is found on the first line, but should probably log the occurrence.
+
+
+  <fileroot>:
+  ==========
+
+    Eight alphanumeric characters that serve as the "root" of a
+    filename.
+
+
+  <3KT>:
+  =====
+
+    The literal string "3KT" (not including quotation marks).
+
+
+  <3?A>:
+  =====
+
+    The literal string "3?A" (not including quotation marks) with the
+    question mark (?) being replaced by a decimal integer from 0 to
+    9 (ASCII 48 to 57 inclusive).
+
+
+
+
+Miscellaneous notes:
+===================
+
+jim nutt invented MSGIDs and REPLYids (ref. FTS-0009), which were lifted
+very nearly whole to become IDs and Refs in this document.  Tom Jennings
+invented Fido and Fidonet <tm and stuff> from whole cloth and RAM chips.
+NET_DEV's continual foolishness inspired me to do instead of whine.
+Let's see if this cuts down on the whining...
+
+
+                                -end-
+
+
+
+Mark Kimes
+1:380/16.0@Fidonet
+(318)222-3455 data
+542 Merrick
+Shreveport, LA, USA  71104

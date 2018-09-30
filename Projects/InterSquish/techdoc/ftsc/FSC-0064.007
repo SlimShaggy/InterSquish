@@ -1,0 +1,286 @@
+Document: FSC-0064
+Version:  007
+Date:     10-May-1992
+
+
+
+
+                InterDomain Message Identification, Gating,
+                      Reply Linking and Addressing
+                             Jamie Penner
+                              1:153/1025
+
+
+
+
+Status of this document:
+
+     This FSC suggests a proposed protocol for the FidoNet(r) community,
+     and requests discussion and suggestions for improvements.
+     Distribution of this document is unlimited.
+
+     Fido and FidoNet are registered marks of Tom Jennings and Fido
+     Software.
+
+
+
+
+               Copyright (C) 1990, 1991, 1992 by Jamie Penner
+                           All Rights Reserved
+
+                     Originally written:  Sept 3, 1990
+                        Revised:  November 12, 1990
+                          Revised:  June 23, 1991
+                         Revised:  August 26, 1991
+                        Revised:  January 22, 1992
+                        Revised:  February 4, 1992
+                        Revised:  February 12, 1992
+
+
+
+
+Use of this proposal is encouraged and permitted by the author without
+further notification in any software which is being written to conform
+to FTSC specifications.
+
+Suggestions and discussion are strongly encouraged.   The author may be
+reached at:
+
+
+              jamie.penner@f1025.n153.z1.fidonet
+              jamie.penner@f0.n24.z24.signet.admin
+
+
+
+
+
+Echomail Basics:
+
+        All echomail passing through an interdomain echomail gateway
+        must have all information in the message header changed to
+        reflect the proper address of the domain in which the messages
+        are entering.   The PATH and SEEN-BY lines should also reflect
+        these changes with only the SEEN-BY line containing any
+        information from the domain previous.   This information shall
+        be the single address of the system passing the mail to the
+        gateway system.    In addition, all gateway software should
+        recognize, by the message itself, whether it has EVER passed
+        through the gateway in the past.   CRC records, SEEN-BY lines,
+        PATH lines and MSGID lines are not sufficient for this purpose
+        as most systems purge recorded logs of this info after a given
+        time.
+
+
+
+
+InterDomain Echomail/Netmail Flags:
+-----------------------------------
+
+
+^ADOMORG: usr.nme@[!][p.f.n.z.]network[.nid][[#nodelist_name][#point[x]]
+^ADOMDES: usr.nme@[!][p.f.n.z.]network[.nid][[#nodelist_name][#point[x]]
+
+
+
+        These lines would be a complete domain signature for any user on
+        any system in any FTN network.
+
+        The DOMORG line would be the actual origin information of the
+        user and system sending the information.
+
+        The DOMDES line would be the actual destination information of
+        the recipient user and system.
+
+        There are essentially two variations to the domain signature.
+        The ! immediately following the @ denotes a Type B, otherwise
+        defaulting to Type A.
+
+        Type A:
+
+                e.g.  jamie.penner@f1025.n153.z1.fidonet
+
+                This has the complete FTN information needed for any
+                processor to send the message.
+
+        Type B:
+
+                e.g.  jamie.penner@!signet.admin#ic.signet
+
+                The ! immediately preceeding the network signifies that
+                no FTN information is available but the information
+                after the # will give the name of the system as denoted
+                in the nodelist for that network.   This way, processors
+                can be designed in a fashion that they can look up the
+                system name.    Should this be going to a point, the
+                domain may be:
+
+                jamie.penner@!signet.admin#ic.signet#point
+
+                If I have two points and I want to send it to a
+                different point, I might use:
+
+                jamie.penner@!signet.admin#ic.signet#point2
+
+                The domain identifier in a Type B signature can be
+                further used for further locating a system if needed.
+                In both signature types, the nid (network identifier) is
+                optional (eg fidonet.org or signet.admin - only the
+                first field actually identifies the network name).
+                This information is completely dependant upon each
+                domain.   For example I might send this:
+
+                rob.macare@!signet.eur.r331#maasstad.bbs
+
+                This kind of structure would get the message to the
+                right system.   If there was two of the same system in
+                Region 331, I could use:
+
+                rob.macare@!signet.eur.n4601#maasstad.bbs
+
+        This format of domain signatures is provided solely for
+        compatibility purposes to provide software developers with a
+        platform on which they can structure new programming techniques
+        and can be used in conjunction with the other flags as laid out
+        in this document.
+
+
+
+ # GateOrigin: zzz:NNN/nnn.ppp@dmn    (note leading space)
+
+        This line is currently inserted into all stripped down echomail
+        passing through interdomain gateways by GateWorks.   This allows
+        the message overhead to be cut down by properly replacing the
+        origin line for users to read in the text yet, not creating a
+        second full originline.   This line shall be added immediately
+        before the tearline with a single blank line following it.
+
+        e.g.    # GateOrigin: 24:24/0.0@signet
+
+
+
+^AGATECHK: zzz.NNN.nnn.ppp [zzz.NNN.nnn.ppp] [zzz.NNN.nnn.ppp]
+        Any echomail passing through a particular gateway should have
+        this line inserted at the beginning of the message text.
+        Everytime the message passes through another echomail gateway,
+        the address would be added to the line.   This way, if a message
+        passes back through with the same ID, it is a known duplicate
+        and can be vaporized.
+
+        e.g.    ^AGATECHK: 24.24.0.0 8.8.7001.0
+
+
+
+^AMSGORG: <originating-address> <originating-ID>
+
+        The MSGORG line keeps a standard original address and message id
+        in the message for reply, identification, dupe checking, and
+        origination purpose.    This line would vanish and be replaced
+        with the necessary lines if passed through a gateway.
+
+        e.g.    ^AMSGORG: 24:24/0.0@signet 0123456789abcdef
+
+        The originating ID is no different than other 16 bit IDs being
+        generated.   It must be unique in a sense that no other message
+        originating from that system will have the same number (at least
+        within a short time span).
+
+
+
+^AGATEWAY: <zonegate-address>
+
+        This field is inserted by the packer.   The user-defined
+        zonegate fields give the message its destination to the zonegate
+        and may be routed through whatever channels to get there.
+
+        e.g.    ^AGATEWAY: 1:153/1025.0@fidonet.org
+
+
+
+^GRPLY: <zonegate-address> <originating-address>
+
+        When replying to a message, this line would be looked up so as
+        to find the actual message destination and give the system its
+        zonegate information.    If the message passes through a
+        gateway, the MSGORG line would be removed upon insertion of
+        this line.
+
+        e.g.    ^AGRPLY: 1:153/1025@fidonet.org 24:24/0.0@signet
+
+
+
+
+An example echomail message from 24:11/7777.0@signet across the domain
+to 1:153/85.0@fidonet should read:
+
+
+To: Bill Herringshaw, 1:153/85.0@fidonet
+From: Jamie Penner, 1:153/1025.0@fidonet
+Subject: Testing
+AREA: TEST_ECHO
+^AGATECHK: 24.24.0.0
+^AGRPLY: 1:153/1025.0@fidonet 24:11/7777.0@signet
+^ADOMORG: jamie.penner@f7777.n11.z24.signet.admin
+^ADOMDES: bill.herringshaw@f85.n153.z1.fidonet.org
+^APID: RA 1.01
+
+Hi Bill, just testing out this new software
+
+
+ # GateOrigin: 24:11/7777.0@signet
+
+ --- GateWorks v4.00a
+* Origin: Home of GateWorks!! (1:153/1025.0)
+SEEN-BY: 24/0 153/1025
+^APATH: 153/1025
+
+
+
+
+An editor programmed to handle these fields would recognize GRPLY line
+and know that the message had passed through a gateway.    An echomail
+reply would simply pass through the gateway.   If a netmail reply was
+required, this would be the reply message:
+
+
+To: Jamie Penner, 24:11/7777@signet
+From: Bill Herringshaw, 1:153/85.0@fidonet
+Subject: Testing
+^AGATEWAY: 1:153/1025.0@signet
+^AGRPLY: 24:24/0.0@signet 1:153/85.0@fidonet
+^ADOMORG: bill.herringshaw@f85.n153.z1.fidonet.org
+^ADOMDES: jamie.penner@f7777.n11.z24.signet.admin
+
+
+> Hi Bill, just testing out this new software
+
+
+Got it here!
+
+
+via InterMail @ 24:24/0.0@signet, 17:23:17  22 Jan 92
+
+
+The mailer and/or packer would check for the GATEWAY flag and route the
+message through that gateway.
+
+
+Under this method of flags, all systems in all domains should have
+access to the ability to reply via netmail to a system in a different
+domain.    In addition, by following this specification, all interdomain
+echomail should be clean and troublefree.   This eliminates the need for
+some of the other ^A lines being used.
+
+It is the intention that all addresses in these flags may use the 5d
+addressing scheme, or either of the Type A or B domain signatures.   The
+software should be written to determine the type of address used and
+manipulate the situation accordingly.
+
+The following list of software may be incomplete but lists all software
+currently available or under development using this spec:
+
+        GateWorks v4.00
+        ContactBBS
+        TOSSworks
+        FASTmail
+
+<EOF>

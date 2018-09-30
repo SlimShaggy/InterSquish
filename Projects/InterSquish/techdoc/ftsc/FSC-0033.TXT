@@ -1,0 +1,90 @@
+FSC-0033                 						    June 11, 1989
+			FidoNet Message ID Proposal
+			       By Todd Kover
+			   1:261/5016;1:261/1028
+
+ Since there are many proposals for Message-IDs, for dupe-checking, and
+reply-linking, I figured, I may as well do my best to add confusion to
+things, and come up with another one.  :-)  In my playing around with
+different ideas, and such, I came out with the following format:
+
+^AFMSGID:DDDYYHHMMSSLLNNNNOOOOPPPP[ZZZZ][Domain]
+
+^AFREPLY: < Repeat of what is above >
+
+Here's a brief explanation of what each area is...
+
+DDD:    (01-366) The day of the year. (Julian calendar method).
+
+YY:     (0x00-0xFF) The year.  Now, this only gives 255 year accuracy, but,
+        if the message has been in circulation that long, then it deserves
+	to be read again.  :-)
+      
+HH:	(00-23) Hour which the message was written
+
+MM:	(00-59) Minute which the message was written
+
+SS:	(00-59) Seconds which the message was written
+
+LL:     (0x01-0xFF) In reading NET_DEV, and FTSC, and all of the debating
+	over "What happens when someone enters a message at the EXACT same
+	time, on my multiline system?) Well, the best way to avoid that,
+	is to either A) Set the ID while packing the message up, and only
+	pack all the lines messages in, at once, or, use this option, that
+	sets the line number, of the caller (0-0xFF)..  I figure that there
+	won't be more than 255 lines to a single node...  I would opt for
+	the former, but, I put this in here, to shut everyone up.  :-)
+	
+NNNN:   (0x00-0xFFFF)  The Net Number of the node, that this message
+	originates from.
+	
+OOOO:	(0x00-0xFFFF)  The Node Number of the node, that this message
+	originates from.
+	
+PPPP:   (0x00-0xFFFF)  The Point Number of the node, that this message
+	originates from.
+	
+------
+Now for the Optional ones:
+
+ZZZZ:   Since there is a question as to weather or not Zones should be
+	implemented, and, some packages do not implement them, I figured
+	that this should be optional.  If it is not there, then a Domain
+	address would be there, or, nothing at all.
+	
+Domain: This is for the people that use these (SEADogians, for one).
+	I am assuming that Domains are alphabetic characters, and no
+	numbers are there (Which is probobly stupid on my part), so that
+	software can distingish between Domains, and Zones.
+	
+------
+
+The FREPLY: is just teh FMSGID of the message that the message is replying
+too.  That way, you can just compare.
+
+
+In order to allow dupe checking, a system has to keep a backlog of all of
+the message IDs for some period of time (say 2 weeks?) that pass through
+the system, and has to compare a new one to the old ones.  If it matches,
+then the message is a dupe.  This doesn't seem too efficient, since there
+are alot of messages that pass through something such as a backbone, but,
+I am sure there is some way to make it fast, I just haven't put enough
+thought into it, yet).
+
+------
+
+One of the more nicer features about this, is that if the ID is not there,
+then it can be calculated by examinining parts of the message, and the
+header to get all of the information, and, it can be put in there.  Pretty
+simple, eh?
+
+------
+
+If you want to get in contact with me, to make contacts on this, you can
+reach me at my private node, 1:261/5016, but, since I only poll the Net-
+Coordinator once a week, or so, to pick up my NodeDiff, and FidoNews, I
+will be a little slow in responding to it.  You can reach me pretty
+quickly on 1:261/1028, which is the only BBS that I frequent, just about
+daily, and, if I don't, the sysop there will tell me if there is anything
+waiting for me...  Direct flames, and such things to NIL:, thank you..
+ 

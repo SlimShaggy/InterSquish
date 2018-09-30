@@ -1,0 +1,74 @@
+FSC-0031                                            May 1, 1989
+
+
+          EchoMail ^aEID: Dup-Checking with Linked Replies
+      A Proposal To The FidoNet Technical Standards Committee
+
+
+
+Currently, no universal methodology for implementing echomail
+duplicate message checking exists.  One thing is certain - they
+will only increase in number as the shear volume of echomail is
+increasing every day!
+
+In order to catch the highest percentage of duplicates possible
+it is desirable to utilize a system which actually tags each of
+the messages themselves with a distinct messages identifier to
+be used to check against an existing database of all previous
+messages' identifiers.  In practice, this is not possible, but
+we can limit the number of previous identifiers kept so that
+processing is quick but still almost certain to eliminate any
+duplicate messages.
+
+
+This also provides an easy method of linking replies to their
+original message by appending the previous identifier.  Using
+a linked reply technique allows easy relinking of the messages
+to the original message, assuming it still exists.
+
+
+This proposed ^aEID: kludge line specifications are as follows:
+
+1)  A 16-bit CRC followed by a 32-bit DOS file date/time stamp.
+
+2)  The 16-bit CRC is calculated by first CRC'ing all but the
+    first 11 (static) characters of the origin line, followed
+    by the first two "words" of the from name, the first two
+    words of the to name, and the first 25 characters of the
+    subject line after stripping leading occurances of "Re: "
+    sequences.
+
+
+Notes:  You must always upper-case the to/from/subject fields,
+  as some current processors will change the case of that text.
+  Using only the first two words of the from and to names will
+  eliminate the potential problem when some processors add the
+  " of xxx/yyy" to the end.  Stripping all leading occurances
+  of the "Re: " in the subject field is also done to eliminate
+  the possibility of changed subject lines not matching with
+  the original message, which is also the reason for limiting
+  the length of that field to the first 25 bytes (after taking
+  off all the "Re: " sequences), because adding the leading
+  "Re: " may force characters out (because they are beyond the
+  72-character field limit).
+
+
+When you must add an EID line for a message which is not local,
+you have to zero the seconds field before creating the 32-bit
+time stamp - some processors eliminate this information!  This
+limitation can be overcome if most editors insert them at the
+time they are written.
+
+
+
+Automatic reply linking
+========= ===== =======
+
+When replying to a message with an ^aEID: line, extend the new
+^aEID: with the ^aEID: fields of the original message.  The new
+line would look like this:
+
+^aEID: xxxx yyyyzzzz uuuu vvvvwwww
+
+Where 'uuuu vvvvwwww' is the Eid information of the original
+message.  Only one previous message's information is retained.

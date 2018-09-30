@@ -1,0 +1,811 @@
+
+  | Document: FSC-0081 Part A
+  | Version:  001
+  | Date:     01 Mar 1995
+  |
+  | Mikael Ståldal, 2:201/337
+
+                         A TYPE-3 Packet proposal
+                    Mikael Ståldal, 2:201/337@FidoNet
+
+
+Status of this document
+=======================
+Copyright (C) 1992-1994 by Mikael Ståldal.
+
+This document may be freely distributed and copied. The standard described
+may be implemented by anybody. You may not distribute modified versions of
+this document without written permission from the author.
+
+Fido and FidoNet are registered trademarks of Tom Jennings and Fido
+Software.
+
+
+Introduction
+============
+This is a proposal on a new packet format for use in FidoNet and other FTNs
+(FTN = FidoNet Technology Network). This format can be used for both NetMail
+(private point-to-point mail) and EchoMail (electronic conferences).
+
+This document defines the transport layer. It also includes a presentation
+layer definition, but that can be changed without affecting the transport
+layer. It also includes a application layer (stored messages) definition,
+but it's not mandatory.
+
+This packet format conforms with FSC-39, rev 4. It has the PktType field in
+the header at the same position as TYPE-2 and it contains a capability word
+at the same position as TYPE-2+ (but no CW validation copy). The packet
+header has also the same size as in TYPE-2. This should make it easy to
+implement mail-processors supporting both TYPE-2 and TYPE-3.
+
+This packet format separates the header from the message data and the header
+is extensible. A mail processor (the transport layer) doesn't have to look
+at the message data.
+
+This format eliminates most kludges currently used in TYPE-2.
+
+This packet format allows multiple AreaTags in EchoMail.
+
+This packet format is much more extensible than TYPE-2 and is probably
+easier to implement.
+
+This packet format allows up to 4 GigaBytes large messages and allows binary
+data in messages, this makes it possible to implement multimedia
+capabilities in the future.
+
+
+Definitions
+===========
+
+Characters
+----------
+In this document, literal characters are written as two uppercase hexadecimal
+(base 16, 0..9A..F) digits following by lowercase h, e.g. "1Fh". The
+following abbreviations are used: "NUL" means 00h, "CR" means 0Dh and
+"space" means 20h (the quotation marks are not included).
+
+
+Basic data types
+----------------
+Name      Length  Description
+----------------------------------------------------------------------------
+ShortInt    1     8-bit unsigned integer.
+Integer     2     16-bit unsigned integer, Intel 8086 byte order.
+LongInt     4     32-bit unsigned integer, Intel 8086 byte order.
+Byte        1     Field of 8 bits.
+Word        2     Field of 16 bits, Intel 8086 byte order.
+String[n]   n     Fixed length string of n bytes, NUL-padded.
+String{n} max n   Variable length string of max n bytes, NUL-terminated.
+                  n includes the terminating NUL.
+String            Variable length string, not terminated.
+
+
+Address
+-------
+Field      Type            Description                             Range
+----------------------------------------------------------------------------
+Zone       Integer         Zone address.                          1..65535
+Net        Integer         Net address.                           1..65535
+Node       Integer         Node address.                          0..65535
+Point      Integer         Point address or zero if boss.         0..65535
+
+
+FTN address in text format
+--------------------------
+An FTN address in text format must, unless otherwise stated, be in the
+Zone:Net/Node[.Point] format, where .Point must be excluded if point is
+zero, included otherwise.
+
+
+TimeStamp
+---------
+A LongInt which contains the number of seconds since 00:00:00 1st January
+1970 UTC.
+
+
+Organization
+------------
+An organization is a network such as FidoNet, VirNet, SigNet or InterNet.
+It's sometimes called "domain", but I use the term organization to avoid
+confusion with InterNet domains.
+
+
+Reserved
+--------
+All fields marked "reserved for future extension" must be zeroed when
+creating/writing and ignored when reading. They might be defined by future
+revisions of this document.
+
+
+Filenames
+=========
+It's recommended to use the naming scheme in FTS-LIST, for both NetMail and
+EchoMail. There should be no problem with using the same name space for
+TYPE-2 and TYPE-3 packets because the packet headers are enough compatible.
+
+
+Packet format
+=============
+Packet header
+Zero or any number of data records.
+00h 00h
+
+The first two bytes of a data record is used to check for the end of a
+packet. If both are zero, the end is reached (and the rest, if any, should
+be ignored).
+
+
+Packet header
+=============
+Field      Type            Description
+----------------------------------------------------------------------------
+PktOrig    Address         The node who created this packet.
+PktDest    Address         The node who should receive this packet.
+SubType    Integer         Packet contents (see below).
+PktType    Integer         Always 3.
+PktDate    TimeStamp       When the packet was created.
+ProdCode   Integer         FTSC Product Code. 
+                           Programs without Product Code must use 65535.
+MajorVer   ShortInt        Major product version.
+MinorVer   ShortInt        Minor product version.
+Org        String[16]      Organization (see below).
+CapWord    Word            Capability Word (see FSC-39).
+Password   String[8]       Packet password.
+ExtraInfo  String[4]       Reserved for future extension.
+
+
+SubType
+-------
+Defines what the packet contains.
+
+If this field is zero, data record is defined by the "Packed message" part
+of this document. If this field is non-zero, data record is not defined by
+this document.
+
+This field can be used for two things. The first is to define new packet
+types without having to use a new packet header. The second is to allow
+distribution of other things than Email.
+
+
+Organization
+------------
+This field contains the name of the organization the packet travels in. This
+field applies to both PktOrig and PktDest since packets are
+intra-organization.
+
+
+Packed message
+==============
+The messages should be in chronological order in a packet.
+
+Field      Type              Description
+----------------------------------------------------------------------------
+HeadSize   Integer           Size of the message header (see below).
+MsgFlags   Word              Message flags (see below).
+MsgDate    TimeStamp         When the message was created.
+MsgID      LongInt           Unique message identifier (see below).
+ReplyID    LongInt           Reply linkage information (see below).
+MsgLength  LongInt           Size of MsgData.
+MsgOrig    Address           The node who created this message.
+MsgDest    Address           The node who should receive this message.
+CharSet    ShortInt          Character set (see below).
+MsgType    ShortInt          Type of MsgData (see below).
+Area       String{255}       AreaTag(s) (see below).
+OrigAddr   String{255}       Origin address in text format (see below).
+ReplyAddr  String{255}       Reply linkage information (see below).
+FromUser   String{255}       Who wrote this message?
+ToUser     String{255}       To whom?
+Subject    String{255}       Subject or one filename
+                             (for file attaches and requests).
+Path       String{65535}     Path (see below).
+HeadExt    String            Header extension fields (see below).
+MsgData    String            Message data (see below).
+
+
+HeadSize
+--------
+The total size of the message header (all fields except MsgData). Since this
+is an Integer, the header can't be bigger than 65535 bytes and Path can never
+reach it's maximum length (how big it can be depends on how big the rest of
+the header is).
+
+
+Message flags
+-------------
+Bit  Flag          Meaning
+----------------------------------------------------------------------------
+ 0   Pvt           Private message.
+ 1   File          File attach message.
+ 2   FileReq       File request message.
+ 3   UpdReq        File update request message.
+ 4   Direct        Do not route this message.
+ 5   Crash         High priority mail.
+ 6   Hold          Hold for pickup.
+ 7   IMM           Immediate mail (highest priority).
+ 8   RRQ           Return receipt request (see below).
+ 9   CRQ           Confirm receipt request (see below).
+10   IRR           Is return receipt (see below).
+11   Machine       Message to a program (see below).
+12   NoForCC       CC in NetMail, NoForward in EchoMail (see below).
+13   Permanent     Message must not be purged by age (see below).
+14   Foreign       Message is from another organization.
+15   reserved      Reserved for future extension.
+
+
+RRQ, CRQ and IRR
+----------------
+The RRQ and CRQ flags without IRR is used to ask the software at the final
+destination to generate a receipt message to the sender. The receipt to an
+RRQ flagged message must be generated when the message is received, and
+this receipt must have the IRR and RRQ flags set. The receipt to a CRQ
+flagged message must be generated when it has been read by its addressee,
+and this receipt must have the IRR and CRQ flags set.
+
+A receipt must have the ReplyAddr and ReplyID fields set as if it was a
+reply to the original message.
+
+It's up to each network's policy to decide if all systems must support this,
+no system are allowed to support this or all systems are allowed but not
+forced to support this.
+
+
+Machine
+-------
+The Machine flag indicates that this message is addressed to a program and
+not a human. A mail processor should store such messages as defined in the
+"Stored message" section later in this document so the program doesn't have
+to support 4711 different message base formats. The name of the program must
+be in the ToUser field.
+
+
+Carbon Copy
+-----------
+The CC flag is used for sending a NetMail message to several nodes. Which
+nodes is determined by the MsgDest field.
+
+If the message is addressed to a Zone Coordinator, the message is destined
+for all nodes in that zone. If the message is addressed to a Region
+Coordinator, the message is destined for all nodes in that region. If the
+message is addressed to a Net Coordinator, the message is destined for all
+nodes in that net. If the message is addressed to a HUB, the message is
+destined for all nodes under that HUB.
+
+If the receiver of a CC message have other coordinators (or HUBs) below, it
+must send the message to them as CC's too.
+
+If the ToUser field is empty the message is considered to be addressed to
+the SysOp and the name is taken from the nodelist (or set to "SysOp"). This
+must be done by the system immediate before the destination (usually the
+destination's HUB).
+
+
+Permanent
+---------
+This flag indicates that the message must not be removed when old messages
+is cleaned out.
+
+A new message with this flag automatically erase an old message with the
+same data in the Subject field. If you want to erase a permanent message
+without replacing it with a new, then post an empty message with the
+Permanent flag and the appropriate data in the Subject field.
+
+This flag can only be used in EchoMail.
+
+ 
+OrigAddr
+--------
+This field must contain the true origin address of the message in text
+format followed by an "@" (40h) and the name of the originating
+organization.
+
+
+Message ID
+----------
+The origin address and MsgID fields are used as a unique message identifier.
+How the MsgID field is generated is left to the implementor, but it must be
+unique for each message generated on a given node in at least three years.
+MsgID must normally not be zero, zero is used to indicate lack of
+Message-ID.  With this system these two fields together is unique for every
+message, and can be used for duplicate detection and other things.
+
+
+Reply linkage information
+-------------------------
+In a reply the ReplyAddr and ReplyID fields must be identical to the origin
+address, and MsgID fields in the replied message. A message which is not a
+reply must have these fields empty. Use the ReplyAddr field to check this.
+
+
+Area
+----
+A list of one or more AreaTags in EchoMail, just a NUL in NetMail. If the
+list contains more than one tag, they are separated by space. 00h through
+1Fh are not allowed in this field (except NUL as the terminator).
+
+
+Path
+----
+This field contains a series of addresses separated by space. The first
+system must place its address in this field and every system that routes the
+message must add its address to this field,
+
+Note that the first address in this field and the address in the MsgOrig
+field doesn't have to be the same.
+
+The first address must be the origin address in this format:
+zone:net/node.point@organization
+
+In the other addresses organization, zone, net and node must be omitted if
+same as the previous address.
+
+The other addresses must be in one of these formats:
+zone:net/node.point@organization
+zone:net/node.point
+net/node.point
+node.point
+.point
+
+.point must be excluded if point is zero, except when .0 stands alone.
+
+Example:
+1:123/324@FidoNet sends a routed NetMail message to 2:224/546.5; 1:123/300,
+1:123/0, 1:12/0, 1:1/2, 2:22/888, 2:22/0, 2:224/0, 2:224/546 and 2:224/546.3
+routes the message (in that order). The path field must in this case be
+"1:123/324@FidoNet 300 0 12/0 1/2 2:22/888 0 224/0 546 .3" when
+2:224/546.5 receives the message. Note that the message is routed via a
+point, that might not be so common but it's technically possible.
+
+In EchoMail, the Path field can also contain addresses suffixed by an
+exclamation mark ("!", 21h). This means that that node hasn't routed the
+message, but the message has been sent to him. Similar to SEEN-BY's in
+FTS-4. However, this should only be used when necessary.
+
+Never send an EchoMail message to a node listed in the Path field; regardless
+if the address is suffixed by an exclamation mark or not.
+
+If the message originates in a non-FTN organization, the name of the origin
+organization prefixed by an "@" (40h) must be placed before the address of
+the gateway. In such cases there may also be some other FTN addresses before
+the non-FTN organization name if the message have travelled from an FTN, via
+a non-FTN and to a FTN again.
+
+Example:
+someone@one.two.three in InterNet sends a routed NetMail message to
+1:222/345 in FidoNet via the gateway 1:222/111 and 1:222/300. The path field
+must in this case be "@InterNet 1:222/111@FidoNet 300" when 2:222/345
+receives the message.
+
+If there's not enough room to update the Path field (add what you should and
+have at least two bytes left), put a single "$" (24h) in it instead (and a
+space between it and the last address).
+
+This field has the same format as the PTH line specified in FSC-44 (except
+the "$"). Read FSC-44 for more information.
+
+
+HeadExt
+-------
+This field contains zero or more NUL-terminated strings. The end of this
+field can be determined by the HeadSize field, but there must be a NUL after
+the last string anyway. If there are no strings here, there must not be any
+NUL either.
+
+Each string here is a header extension field. A header extension field
+contains a keyword followed by a space and some data. A header extension
+field can contain only a keyword with no data, in such case a space must not
+be used either.
+
+
+Inter-organization messages
+---------------------------
+To send a message to an other organization place the final address in text
+format followed by an "@" (40h) and the name of the destination organization
+in a header extension field with the keyword "DEST" and address the message
+to a gateway.
+
+If the message must travel over more than one organization-border, the
+addresses to each gateway can be pointed out by header extension fields with
+the keyword "ROUTE". ROUTE fields contains addresses in the same format as
+DEST lines. The order of the ROUTE fields is important and the DEST field
+must be after the ROUTE field(s). When the gateway pointed by a ROUTE field
+processes the message it must change "ROUTE" to "ROUTD".
+
+Note: The gateway from your organization are pointed out by the MsgDest
+field so there must not be a ROUTE field for that gateway.
+
+Example:
+You are 34:65/12@StrangeNet and want to send a message to
+someone@one.two.three in InterNet. StrangeNet hasn't got any gateway to
+InterNet, but FidoNet has gateways to both StrangeNet and InterNet. In that
+case the message may have the following header extension fields:
+ROUTE 1:1/20@FidoNet
+DEST someone@one.two.three@InterNet
+
+Messages from other organizations (NetMail or EchoMail doesn't matter) must
+have their origin addresses (including @organization as mentioned before)
+stored in the OrigAddr field and the Foreign flag set.  The MsgOrig field in
+the header must contain the address of a bidirectional gateway.
+
+The MsgID field must be generated using the message-ID in the originating
+organization, if that is possible.  If the originating network doesn't have
+any message-ID that can be used to create the MsgID field, the MsgID field
+must be set to zero. If two identical messages (with identical message-ID)
+enters an FTN organization at two different gateways, they should get the
+same MsgID. The same counts for ReplyID. ReplyAddr must also be transferred
+if present in the original message.
+
+If the other organization uses a message-ID format that can't be
+transparently mapped to MsgID, a ORIGID header extension field is created
+with a direct copy of the original message-ID (both address and serial
+number). The same is done with reply-linkage information in a ORIGREF header
+extension field. This information is used if the message should be gated
+back to the original network.
+Example with message from InterNet:
+ORIGID <abcd43kxz@somewhere.org>
+ORIGREF <bcdef43gkrt@elsewhere.org>
+
+
+Message routing
+---------------
+The transport layer (including intermediate systems (systems handling
+in-transit messages)) are not allowed to change anything in the MsgDate,
+MsgID, ReplyID, MsgLength, CharSet, MsgType, OrigAddr, ReplyAddr, FromUser,
+ToUser, Subject and MsgData fields. No flags may be changed by the transport
+layer except the Foreign flag at gateways. The only exception is if the
+message have to be converted to another packet type.
+
+An intermediate system must update the Path field, both in NetMail and
+EchoMail.
+
+In EchoMail, the Area field may be changed.
+
+An intermediate system are allowed to add or change header extension fields.
+
+An intermediate system can add a header extension field with the keyword
+"Via". The Via field contains information about the system and when it
+processed the message. It's up to each network's policy to decide if this is
+allowed in NetMail, EchoMail or both.
+
+If the header is changed, the HeadSize field must be updated.
+
+
+EchoMail
+--------
+This section lists the changes to FTS-4 needed to implement EchoMail with
+this packet format.
+
+SEEN-BY lines are not to be used. The Path field is used instead of PATH
+lines. The Area field is used instead of the AREA line. The MsgOrig and
+OrigAddr fields must contain the origin addresses of the message. A
+unaddressed EchoMail message must have the ToUser field empty, unless there
+is a good reason to put something there.
+
+The MsgDest field must be used as in NetMail. If you receive a EchoMail
+message not addressed to any of you addresses, you must handle it as
+in-transit NetMail. This makes it possible to route EchoMail through nodes
+not connected to the area. This can be performed inter-organization as well.
+
+Since the lack of complete SEEN-BY's, an EchoMail processor must use the
+single-pass technique. That means that it must export a message to all its
+downlinks at the same time as it tosses the message, before it goes into the
+local message base (it doesn't even have to get there if the area is
+pass-through). With this technique the tosser can do what ever it wants with
+the message before it stores it in the local message base since the message
+will never get out of it again (except when a rescan function is invoked,
+but the requesting system will have to stand that).
+
+A system which receives an EchoMail message with the NoForward flag set must
+not export that message. This flag is indented for EchoMail processors with
+a rescan function, all rescanned messages must have the NoForward flag set.
+
+The tear and origin lines have no technical meaning (the origin address is
+stored elsewhere) so no program is forced to create them. Additionally, a
+program must not require them.
+
+To distinguish EchoMail from NetMail, check the Area field. NetMail messages
+have empty Area fields.
+
+Cross-posting a message in several areas is preformed by storing multiple
+AreaTags in the Area field. If some of your downlinks don't have all the
+areas listed in the Area field then you must remove the AreaTags for the
+areas they don't have. All copies must still have the same MsgID. If you
+receive several messages with the same MsgID but different Area then you
+must join them into a single message and put all different AreaTags in the
+Area field (but not the same twice). Compare all fields in the header up to
+and including Subject (except Area) and not only MsgID.
+
+When preforming dupchecking with MsgID, compare all fields in the header up
+to and including Subject and not only MsgID.
+
+
+CharSet
+-------
+
+Value    Character set
+----------------------------------------------------------------------------
+1..99    ISO 8859 (8 bit)
+100      ISO 10646 16 bit (Unicode)
+101..149 Reserved for other 16 bit character sets
+150      ISO 10646 32 bit
+151      PC8-437 (The Original)
+152      PC8-850 (Multilingual)
+153      PC8-852 (Slavic)
+154      PC8-860 (Portuguese)
+155      PC8-863 (Canadian-French)
+156      PC8-865 (Nordic)
+157..199 Reserved for other 8 bit character sets
+200..255 reserved
+
+PC8 means IBM's codepage (8 bit).
+
+CharSet=1 means ISO 8859-1 (Latin-1), CharSet=2 means ISO 8859-2 and so on.
+
+CharSet concerns FromUser, ToUser and Subject. It may also concern MsgData.
+
+Combined characters are built by 02h followed by a modifier and the base
+character. If you can't display the combined character, just ignore the
+modifier and display the base character unmodified. A combined character
+contains three bytes and are counted as three bytes. See FSC-51 for more
+information on this. There are a few things in FSC-51 that doesn't apply to
+this format: this method is allowed on all 8 bit character sets, not only
+Latin-1, and the byte values 80h through 9Fh are allowed. This can only be
+used for 8 bit character sets. Combined character can be used in FromUser,
+ToUser and Subject, it may also be allowed in MsgData.
+
+
+MsgLength, MsgType and MsgData
+------------------------------
+If the MsgData field contains nothing (MsgLength is zero), it's an empty
+message. An empty message must be forwarded and routed as any other message.
+An empty message must not be stored in the local message base (but read
+about the Permanent flag).
+
+If MsgType is zero, MsgData is defined by the "Message text" part of
+this document.
+
+If MsgType is non-zero, the MsgData field is not defined by this document.
+
+
+Message text
+============
+This part defines the presentation layer.
+
+The CharSet field in the header concerns the message text except binary
+extension fields. Combined characters can be used in the message text except
+in binary extension fields.
+
+If a 16 or 32 bit character set is used all characters are two or four bytes
+so all control codes must be prefixed by 00h or 00h 00h 00h. The bytes alone
+can be in printable character. The length of binary extension fields is
+still counted in bytes.
+
+All 256 byte values (including NUL) are accepted in the message text. 00h
+through 1Fh are control codes and must not be used to represent printable
+characters.
+
+A paragraph (also called "physical line") is ended with CR.
+
+8Dh (sometimes called "Soft CR") must not be used as a line separator since
+it represents a printable character in some character sets.
+
+01h first at a physical line (i.e. the first character of the message text
+or the character immediately after a CR) means that this line is a extension
+line. See below for more information.
+
+00h first at a physical line (except in another binary extension field)
+indicates the start of an long binary extension field. 00h is followed by a
+LongInt and up to almost 4 GigaBytes of binary data. A binary extension field
+is not terminated in any way, it's length is stored in the LongInt (the 00h
+and the LongInt itself is not included in the length).
+
+15h first at a physical line (except in another binary extension field)
+indicates the start of an short binary extension field. 15h is followed by a
+ShortInt and up to 255 bytes of binary data. A binary extension field is not
+terminated in any way, it's length is stored in the ShortInt (the 15h and
+the Integer itself is not included in the length).
+
+Attributes:
+03h = Turn off all attributes
+04h = Bold
+05h = Italic
+06h = Underline
+17h = All caps (lower case letters as small caps)
+19h = Subscript
+1Ah = Superscript
+1Ch = Blinking
+1Dh = Inverted
+1Eh = Concealed
+Subscript automatically turns off superscript and vice versa. All other
+attributes can be used together. If an attribute already is on, it's turned
+off by the same code again. If your system doesn't support an attribute,
+just ignore it. CR turns off all attributes.
+
+To quote a message begin a physical line with 1Fh followed by the initials
+of the person you are quoting and another 1Fh. Use just two 1Fh if you don't
+want any initials. Successive quoting is marked with more 1Fh:s immediate
+after the two first ones. A quote is ended with CR. It's up to each
+implementor to decide how to display quoted text, but it must be possible to
+distinguish it from normal text. It's recommended to display it in another
+color if possible. You must translate the quote to the same character set
+used in the rest of the message.
+
+The last paragraph of the message text must be terminated by a CR (i.e. the
+last character of the message text must be a CR unless a binary extension
+field is last).
+
+
+Extension lines
+---------------
+An extension line contains a keyword followed by a space and some data. A
+extension line can contain only a keyword with no data, in such case a space
+must not be used either. An extension line is ended like a paragraph.
+
+Extension lines may not contain 00h through 1Fh. If you want binary data,
+use a binary extension field instead.
+
+Extension lines are control information any should not be displayed to the
+user. If you want "hidden lines", then use the Concealed attribute rather
+than an extension line.
+
+Information that is relevant for the transport layer must be placed in a
+header extension field rather than in an extension line.
+
+Extension lines can be useful for describing a binary extension field.
+
+
+Currently defined extension lines
+---------------------------------
+A extension line with the keyword FILE is used for sending files embedded in
+the message text. The keyword is followed by a eight digit uppercase
+hexadecimal number containing a TimeStamp for the file, a space and the
+filename. The filename can contain all chars valid for extension lines
+(including space) and must be at least 1 char and at most 255 chars. The
+file is stored in a binary extension field immediate after the FILE line.
+Examples:
+FILE AB34F657 FILE.EXT
+FILE 1234ABCD This is a filename
+
+
+Stored message
+==============
+This is a description of the application layer, the local message base.
+
+It is recommended to use this format to store NetMail messages locally. It
+can also be used for EchoMail, but that's not necessary.
+
+Each message is stored as a single file which must have a hexadecimal number
+from 00000001 to FFFFFFFF as the base name and the extension MS3 (to
+distinguish from TYPE-2 stored messages).
+
+Messages can be stored in two ways. Either the same way as TYPE-2 with one
+directory for each area (including NetMail), in that case the Area field
+must be empty in all messages. Or all messages in the same directory with
+the area field used to indicate what/which area the message belongs to (or
+empty to indicate NetMail). The second format is useful if you normally store
+EchoMail in an other format and only use this format for messages with the
+Machine flag.
+
+
+Field      Type              Description
+----------------------------------------------------------------------------
+SRdate     TimeStamp         When the message was sent or received
+                             (see below).
+ReplyTo    LongInt           Message which this replies (see below).
+Reply1st   LongInt           First reply to this message (see below).
+ReplyNext  LongInt           Next reply to this message (see below).
+LocalFlags Word              Local flags (see below).
+Cost       Integer           Cost of sending in the lowest currency unit.
+HeadSize   Integer           Size of the message header (see below).
+MsgFlags   Word              Same as packed message.
+MsgDate    TimeStamp         Same as packed message.
+MsgID      LongInt           Same as packed message.
+ReplyID    LongInt           Same as packed message.
+MsgLength  LongInt           Same as packed message.
+MsgOrig    Address           Same as packed message.
+MsgDest    Address           Same as packed message.
+CharSet    ShortInt          Same as packed message.
+MsgType    ShortInt          Same as packed message.
+Area       String{255}       AreaTag(s) (see above).
+OrigAddr   String{255}       Same as packed message.
+ReplyAddr  String{255}       Same as packed message.
+FromUser   String{255}       Same as packed message.
+ToUser     String{255}       Same as packed message.
+Subject    String{255}       Same as packed message.
+Path       String{65535}     Path (see below).
+HeadExt    String            Same as packed message.
+MsgData    String            Same as packed message.
+
+
+HeadSize
+--------
+The total size of the message header (all fields except MsgData). Since this
+is an Integer, the header can't be bigger than 65535 bytes and Path can
+never reach it's maximum length (how big it can be depends on how big the
+rest of the header is).
+
+Please note that this won't contain the same value when the same message is
+placed in a packet because SRdate, LocalFlags, ReplyTo, Areply and Cost
+isn't included then and Area might not have the same length.
+
+
+Local flags
+-----------
+Bit  Flag          Meaning
+----------------------------------------------------------------------------
+0    Local         Message is created locally.
+1    InTransit     Message is not destined for this system.
+2    Orphan        Unknown destination.
+3    KillSent      Remove message after it has been sent.
+4    DelSent       Delete attached file(s) after they have been sent.
+5    TruncSent     Truncate attached file(s) after they have been sent.
+6    Sent          Message has been sent.
+7    Read          Message has been read by the SysOp.
+8    Rcvd          Message has been read by its addressee.
+9    Lock          Lock the message for further access.
+10   DontSend      Do not send the actual message but send attached files,
+                   make file requests and poll the destination if necessary.
+11   unused        Reserved for future extension.
+12   unused        Reserved for future extension.
+13   unused        Reserved for future extension.
+14   unused        Reserved for future extension.
+15   unused        Reserved for future extension.
+
+Note that "sent" also can mean "picked up".
+
+
+SRdate
+------
+The meaning of this field is determined by the Local and Sent flags.
+Local but not Sent: Meaningless, must be zero.
+Local and Sent: When the message was sent or picked up.
+Not Local: When the message arrived to this system.
+
+
+Reply linking
+-------------
+The ReplyTo field points at the message which the current message replies.
+The Reply1st field points at the first reply to the current message (the
+reply with lowest number); a messages with no replies must have this field
+set to zero. The ReplyNext field points at the next reply the same message
+as the current message; this field must be zero if there are no more replies
+to the message the current message. A message which is no reply must have
+the ReplyTo and ReplyNext fields set to zero.
+
+With this system there is possible to keep track of an unlimited number of
+replies to any message.
+
+
+Path
+----
+If the local flag is set, this field must be empty. It's the mail processors
+responsibility to insert the address here when placing the message in a
+packet.
+
+When the mail processor tosses an incoming message, it must copy the Path
+field from the packet.
+
+
+Control file
+------------
+In each message directory (both EchoMail and NetMail) there must be a file
+named LASTREAD. When an area is renumbered, this file must be updated.
+
+Field      Type            Description
+----------------------------------------------------------------------------
+LastRead   LongInt         The last message read.
+HighRead   LongInt         The highest message read.
+HighWater  LongInt         High-water mark (only used with EchoMail).
+                           This field is used by the EchoMail processor to
+                           store the number of the last scanned message.
+
+
+Notes
+=====
+If you are implementing this and something confuses you, ask someone who
+knows. Please don't guess how it should be.
+
+
+Credits
+=======
+Thanks to Krister Hansson-Renuad, Johan Olofsson, Nils Hammar, Jonas
+Högström, Mats Gefvert and others who have helped me developing this.

@@ -34,10 +34,10 @@
     <DEBUGLIBPATH value="$(BCB)\lib\debug"/>
     <RELEASELIBPATH value="$(BCB)\lib\release"/>
     <LINKER value="ilink32"/>
-    <USERDEFINES value="NO_PROMPT_ON_HRCHECK_FAILURE;NO_PROMPT_ON_ASSERTE_FAILURE"/>
-    <SYSDEFINES value="NO_STRICT"/>
+    <USERDEFINES value="NO_PROMPT_ON_HRCHECK_FAILURE;NO_PROMPT_ON_ASSERTE_FAILURE;_DEBUG"/>
+    <SYSDEFINES value="NO_STRICT;_RTLDLL"/>
     <MAINSOURCE value="IS.cpp"/>
-    <INCLUDEPATH value="..\..\comp\iuScript;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\INCLUDE;..\..\comp\iuNet;..\..\comp\iuRSA;..\..\comp\iuLogs;C:\WORK\Builder\is\comp\msgapi\include"/>
+    <INCLUDEPATH value="..\..\comp\iuScript;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\INCLUDE;..\..\comp\iuNet;..\..\comp\iuRSA;..\..\comp\iuLogs;p:\Builder\is\comp\msgapi\include"/>
     <LIBPATH value="..\..\comp\iuRSA;..\..\comp\iuLogs;..\..\comp\iuScript;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib;..\..\comp\iuNet;..\..\comp\iuFTNPlus;..\..\comp\iuFTN;..\..\comp\iuMisc"/>
     <WARNINGS value="-w-par -w-8027 -w-8026"/>
     <WARNOPTSTR value=""/>
@@ -47,20 +47,20 @@
     <IDLCFLAGS value="-I..\..\comp\iuScript -I$(BCB)\include -I$(BCB)\include\vcl 
       -I..\..\comp\iuMisc -I..\..\comp\iuFTN -I..\..\comp\iuFTNPlus 
       -I..\..\comp\INCLUDE -I..\..\comp\iuNet -I..\..\comp\iuRSA 
-      -I..\..\comp\iuLogs -IC:\WORK\Builder\is\comp\msgapi\include -src_suffix 
-      cpp -DNO_PROMPT_ON_HRCHECK_FAILURE -DNO_PROMPT_ON_ASSERTE_FAILURE -boa"/>
-    <CFLAG1 value="-Od -H=t:\IS.CSM -Q -Vx -Ve -xp -i128 -ff -X- -r- -a8 -5 -b- -d -k- -y -v 
-      -vi -c -tW -tWM"/>
-    <PFLAGS value="-N2&quot;t:\&quot; -N0&quot;t:\&quot; -$Y+ -$O- -$I- -$D- -$C- -$A8 -v -JPHNE -M"/>
+      -I..\..\comp\iuLogs -Ip:\Builder\is\comp\msgapi\include -src_suffix cpp 
+      -DNO_PROMPT_ON_HRCHECK_FAILURE -DNO_PROMPT_ON_ASSERTE_FAILURE -D_DEBUG -boa"/>
+    <CFLAG1 value="-vGc -vGt -vGd -Od -H=t:\IS.CSM -Hc -Q -Vx -Ve -xp -i128 -fp -ff -X- -r- 
+      -a8 -b- -k -y -v -vi- -c -tW -tWM"/>
+    <PFLAGS value="-N2&quot;t:\&quot; -N0&quot;t:\&quot; -$Y+ -$W -$U -$R -$Q -$O- -$A8 -v -JPHNE -M"/>
     <RFLAGS value=""/>
-    <AFLAGS value="/mx /kh32768 /w2 /zn"/>
-    <LFLAGS value="-I&quot;t:\&quot; -D&quot;&quot; -H:0x1000000 -Hc:0x10000 -S:0x1000000 -aa -Tpe -GD -s -Gn -M -v"/>
+    <AFLAGS value="/mx /kh32768 /w2 /zi"/>
+    <LFLAGS value="-I&quot;t:\&quot; -D&quot;&quot; -c- -H:0x1000000 -Hc:0x10000 -S:0x1000000 -aa -Tpe -GD -s -M -v"/>
     <OTHERFILES value=""/>
   </OPTIONS>
   <LINKER>
-    <ALLOBJ value="c0w32.obj sysinit.obj $(OBJFILES)"/>
+    <ALLOBJ value="c0w32.obj Memmgr.Lib sysinit.obj $(OBJFILES)"/>
     <ALLRES value="$(RESFILES)"/>
-    <ALLLIB value="$(LIBFILES) $(LIBRARIES) import32.lib cp32mt.lib"/>
+    <ALLLIB value="cg32.lib $(LIBFILES) $(LIBRARIES) import32.lib cp32mti.lib"/>
     <OTHERFILES value=""/>
   </LINKER>
   <FILELIST>
@@ -127,7 +127,7 @@ AutoIncBuild=1
 MajorVer=2
 MinorVer=0
 Release=5
-Build=20
+Build=31
 Debug=0
 PreRelease=0
 Special=0
@@ -139,7 +139,7 @@ CodePage=1251
 [Version Info Keys]
 CompanyName=SAND
 FileDescription=InterSquish NNTP/SMTP/POP3 Server-gate
-FileVersion=2.0.5.20
+FileVersion=2.0.5.31
 InternalName=InterSquish
 LegalCopyright=Ivan Uskov (2:5055/114@fidonet) Fyodor Ustinov (2:5020/79) Andrew Sakhno (2:457/79.11)
 LegalTrademarks=
@@ -150,36 +150,36 @@ Comments=
 
 [HistoryLists\hlIncludePath]
 Count=30
-Item0=..\..\comp\iuScript;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\INCLUDE;..\..\comp\iuNet;..\..\comp\iuRSA;..\..\comp\iuLogs;C:\WORK\Builder\is\comp\msgapi\include
-Item1=..\..\comp\iuScript;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;..\..\comp\INCLUDE;..\..\comp\iuNet;..\..\comp\iuRSA;..\..\comp\iuLogs;C:\WORK\Builder\is\comp\msgapi\include
-Item2=..\..\comp\iuScript;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;..\..\comp\INCLUDE;..\..\comp\iuNet;..\..\comp\iuRSA;..\..\comp\iuLogs
-Item3=..\..\comp\iuScript;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;..\..\comp\INCLUDE;..\..\comp\iuNet;..\..\comp\iuRSA;E:\SOURCE\Cpp\comp\iuLogs
-Item4=..\..\comp\iuScript;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;..\..\comp\INCLUDE;..\..\comp\iuNet;..\..\comp\iuRSA
-Item5=$(BCB)\include;$(BCB)\include\vcl;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;..\..\comp\INCLUDE;..\..\comp\iuNet;..\..\comp\iuRSA
-Item6=$(BCB)\include;$(BCB)\include\vcl;..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;..\..\comp\INCLUDE;..\..\comp\iuNet
-Item7=D:\Program Files\Borland\CBuilder4\Projects\;..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE;..\..\comp\iuNet
-Item8=D:\Program Files\Borland\CBuilder4\Source\Vcl\;D:\Program Files\Borland\CBuilder4\Projects\;..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE;..\..\comp\iuNet
-Item9=D:\Program Files\Borland\CBuilder4\Source\Vcl;D:\Program Files\Borland\CBuilder4\Source\Vcl\;D:\Program Files\Borland\CBuilder4\Projects\;..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE;..\..\comp\iuNet
-Item10=D:\Program Files\Borland\CBuilder4\Source\Vcl;D:\Program Files\Borland\CBuilder4\Projects\;..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE;..\..\comp\iuNet
-Item11=D:\Program Files\Borland\CBuilder4\Projects;D:\Program Files\Borland\CBuilder4\Projects\;..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE;..\..\comp\iuNet
-Item12=D:\Program Files\Borland\CBuilder4\Projects;..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE;..\..\comp\iuNet
-Item13=D:\Program Files\Borland\CBuilder4\Projects;..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE;..\..\comp\iuNet;D:\Program Files\Borland\CBuilder4\ProjectsItem1=..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE;..\..\comp\iuNet;D:\Program Files\Borland\CBuilder4\ProjectsItem1=..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE;..\..\comp\iuNet;D:\Program Files\Borland\CBuilder4\ProjectsItem1=..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE;..\..\comp\iuNet;D:\Program Files\Borland\CBuilder4\ProjectsItem1=..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vc
-Item14=
-Item15=
+Item0=..\..\comp\iuScript;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\INCLUDE;..\..\comp\iuNet;..\..\comp\iuRSA;..\..\comp\iuLogs;p:\Builder\is\comp\msgapi\include
+Item1=..\..\comp\iuScript;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\INCLUDE;..\..\comp\iuNet;..\..\comp\iuRSA;..\..\comp\iuLogs;p:\WORK\Builder\is\comp\msgapi\include
+Item2=..\..\comp\iuScript;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\INCLUDE;..\..\comp\iuNet;..\..\comp\iuRSA;..\..\comp\iuLogs;C:\WORK\Builder\is\comp\msgapi\include
+Item3=..\..\comp\iuScript;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;..\..\comp\INCLUDE;..\..\comp\iuNet;..\..\comp\iuRSA;..\..\comp\iuLogs;C:\WORK\Builder\is\comp\msgapi\include
+Item4=..\..\comp\iuScript;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;..\..\comp\INCLUDE;..\..\comp\iuNet;..\..\comp\iuRSA;..\..\comp\iuLogs
+Item5=..\..\comp\iuScript;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;..\..\comp\INCLUDE;..\..\comp\iuNet;..\..\comp\iuRSA;E:\SOURCE\Cpp\comp\iuLogs
+Item6=..\..\comp\iuScript;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;..\..\comp\INCLUDE;..\..\comp\iuNet;..\..\comp\iuRSA
+Item7=$(BCB)\include;$(BCB)\include\vcl;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;..\..\comp\INCLUDE;..\..\comp\iuNet;..\..\comp\iuRSA
+Item8=$(BCB)\include;$(BCB)\include\vcl;..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;..\..\comp\INCLUDE;..\..\comp\iuNet
+Item9=D:\Program Files\Borland\CBuilder4\Projects\;..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE;..\..\comp\iuNet
+Item10=D:\Program Files\Borland\CBuilder4\Source\Vcl\;D:\Program Files\Borland\CBuilder4\Projects\;..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE;..\..\comp\iuNet
+Item11=D:\Program Files\Borland\CBuilder4\Source\Vcl;D:\Program Files\Borland\CBuilder4\Source\Vcl\;D:\Program Files\Borland\CBuilder4\Projects\;..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE;..\..\comp\iuNet
+Item12=D:\Program Files\Borland\CBuilder4\Source\Vcl;D:\Program Files\Borland\CBuilder4\Projects\;..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE;..\..\comp\iuNet
+Item13=D:\Program Files\Borland\CBuilder4\Projects;D:\Program Files\Borland\CBuilder4\Projects\;..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE;..\..\comp\iuNet
+Item14=D:\Program Files\Borland\CBuilder4\Projects;..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE;..\..\comp\iuNet
+Item15=D:\Program Files\Borland\CBuilder4\Projects;..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE;..\..\comp\iuNet;D:\Program Files\Borland\CBuilder4\ProjectsItem1=..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE;..\..\comp\iuNet;D:\Program Files\Borland\CBuilder4\ProjectsItem1=..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE;..\..\comp\iuNet;D:\Program Files\Borland\CBuilder4\ProjectsItem1=..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE;..\..\comp\iuNet;D:\Program Files\Borland\CBuilder4\ProjectsItem1=..\..\modules\cripto\RSA;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;InterSquish;$(BCB)\include;$(BCB)\include\vc
 Item16=
 Item17=
 Item18=
 Item19=
-Item20=D:\Program Files\Borland\CBuilder4\Projects;D:\Program Files\Borland\CBuilder4\Projects\;..\..\modules\cripto\RSA;..;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\iuNet;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE
-Item21=D:\Program Files\Borland\CBuilder4\Projects;..\..\modules\cripto\RSA;..;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\iuNet;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE
-Item22=..\..\modules\cripto\RSA;..;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\iuNet;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE
-Item23=..\..\modules\cripto\RSA;..;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\iuNet;InterSquish;$(BCB)\include;$(BCB)\include\vcl;E:\SOURCE\CPP\comp\INCLUDE
-Item24=D:\Program Files\Borland\CBuilder4\Projects\;..;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\iuNet;InterSquish;$(BCB)\include;$(BCB)\include\vcl
-Item25=D:\Program Files\Borland\CBuilder4\Projects;..;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\iuNet;InterSquish;$(BCB)\include;$(BCB)\include\vcl
-Item26=..;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\iuNet;InterSquish;$(BCB)\include;$(BCB)\include\vcl
-Item27=..\;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\iuNet;InterSquish;$(BCB)\include;$(BCB)\include\vcl
-Item28=..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\iuNet;InterSquish;$(BCB)\include;$(BCB)\include\vcl
-Item29=..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\iuNet;InterSquish;$(BCB)\include;$(BCB)\include\vcl
+Item20=
+Item21=
+Item22=D:\Program Files\Borland\CBuilder4\Projects;D:\Program Files\Borland\CBuilder4\Projects\;..\..\modules\cripto\RSA;..;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\iuNet;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE
+Item23=D:\Program Files\Borland\CBuilder4\Projects;..\..\modules\cripto\RSA;..;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\iuNet;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE
+Item24=..\..\modules\cripto\RSA;..;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\iuNet;InterSquish;$(BCB)\include;$(BCB)\include\vcl;..\..\comp\INCLUDE
+Item25=..\..\modules\cripto\RSA;..;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\iuNet;InterSquish;$(BCB)\include;$(BCB)\include\vcl;E:\SOURCE\CPP\comp\INCLUDE
+Item26=D:\Program Files\Borland\CBuilder4\Projects\;..;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\iuNet;InterSquish;$(BCB)\include;$(BCB)\include\vcl
+Item27=D:\Program Files\Borland\CBuilder4\Projects;..;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\iuNet;InterSquish;$(BCB)\include;$(BCB)\include\vcl
+Item28=..;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\iuNet;InterSquish;$(BCB)\include;$(BCB)\include\vcl
+Item29=..\;..\..\comp\iuMisc;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\iuNet;InterSquish;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
 Count=30
@@ -215,19 +215,21 @@ Item28=
 Item29=
 
 [HistoryLists\hlDebugSourcePath]
-Count=1
-Item0=D:\Program Files\Borland\CBuilder6\Source\Indy\;C:\Program Files\Borland\CBuilder6\Source\Indy\
+Count=2
+Item0=C:\Program Files\Borland\CBuilder6\Source\Indy\
+Item1=D:\Program Files\Borland\CBuilder6\Source\Indy\;C:\Program Files\Borland\CBuilder6\Source\Indy\
 
 [HistoryLists\hlConditionals]
-Count=1
-Item0=NO_PROMPT_ON_HRCHECK_FAILURE;NO_PROMPT_ON_ASSERTE_FAILURE
+Count=2
+Item0=NO_PROMPT_ON_HRCHECK_FAILURE;NO_PROMPT_ON_ASSERTE_FAILURE;_DEBUG
+Item1=NO_PROMPT_ON_HRCHECK_FAILURE;NO_PROMPT_ON_ASSERTE_FAILURE
 
 [HistoryLists\hlIntOutputDir]
 Count=1
 Item0=t:\
 
 [Debugging]
-DebugSourceDirs=D:\Program Files\Borland\CBuilder6\Source\Indy\;C:\Program Files\Borland\CBuilder6\Source\Indy\
+DebugSourceDirs=C:\Program Files\Borland\CBuilder6\Source\Indy\
 
 [Parameters]
 RunParams=-Win9x -debuglog -notimer
@@ -243,8 +245,8 @@ RemoteDebug=0
 
 [Compiler]
 ShowInfoMsgs=0
-LinkDebugVcl=0
-LinkCGLIB=0
+LinkDebugVcl=1
+LinkCGLIB=1
 
 [CORBA]
 AddServerUnit=1

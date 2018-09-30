@@ -1,0 +1,346 @@
+Document: FSC-0034
+Version:  002
+Date:     30-Aug-90
+
+
+
+
+                        Gateways to and from FidoNet <tm>
+              Technical, Administrative, and Policy Considerations
+                                    FSC-0034
+
+                           Randy Bush  30 August 1990
+
+
+
+			   
+Status of this document:
+
+This FSC contains information of value to the general FidoNet(r) community.
+Distribution of this document is subject to the restrictions listed in the
+copyright paragraph below.
+
+Fido and FidoNet are registered marks of Tom Jennings and Fido Software.
+
+Copyright 1989-90, Randy Bush.  All rights reserved.  A right to distribute
+only without modification and only at no charge is granted.  Under no
+circumstance is this document to be reproduced or distributed as part of or
+packaged with any product or other sales transaction for which any fee is
+charged.  Any and all other reproduction or excerpting requires the explicit
+written consent of the author.
+
+
+What is a Gateway to/from FidoNet?
+---- -- - ------- ------- --------
+
+A gateway is a collection of software and procedures whereby net mail and/or
+echomail may be transferred between FidoNet and another computer communications
+network.  Gateways are bi-directional, as folk always want to reply to others'
+mail.
+
+Gateways exist now.
+
+  o There are a number of software packages for gating between uucp-based
+    systems and FidoNet, the most well-known beingthe UFGATE shareware package.
+    These packages gate both netmail and echomail, and are often used to provide
+    FidoNet access to/from Internet via the uucp network.  These tend to go
+    through much effort to make FidoNet look as much like Internet as possible.
+    As of this writing, about 25 uucp gateways are scattered around FidoNet.
+
+  o Rhodes University has developed a complete system between a Cyber-based NOS
+    network and FidoNet.  This system handles both net mail and echomail, and is
+    also strongly based on the Internet standards, and almost views FidoNet as a
+    transport mechanism to get to/from Internet.  It is used to gate a fairly
+    localized cluster of mainframes to FidoNet at a single point, and has made
+    special arrangements for further routing and forwarding of mail. 
+
+  o WWIVnet has developed gating software based on the ForDog package for the
+    MS-DOS-based WWIV systems, and some other package for the Mac-based Tabby
+    systems.  The MS-DOS system uses Binkley or another FidoNet mailer handles
+    the protocol transfers to make the WWIV system look like a FidoNet system to
+    other FidoNet nodes.  WWIVnet gates are said to be scattered around the US
+    and Canada.
+
+  o A number of FidoNet-based systems have been developed for various flavors of
+    UN*X.  These vary from encapsulated Fido-worlds within UN*X (i.e not true
+    gates at all), to FidoNet front ends for UN*X mail systems.
+
+  o RBBS-net seems to have developed gateway software for the MS-DOS-based BBS
+    network, but I do not know enough to characterize it.
+
+All of these gateway systems can and are being run in a safe and cooperative
+fashion, and are providing a nice cross-cultural exchange with benefits for both
+sides of the gates.
+
+At this time, there are also other nets which, because they are based on
+technology similar to FidoNet, are dumping mail onto and taking mail off of
+FidoNet willy nilly, with little thought to the technical, administrative, or
+social consequences.  Often, this is done with good intentions, not realizing
+they are providing a disservice to both nets.
+
+
+What are the Characteristics of a Good Gateway?
+---- --- --- --------------- -- - ---- --------
+
+Like good contracts, good gateways should be fair to both sides.  There is the
+need to preserve both the technical and sociopolitical integrity of all parties
+to the transaction.
+
+Technically, both networks will have specifications and requirements for
+transfer protocols, message and echomail formats, control data files, etc.
+Beyond the borders of the gateway software, each universe should be completely
+and safely maintained.
+
+  o Messages and echomail should completely conform in format and content to the
+    technical specifications of each side of the gateway.
+
+  o Addressing of messages and echomail should completely conform to that of the
+    network in or through which the messages are traveling or resident at all
+    times.
+
+  o A normal user should be able to enter new messages destined for the other
+    side of the gate and to reply to gated mail with relative ease.
+
+  o If FidoNet uses a network A as an intermediate to get to/from a network B,
+    or if network C uses FidoNet to get to/from network D, then the inter-net
+    transitions should be auditable, but local customs and technalia of the
+    intermediate network may not need always be enforced.  Socially, the customs
+    and fashions of each network should be maintained in that network.
+
+  o There must be administrative liaison and control between the two networks so
+    agreements may be made and enforced and disputes may be adjudicated.  
+
+  o If the networks being gated overlap geographically, then systems should not
+    have to pay significant costs to move mail between the two networks when it
+    is between two nodes that are in the same general locale.
+
+  o Gating is not simple, technically or administratively.  Unless each net
+    anticipates significant use of the gateways, and the anticipated gain is
+    seen as greater than the anticipated pain, then one side or the other may
+    reasonably decline to do the necessary work.
+
+
+What Technical Standards Exist?
+---- --------- --------- ------
+
+Before we develop new specifications, social protocols, and standards, we should
+see what exists already.
+
+  o FidoNet Technical Standards exist already for the data formats and the
+    communication protocols for net mail and echomail.  All conforming gateway
+    systems mentioned above conform to these standards.  These are named
+    FSC-nnnn, or more recently FTS-nnnn.
+
+  o The SRI-NIC has published standards for message formats and communication
+    protocols that are used between a significant number of networks that
+    already gate to each other.  These are often referred to as the Internet
+    standards and named RFCnnnn or IDEAnnnn.
+
+  o The ISO and CCITT have standards for message formats and communication
+    protocols which are used between a significant number of systems.  These
+    are based on X.nnn specifications, eg. X.400.
+
+Other standards undoubtedly exist and should be investigated by anyone desiring
+to build a gateway system.
+
+The game of 'my standard is better than yours' has been played for decades with
+no conclusion other then demonstrating the stupidity of war.  What matters is
+that each net's standards are maintained within that net.
+
+
+What Administrative Standards Exist?
+---- -------------- --------- ------
+
+Most networks have formed administrative procedures and guidelines which
+regulate if and how other networks may gate to/from them.
+
+The most notable exception is the uucp/Usenet which, having no formalized
+administrative rules for anything else, imposes none on gateways.  Before we
+recoil in horror, note that uucp/Usenet is three to four times the size of
+FidoNet, is over twice FidoNet's age, and has a significantly better signal-
+to-noise ratio.
+
+The SRI-NIC provides a procedure for registering Internet domains.  A domain is
+somewhat like what we are considering a network.  This Internet registration
+procedure ensures that the network has
+  o administrative responsibility and control, and
+  o at least two registered sites which provide address mapping for the netowrk
+    being gated.
+
+FidoNet is a registered domain of Internet.  Our domain is called fidonet.org. 
+The administrative responsibility is the FidoNet IC's.  The registered
+'nameservers' are at lynx.cs.orst.edu and k9.cs.orst.edu, both at Oregon State
+University, though this is bending the two nameserver policy a bit.
+
+DECNET, ARPANET, ... all have applicable standards, but, as they are strictly
+limited to formal commercial relationships, they are of little interest here.
+
+
+What Administrative Policies are Needed by FidoNet?
+---- -------------- -------- --- ------ -- --------
+
+What does FidoNet really need to state in terms of administrative requirements
+on a network wishing to gate to/from FidoNet?
+
+FidoNet needs a means of ensuring that a formal relationship exists which may be
+used to negotiate technical standards between the two nets, internet
+adjudication of disagreements both technical and social, and enforcement of
+decisions.  Similarly, the other network will likely want such assurances as
+well.  Therefore an agreement should be reached stating:
+
+  o who is administratively responsible,
+
+  o who is technically responsible,
+
+  o what technical and administrative documentation exists, and
+
+  o both parties will abide by eachother's rules when in the other's house, and
+
+  o how grievances are to be stated and adjudicated.
+
+In addition, it will be advisable for FidoNet to place some requirements on a
+network wishing to form official gateways.  Some of these requirements and their
+motivations are:
+
+  o If the other network geographically overlaps a significant portion of
+    FidoNet, then the other net should be of sufficient size that gateways can
+    likely be recruited in most areas where the nets overlap.  Thus, systems
+    should not have to pay significant costs to move mail between two nets that
+    happen to be in the same locale.
+
+  o If the other network geographically overlaps a significant portion of
+    FidoNet, then there should, at a minimum, be gateways in each FidoNet zone
+    where they overlap.
+
+  o If the other network geographically overlaps more than one zone of FidoNet,
+    then that net should have its own gateways between the zones, and not use
+    FidoNet to move the burden of interzone PTT costs.
+
+  o If the other network geographically overlaps a significant number of the
+    regions in a FidoNet zone, then there should, at a minimum, be gateways in
+    each FidoNet region where they overlap.
+
+  o If the other network is geographically localized, then special arrangements
+    may be made whereby there traffic is gated to/from FidoNet at one or more
+    places by special arrangement as if the other network were a FidoNet node or
+    local network (in the intra-FidoNet sense) itself.
+
+  o Gating of net mail, i.e. user-to-user messages, must be implemented and
+    easily used.  Gating of Echomail is optional.
+
+  o Mail must be bi-directional.  If someone in the other net can send mail to a
+    node/user on FidoNet, then that FidoNet node/user must be able to  reply.
+
+  o If echomail is gated, then, unless special circumstances are recognized by
+    the responsible administrators, it must be gated bi-directionally.
+
+  o If a conference is moderated (in the Usenet sense, similar to Dutchie's
+    Conference Mail's moderation or GroupMail) on one network, then it should be
+    moderated on all other networks, or at least the gateway into the network
+    where it is moderated should ensure that correct moderation is done by
+    forwarding or whatever is appropriate.
+
+For inter-net gateway systems in the process of formation, it is assumed that
+some of the above requirements may be waived during a startup period at the
+discretion of the administrative bodies.
+
+Observe that if FidoNet were to try to take a shortcut which has been suggested
+and simply require Intetnet registration of gating networks, then, of the
+current networks gating to FidoNet correctly (see above), only the Rhodes system
+could conform technically.  Eg. the uucp gating packages gate to uucp which has
+no administrative center and is not registered with Internet.  To require
+Internet registration would further neither the goals of Internet, nets wishing
+to gate to FidoNet, nor FidoNet itself.
+
+
+What Technical Requirements should FidoNet Place on Gating Systems?
+---- --------- ------------ ------ ------- ----- -- ------ --------
+
+Each network will have its own specifications for communication protocols, data
+formats, message conventions, addressing, etc.  Though more generally used
+standards are to be preferred, what really matters is that each net be self-
+consistent and integritous and that gateway systems maintain that integrity.
+
+From the FidoNet perspective, the following attributes of a gateway system seem
+to be mandatory.
+
+  o Conformance to FidoNet message format as specified in current FidoNet
+    technical standards (eg. currently FSC-0001) must be maintained while
+    messages are within FidoNet.
+
+  o Information to assist message comprehension and processing by gateway
+    systems and/or other networks may be contained within the message body,
+    either hidden behind ^A lines or not.  If such information is needed, then
+    conformance to current Internet standards (eg. currently RFC822) is
+    recommended.
+
+  o The FidoNet message header must contain valid FidoNet addresses at all times
+    the message is on FidoNet.  Valid FidoNet addresses are addresses of
+    specific FidoNet nodes in the current FidoNet nodelist.
+
+  o The source and/or destination address in the other net should be embedded in
+    the text body of the FidoNet message, either hidden behind ^A lines or not.
+    Conformance to current Internet standards is recommended where appropriate,
+    but addressing conventions in the other net may preclude this.
+
+  o A message must contain sufficient information that the originating system
+    and user may be easily determined.
+
+  o A FidoNet sysop and/or normal FidoNet BBS user should be able to enter
+    messages destined for users in the other network and reply to gated mail
+    using current FidoNet software.
+
+  o If echomail is gated, then the echo messages should conform to all current
+    FidoNet standards for echomail.  For example, currently an echomail message
+    should:
+    - have a correct tear line
+    - have an origin line of the proper format with a FidoNet origin of the
+      gating FidoNet node
+    - have seenbys of only FidoNet nodes
+    - have a path line that goes back at least to the gating node
+
+  o If echomail is gated, then an echomail message must contain sufficient
+    information that the system and user of origin may be trivially
+    determined, whatever net may have originated it.
+
+  o The origin of gated echomail should be determinable in a regular way
+    sufficient that the gating software can provide easy construction of
+    private net mail replies to echomail messages which would return to the
+    echo messages's originator through the appropriate gateway, which may or
+    may not be different than the gateway through which the echo message came.
+    It is acknowledged that this may require  hand editing on the part of the
+    user composing the reply. 
+
+  o If echomail is gated, and the other net has no equivalent, it may use net
+    mail and/or net mail mailing lists.  Messages coming into FidoNet from
+    this type of net mail or mailing list should properly gate into the
+    appropriate echomail conference, and replies should work correctly as
+    well.
+
+
+Conclusion
+----------
+
+It is hoped that, given a philosophy and guidelines such as those outlined in
+this paper, FidoNet will continue to expand its links to other networks to the
+benefit of FidoNet and networking in general.
+
+It is hoped that this paper will be of some help to those constructing gateways
+to/from FidoNet, and to the administrators of FidoNet and other nets who are
+considering gating to/from FidoNet.
+
+This paper, the purported facts contained, and the philosophy espoused are the
+sole responsibility of the author, and are quite likely technically incorrect
+and are undoubtedly morally bankrupt.  Should you have constructive correction
+or criticism, please contact:
+
+Randy Bush
+FidoNet: 1:105/6 1:105/42
+Internet: randy@psg.com    randy@m2xenix.uucp
+uucp: { uunet, qiclab, bucket }!m2xenix!randy
+
+----------
+FidoNet is a trademark of Tom Jennings and Fido Software, to whom we all owe
+        much thanks for the origin and spirit of FidoNet.
+DECNET is a trademark of Digital Equipment Corporation.
+MS-DOS is a trademark of Microsoft Corporation.

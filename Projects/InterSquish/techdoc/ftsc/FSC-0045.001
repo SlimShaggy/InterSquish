@@ -1,0 +1,85 @@
+Document: FSC-0045
+Version:  001
+Date:     17-Apr-90
+
+
+
+
+
+                                 A Proposal
+                                    for
+                         A New Packet Header Format
+                               Thom Henderson
+                            1:107/542.1@FidoNet
+                               April 17, 1990
+
+
+
+
+
+Status of this document:
+
+     This FSC suggests a proposed protocol for the FidoNet(r) community,
+     and requests discussion and suggestions for improvements.
+     Distribution of this document is unlimited.
+
+     Fido and FidoNet are registered marks of Tom Jennings and Fido
+     Software.
+
+
+
+
+Provisions have been made for storing full five-dimensional addresses (i.e.
+zone, net, node, point, and domain) in a packed message such that it is 
+possible (albeit somewhat clumsily) to extract a full five dimensional 
+origin and destination for any message.  This has not, however, been 
+extended to packet headers.  It would be useful for various reasons, such 
+as mail pickpus and password protection of mail links, to be able to 
+quickly and easily extract similar five dimensional addresses from a packet 
+header.  This is a proposal for a packet header structure that would make 
+that possible.
+
+
+The proposed packet header structure is as follows:
+
+    Offset   Width     Description
+    ======   =====     ===========
+         0       2     Originating node number
+         2       2     Destination node number
+         4       2   * Originating point number
+         6       2   * Destination point number
+         8       8     Reserved, must be zero
+        16       2     Packet sub-version (2)
+        18       2     Packet version (2)
+        20       2     Originating network
+        22       2     Destination network
+        24       1     Product code
+        25       1     Product revision level
+        26       8     Password
+        34       2   * Originating zone
+        36       2   * Destination zone
+        38       8   * Originating domain
+        46       8   * Destination domain
+        54       4     Product specific data
+        58     ---     Start of first packed message
+
+                     * Field only guaranteed accurate in a type 2.2 header
+
+
+All numbers are in decimal.  The point of this proposed structure is that 
+it is backwards compatible.  All significant fields of a normal type 2 
+packet header are preserved and are in the same places.  The following data 
+fields of a type 2 packet have been discarded and replaced with new 
+informational content:
+
+    Packet creation date (6 bytes)
+    Packet creation time (6 bytes)
+    Packet baud rate (2 bytes)
+    Reserved for future use (16 bytes)
+
+The field formerly occupied by the packet baud rate has been replaced by 
+the packet sub-version number.  If this number is set to "2" (an impossible 
+baud rate), then that indicates a type 2.2 packet header, and the fields 
+marked above with an asterisk become valid.  If this field contains 
+anything other than a 2, then only the original type 2.0 data may be 
+regarded as accurate.

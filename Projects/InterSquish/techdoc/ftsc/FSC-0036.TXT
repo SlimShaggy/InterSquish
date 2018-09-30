@@ -1,0 +1,266 @@
+FSC-0036
+
+                         GROUP MAIL SPECIFICATIONS
+                             by Dale W. Lovell
+                              7:41/34@alternet
+                             1:157/504@fidonet
+
+Group Message Files
+
+A Group  Message File is  a file which  contains messages for  a particular
+group conference. The file is named as follows:
+
+     <id>.xxx
+
+Where:
+     <id> is the GroupMail ID name
+     xxx  is the minute of the month that  the last packet was added to the
+          file in base  36 (0..9,A..Z).  The following  extensions are  NOT
+          used ARC, BAT,  COM, DOC, EXE, PKT,  TXT. If a packet  is created
+          would normally have this name,  the minute is "bumped up" one  to
+          avoid using  these names.  (This is  also the  extension used  by
+          ARCmail).
+
+Each file can contain several packets of messages. Packets should be in the
+Fido type 2  packet. The packets start  off with a packet  header. Messages
+follow  the  packet header.  Each message  starts  off with  an abbreviated
+packetized message header. Following the header are several variable length
+fields. The structures is as follows:
+
+     struct pkthdrs {              /* packet header structure */
+          int ph_onode;            /* Originating node number */
+          int ph_dnode;            /* Destination node number */
+          int ph_yr,ph_mo,ph_dy;   /* Date packet was assembled */
+          int ph_hr,ph_mn,ph_sec;  /* Time packet was assembled */
+          int ph_rate;             /* packet baud rate */
+          int ph_ver;              /* packet version */
+          int ph_onet;             /* Originating net */
+          int ph_dnet;             /* destination net */
+          int ph_rsvd[17];         /* Reserved for possible future use */
+          };
+
+     struct pktmsgs {              /* packetized message headers */
+          int pm_ver;              /* message version */
+          int pm_onode;            /* Originating node */
+          int pm_dnode;            /* Destination node */
+          int pm_onet;             /* Originating net */
+          int pm_dnet;             /* Destination net */
+          int pm_attr;             /* Message attributes */
+          int pm_cost;             /* message cost in cents */
+          };
+
+The variable length data that follows is:
+     Field Description             Maximum length (in characters)
+          Date                          20
+          To whom                       36
+          Who From                      36
+          Subject                       72
+          Message text                  8192
+
+The packet is finished when in place of the packetized message header there
+are two null characters.
+
+Message Attributes
+
+Message  headers  contain an  integer  field holding  "message attributes."
+These are bit  values that select various  properties of the  message. They
+are defined as follows:
+
+     #define MSGPRIVATE  0x0001    /* Private message */
+     #define MSGCRASH    0x0002    /* Crash priority message */
+     #define MSGREAD     0x0004    /* Read by addressee */
+     #define MSGSENT     0x0008    /* Sent okay */
+     #define MSGFILE     0x0010    /* file attached */
+     #define MSGFWD      0x0020    /* being forwarded */
+     #define MSGORPHAN   0x0040    /* Unknown destination */
+     #define MSGKILL     0x0080    /* Kill after mailing */
+     #define MSGLOCAL    0x0100    /* True if message entered here */
+     #define MSGHOLD     0x0200    /* true if hold for pickup */
+     #define MSGX2       0x0400    /* reserved -- sent */
+     #define MSGFREQ     0x0800    /* Requesting a file */
+     #define MSGRREQ     0x1000    /* Return Receipt requested */
+     #define MSGRRCT     0x2000    /* Return Receipt */
+     #define MSGAREQ     0x4000    /* Request audit trail */
+     #define MSGUREQ     0x8000    /* Requesting a file update */
+
+The following attribute bits are included in the packetized message header.
+
+     MSGPRIVATE     MSGFILE   MSGCRASH  MSGX2     MSGRREQ
+     MSGRRCT        MSGAREQ
+
+All other attributes are masked off and are not sent to other systems.
+
+Packet files names are as follows:
+
+     ddhhmmss.PKT
+
+Where:
+     dd   is the day of the month the packet was created
+     hh   is the hour (24 hour clock) the packet was created
+     mm   is the minute the packet was created
+     ss   is the second the packet was created
+
+For example if a GroupMail file in the conference SAMPLE is  created on the
+22nd of a month at 08:15 the Groupmail name would be SAMPLE.NPR.
+
+          21 full days                  8.25 hours
+     x  1440 minutes per day       x      60 minutes per hour
+     -------                       ---------
+       30240 minutes                     495 minutes
+     +   495 minutes in today
+     -------
+       30735 minutes into the month     Convert to base 36: NPR
+
+Note that at most there are 44640 minutes in a month and this naming scheme
+has the capability  to handle up to  46656 file names. The  remaining names
+(2015 files or an average of 65 files per day) may be used for distributing
+other files in a conference (anything over YG0, hint if it starts with Z it
+makes it easy  to identify, still leaves 1296 different files or average of
+41 files per day).
+
+Disk Directories
+
+GroupMail  uses two  special directories for  distributing it's  files. The
+first of  these directories contains  what I will  be calling a  group date
+file  and any unprocessed,  inbound group files.  The Group Date  File is a
+zero length file in the format:
+
+     <id>.!
+
+Where:
+     <id> is the Group conference name
+
+When new files  are update requested, the  mailer should only obtain  those
+files whose time/date stamps are later than this file's time/date stamp (or
+any unprocessed group files with a later time/date stamp).
+
+This directory will be referred to as the Group Inbound Directory.
+
+If a  system is holding  any conferences for  others to update  request, it
+will need another directory. This directory  holds all processed Group Mail
+Files.  These files  can be  held for  up to  31 days.  After a  file whose
+conference is  being held for  others is processed,  it should be  moved to
+this directory. This  move MUST leave the  time/date stamp as it  was. If a
+system deviates this for ANY reason WOE unto they who wrote  the Group Mail
+processor.  This  directory  will  be  referred  to as  the  Group  Holding
+Directory.
+
+Message files
+
+In theory  (and  almost always  in practice)  you can  store the  processed
+messages in  any format  you desire.  New messages  must be  put into  your
+network mail area as a message your mailer can handle and send  properly to
+other Fido compatible  bulletin board systems/mailers.  The structure of  a
+Fido message is as follows:
+
+     struct msghdrs {              /* Message header structure */
+          char m_from[36];         /* Who from */
+          char m_to[36];           /* to whom */
+          char m_subj[72];         /* subject of message */
+          char m_date[20];         /* Date of message */
+          int  m_times;            /* Number of times read */
+          int  m_dnode;            /* Destination node */
+          int  m_onode;            /* Originating node */
+          int  m_cost;             /* Cost of message in cents */
+          int  m_onet;             /* Originating net */
+          int  m_dnet;             /* Destination net */
+          int  m_caca;             /* extra space */
+          int  unsigned m_rep;     /* Thread to previous */
+          int  m_attr;             /* Message attributes */
+          int  m_up;               /* Thread to next */
+          };
+
+The header is followed by the text of the message. This text is stored as a
+string of characters ending  with a null. The  text may or may  not contain
+carriage returns, each  of which may or may not be  followed by a linefeed.
+Any of  these carriage returns may be "soft."  If the high order bit (0x80)
+of the carriage  return is set,  then it is a  soft return. Line  feeds and
+soft returns should be ignored.
+
+More on the actual messages later on.
+
+Processing inbound messages
+
+For conferences where you are NOT the top star
+
+Unprocessed  Group  Message Files  are in  the  Group Inbound  Directory. A
+processor should go through  all Group Message Files which  are conferences
+that the  system actually caries  (as opposed to  just passing  through for
+other  systems). The  file's name  should  be used  to determine  for which
+conference  these messages  are  destined. While  most processors  have the
+first line  of text  read as  ^AAREA:<id> (no  spaces), this  is meant  for
+compatibility to those systems which do not yet have GROUP capabilities. In
+short, YOU  CAN NOT  DEPEND ON IT  BEING THERE,  so USE  THE FILENAME.  The
+packets should  be extracted from the archived  message file, put into your
+message  base. The packet files  should then be  deleted. Messages put into
+your message base from these Group  Message Files should be marked in  some
+way so  that they are not processed as  newly entered messages. SEA's GROUP
+utility uses the  message sent flag for  this purpose and we  recommend the
+use of the same flag wherever possible.
+
+After  all Group  Message Files have  been processed, the  Group Date Files
+should have their time/date stamp changed  to that of the most recent  file
+processed. Any Group  Message Files  for conferences being  held for  other
+systems should be moved to the Group Holding Directory so other systems can
+request these files.  When the Group  Message File is moved,  the time/date
+stamp on the file MUST NOT be changed. Group Message Files  for conferences
+not being held for others should be deleted.
+
+It is also desirable  at this time to delete any Group  Message Files which
+are over one month old, or whatever period of time  less than one month the
+system operator of that board desires.
+
+For conferences where you ARE the top star
+
+You  should check for  any new netmail  messages whose  ^AAREA:<id> line is
+"your" conference ID. These  messages should be imported into  your message
+base with  the message sent  flag (or your  own equivalent) turned  OFF. At
+such a time as you "PACK" new Group Message Files you should turn the  sent
+flag ON. 
+
+Processing new outbound messages
+
+For conferences where you ARE NOT the top star
+
+Your  group  processor should  scan through  all  group conferences  on the
+system and  locate any  messages which  have been  entered. These  messages
+should be prepared to be sent  out via network mail. The first line  of the
+network mail message should read:
+
+     ^AAREA:<id>
+
+Where:
+     <id> is the Group conference name
+
+There should be no spaces in  this area, although your processor should  be
+tolerant of any spaces if they are present.
+
+The message should be "from" your address and addressed to your upward link
+in  the  conference. In  addition  the  message  should  be  marked  to  be
+deleted/killed after being sent.
+
+You should also  check to  see if any  messages in  your netmail area  from
+other systems are for a GroupMail conference (either one you carry, or pass
+on to other systems). Any of  these messages should be readdressed to  your
+upward link in the conference. Under no circumstances should you change the
+from fields, they should contain the address  of the person who entered the
+message into the conference.
+
+For conferences where you ARE the top star
+
+Messages should  be "copied" from your  message base into a  properly named
+Group Message File. This  Group Message File must have a  correct time/date
+stamp and  be in  your Group  Holding Directory.  Once a  message has  been
+copied into a  Group Message File, it is  necessary to mark it  so the same
+message is not placed into another Group Message File. SEA's GROUP uses the
+message sent flag  for this purpose and  we recommend the  use of the  same
+flag whenever possible.
+
+I think that's it.  Everything else is handled by your  mailer. In order to
+get new  Group Mail  messages, you do  a file  update request of  the GROUP
+conference name (<id>.*)  with the  update pointing to  your Group  Inbound
+Directory. Your mailer  will then get any new Group Message Files from your
+upward link in  the conference. As new  Group Message Files are  processed,
+those who are obtaining their conferences from you will perform file update
+requests from your Group Holding Directory.
+

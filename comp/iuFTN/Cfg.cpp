@@ -7,15 +7,63 @@
 #include <vcl.h>
 
 #pragma hdrstop
-
+//
 #include "Cfg.h"
 #include "Strutils.hpp"
 #include "FECFG146.H"
 #include "log.h"
+#include "transliterates.h"
 #include <inifiles.hpp>
 #pragma package(smart_init)
 
 //FILE * TLog::fLog=NULL;
+/*
+TUserInfo(TiuCustomNNTPServer *server,AnsiString login)
+{
+    AnsiString iniUsers;
+    server->
+
+}
+*/
+
+bool CheckUserLogin(TUserInfo *ui,AnsiString users,AnsiString login)
+{
+//    TUserInfo result;
+    TIniFile *usersini;
+    usersini=new TIniFile(users);
+    TStringList *params=new TStringList();
+    TCommonAddress *addr;
+
+//    params=new TStrings;
+
+    usersini->ReadSection(login,params);
+    if(params->Count==0)
+    {
+        delete usersini;
+        delete params;
+        return false; //нет такого логина
+    }
+
+    ui->NAME=usersini->ReadString(login,"Name",""); //params->Strings[params->IndexOf("Name")];
+    ui->Password=usersini->ReadString(login,"Password","");
+    //result.Address= new TCommonAddress( "sdsd"/*usersini->ReadString(login,"Addr","")*/);
+    addr=new TCommonAddress(usersini->ReadString(login,"Addr",""));
+    //delete *result.Address;
+    ui->Address=*addr;
+    ui->ROGroups=usersini->ReadString(login,"ROGroups","");
+    ui->Groups=usersini->ReadString(login,"Groups","");
+    ui->Login=login;
+    ui->CharsetName=usersini->ReadString(login,"Charset","");
+
+
+
+    delete usersini;
+    delete params;
+    return true;
+}
+
+
+//-----------------------------------------------------------
 
 bool __fastcall TAreaInfo::isPosting(TIniFile *inifile, TUserInfo &UserInfo, AnsiString TagName)
 {
@@ -671,7 +719,14 @@ char *pcCurrent;
 
     if(!strncmp(pcCurrent,"-$n",3))
     {
-      Area->Description=AnsiString(pcCurrent+(pcCurrent[3]=='"' ? 4:3));
+      char windesc[200];
+
+      OEM2KOI(AnsiString(pcCurrent+(pcCurrent[3]=='"' ? 4:3)).c_str(),windesc);
+
+      Area->Description=AnsiString(windesc);
+
+
+      //Area->Description=AnsiString(pcCurrent+(pcCurrent[3]=='"' ? 4:3));
     }
   }
   if(Area->Description.IsEmpty())
@@ -861,4 +916,3 @@ TScriptInstruction* __fastcall TScriptCfg::InstructionByName(AnsiString Instruct
   return NULL;
 }
 //---------------------------------------------------------------------------
-

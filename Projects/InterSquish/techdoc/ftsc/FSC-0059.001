@@ -1,0 +1,537 @@
+Document: FSC-0059
+Version:  001
+Date:     08-Mar-1992
+
+
+
+
+                  Newsgroup Interchange within FidoNet
+                              Jack Decker
+                            1:154/8@fidonet
+
+  A proposed standard for the interchange of USENET News messages among
+                             FidoNet nodes.
+
+
+Status of this document:
+
+     This FSC suggests a proposed protocol for the FidoNet(r) community,
+     and requests discussion and suggestions for improvements.
+     Distribution of this document is unlimited.
+
+     Fido and FidoNet are registered marks of Tom Jennings and Fido
+     Software.
+
+
+
+Introduction:
+
+This document defines the standard format for the interchange of USENET
+news messages among FidoNet nodes.  It incorporates by reference the
+document RFC-1036, "Standard for Interchange of USENET Messages" by M.
+Horton of AT&T Bell Laboratories and R. Adams of the Center for Seismic
+Studies.  A copy of RFC-1036 should be included in the distribution
+archive of this standard.  However, RFC-1036 is NOT applicable in its
+entirety to FidoNet.  Therefore, unless specifically referenced
+elsewhere in this document, only section 2 of RFC-1036 should be
+considered part of this standard.  Section 3, which deals with "control
+messages", may be implemented in FidoNet on an optional basis, and if
+processing of control messages is included in a FidoNet implementation,
+it should be done in accordance with section 3 of RFC-1036 to the
+extent possible.  Section 4 of RFC-1036 is *NOT* applicable to FidoNet
+(except for section 4.3, which will be discussed later) and therefore
+is NOT included as part of this standard.  Section 5 of RFC-1036 is a
+treatise on the News Propagation Algorithm used within UseNet, and
+should be studied even though it is not directly applicable to FidoNet,
+in particular because it contains a discussion on the prevention of
+loops (what we in FidoNet commonly refer to as "dupe loops").
+
+Please note that FidoNet implementations do not recognize nor support
+what is referred to as the "old format" or the "A format" in section 2
+of RFC-1036.
+
+The goal of this document is to define a standard for the interchange
+of news messages between FidoNet nodes in a format that will also be
+acceptable to UseNet hosts.  In order to simplify the creation of
+software that conforms to this standard, we do not intend to support
+every news format that has ever existed in UseNet.  The standard
+described in RFC-1036 is used by the majority of UseNet hosts, and
+therefore it is the standard that will be adopted in this document.
+
+This standard will contain three sections:  General theory of newsgroup
+transmission, Format and protocols of batched newsgroups, and the
+translation of newsgroup messages to and from FidoNet message format.
+
+1. General theory of newsgroup transmission:
+
+Prior to the introduction of the DoveMail program, the usual method of
+gating a UseNet newsgroup into FidoNet was to convert it to FidoNet
+echomail, and then send it to "downstream" nodes in echomail format.
+This method is still used at the majority of gateway systems at this
+writing.  Unfortunately, no conversion process is perfect, and some
+useful control information is usually lost in the conversion.  In
+addition, most FidoNet echomail processors don't handle long messages
+(which are fairly common in newsgroups) well at all, and many gateway
+systems either try to split these messages into multiple parts (a
+somewhat awkward process) or discard them entirely.  Because the
+duplicate message detection algorithms used in many FidoNet echomail
+processors incorrectly identify some of the parts of a split message as
+duplicates, parts of long messages often get "lost" when transmitted as
+echomail.  Also, UseNet allows a message to be posted to multiple
+newsgroups, and when such messages are converted to echomail, it may be
+necessary to create multiple copies of the message (one for each
+echomail area that it would be placed in), thus increasing the
+transmission time for such messages.
+
+Even normal-length newsgroup messages may be falsely discarded as
+duplicates by some "downstream" echomail processors.  The reason this
+is a particular problem in newsgroups converted to echomail is because
+some echomail processors use a checksum of parts of FidoNet message
+headers to determine if messages are duplicates. Since all newsgroup
+messages are assumed to be addressed to "All", and since some gateway
+software uses the date and time that the message was converted to
+echomail rather than the original date and time from the message, it's
+quite possible that the remainder of the message header contains
+information that is similar enough to information in another message's
+header to cause it to be discarded as a duplicate message.  This
+happens far more frequently with converted newsgroup messages than with
+messages originally entered as echomail.
+
+Finally, when a BBS user enters a reply to a news message that has been
+converted to echomail, in many cases the information is simply not
+available in the original message to generate a proper "References:"
+line in the reply, as required by RFC-1036.  If the original message
+contained a "Followup-To:" line, which requires that replies be posted
+to a different newsgroup than the one in which the original message was
+entered, this line may not transmitted in the message as converted to
+echomail.  And even if this information is available, no echomail
+processor currently available will modify the reply message as required
+(to add the "References:" line where necessary, or to move the message
+to a different area if it is a reply to a message that contained a
+"Followup-To:" line).
+
+Under this proposed standard, none of the UseNet message header
+information is lost in transmission between nodes, and reply messages
+can be generated that conform to UseNet specifications.  If a message
+is posted to multiple newsgroups, it is only transmitted once (instead
+of multiple times as it might be if converted to echomail).  Also, long
+messages are not truncated or changed in transmission between nodes,
+and finally, there is no chance that a message will be improperly
+discarded as a duplicate.
+
+The main thing to remember is that under this standard, news messages
+are never converted to echomail.  Echomail is an irrelevant concept in
+this context, since we are not passing echomail between nodes.
+Instead, newsgroups are transmitted in the native format specified by
+RFC-1036, and tossed directly from batched newsgroup packets to the
+FidoNet message format (e.g. the *.msg format) if necessary.  Keep in
+mind that most FidoNet BBS software uses the same general format not
+only for echomail messages, but also for netmail and local message
+areas, so it is not necessary to transmit messages between nodes in
+echomail format if another format is more suitable for the type of
+message being transmitted.
+
+2. Format and protocols of batched newsgroups:
+
+When newsgroup messages are transmitted between systems, the individual
+messages must conform to the specifications of section 2 of RFC-1036,
+and section 3 of this document.  Where section 3 of this document
+defines a more restrictive standard than RFC-1036, this document shall
+take precedence.
+
+When transmitting news messages between FidoNet nodes, they must be
+sent in a batched newsgroup file (as described in section 4.3 of
+RFC-1036) unless some other format is agreed upon in advance.  The
+transmission of unbatched news messages, or the use of any batching
+method other than that described in section 4.3 of RFC-1036 shall be
+considered non-standard.  Please note that RFC-1036 section 4.3 refers
+to this batching process as combining several messages into "one large
+message", but we will refer to this "one large message" as a "batched
+newsgroup file", or a "UseNet format mail packet" rather than as a
+"large message", since FidoNet systems do not normally handle large
+"messages".
+
+When messages pass through a FidoNet system on their way to other
+nodes, the header lines in the message may be modified to conform with
+the standards given here.  However, the text (body) of a message should
+NEVER be altered (one exception: Carriage Returns MAY be converted to
+Line Feeds in order to conform to this standard, but this is neither
+required nor expected of software).
+
+The standard format for sending a batched newsgroup file to other
+FidoNet nodes is as follows:
+
+First, as will be noted in section 3 of this document, individual lines
+of the batched newsgroup file must be terminated with Line Feeds only,
+and the file must NOT contain Carriage Return characters (ASCII 13).
+
+Batched newsgroup files shall be transmitted between FidoNet nodes as
+files named using the filename ????????.PKU, where the eight character
+root name can be any of the hexadecimal digits 0 - 9 or A - F.  The
+.PKU extension (which stands for "PacKet - Usenet format") is the news
+equivalent of the .PKT file used to transmit FidoNet format netmail and
+echomail between nodes.
+
+Batched newsgroup files with the filespec ????????.PKU may be archived
+into a standard mail archive file (bearing the extension *.MO?, *.TU?,
+*.WE? ... *.SU?).  It is assumed that the receiver of batched newsgroup
+files will take any necessary steps to make sure that both *.PKU and
+*.PKT files are extracted from incoming mail archive files before the
+mail archive files are deleted.  In certain cases, this may mean that
+an external unarchive shell may have to be used, instead of allowing
+the echomail processor to call the unarchiver (typical external
+unarchive shell programs at this writing are GUS, POLYXARC, and SPAZ).
+
+A batched newsgroup file awaiting transmission may be stored in a
+FidoNet system's "outbound" area in uncompressed form, prior to being
+archived for transmission or sent in uncompressed form.  It is
+suggested that when a system uses the .OUT extension to indicate an
+uncompressed netmail or echomail packet, the .UUT extension be used to
+indicate an uncompressed batched newsgroup packet.  It is expected that
+a .UUT file in a system's "outbound" area will be treated in much the
+same way as an .OUT file, except it will be renamed to a file with an
+extension of .PKU (rather than .PKT) before being archived into the
+mail archive.  This implies that the root name of the .UUT file will
+contain the net number and node number of the destination system,
+expressed as four hexadecimal digits each for net and node numbers, in
+the same manner as the root name for a FidoNet .OUT file is
+constructed.
+
+The root filename of the *.PKU file should be an eight digit
+hexadecimal number, with leading zeroes used if necessary, in order to
+make an eight character root filename.  It is suggested that this
+hexadecimal number be based on time of year, with 00000000.PKU
+generated at exactly midnight on January 1 and FFFFFFFF.PKU generated
+at just a moment before midnight on December 31.  However, it is
+permissible to use the same algorithm that is used to generate the root
+filename for *.PKT files.
+
+The normal sequence for transmission of messages between FidoNet nodes
+might then be described as follows:
+
+a. Messages created on the originating system are placed into a batched
+newsgroup file conforming to the specifications of RFC-1036 section
+4.3.  When this batched newsgroup file is destined for another FidoNet
+node, it will have a filename of the format:
+
+     [4 hex digit net number][4 hex digit node number].UUT
+
+This file will then be placed in the outbound mail area for packing.
+
+b. A mail packing program will examine the outbound mail area and, upon
+finding the .UUT file, will rename it to a file with an extension of
+.PKU, and then shell to a compression program in order to place the
+*.PKU file into a new or existing mail archive file for the destination
+node.  Mail archive files bear extension names consisting of the first
+two letters of a day of the week (in the English language) plus a
+numeric character in the range 0 - 9 (for example, .MO5 or .TH7).  The
+method of compression for the mail archive is as agreed upon between
+the originating and destination nodes.  No "standard" method of
+compression for the mail archive is specified in this document.  NOTE:
+If the compression program fails for any reason (such as running out of
+disk space), the mail packing program MUST rename the .PKU file back to
+the original *.UUT filename before exiting.  Since batched newsgroup
+files do not contain a header that indicates the destination node,
+there would be no way to determine the proper destination node if the
+file were not renamed back to the original filename.
+
+c. The mail archive is transmitted in the usual manner by a FidoNet
+compatible mailer, or such other means as may be agreed upon in advance
+by the sysops of the originating and destination nodes.
+
+d. At the destination system, the individual files are extracted from
+the mail archive.  *.PKT files are processed in the usual manner to
+extract any netmail or echomail messages, while *.PKU files are
+processed by software designed to handle batched newsgroup files.  In
+this context, such files could be "handled" by re-processing the
+messages and batching them to be sent on to one or more additional
+node(s), or by tossing the messages to the local message base, or both.
+
+Please note that this standard does not anticipate that batched
+newsgroup files will be converted to FidoNet echomail at any point
+along the way.  It is realized that this may indeed happen, but such
+conversions should be considered as something to be avoided if at all
+possible due to the problems discussed in section 1 of this document.
+
+3. Translation of newsgroup messages to and from FidoNet message
+format:
+
+NOTE: Where applicable, the standards defined in this section for
+messages shall apply not only to locally created messages, but also to
+all messages sent to "downstream" FidoNet nodes.
+
+In this context, "FidoNet message format" means that format in which
+messages commonly reside on a FidoNet BBS.  At this writing, there are
+three formats commonly used for message storage on FidoNet systems, but
+other formats may be in use as well.  The three most common formats are
+the "*.msg" format as used by the original Fido program (and a host of
+programs since), also commonly referred to as the "single message per
+file format"; the "Hudson" format, used by QuickBBS, Remote Access, and
+some other products; and the "Squish" format used by the Maximus BBS
+and the "Squish" echomail processor.
+
+Because there are so many message formats, some other programs have
+taken the approach of trying to convert UseNet news into echomail,
+creating *.PKT files which can theoretically be processed by any
+FidoNet system.  However, since the *.PKT files are processed by the
+echomail processor, all the limitations and pitfalls associated with
+converting newsgroup messages to echomail come into play.
+
+The preferred way of handling incoming messages would be to have the
+BBS (or message reader/editor) software directly read batched newsgroup
+files.  In this way, the files would not have to be "processed" per se.
+As new batched newsgroup files arrived on a system, they could simply
+be concatenated to the existing message base, and then a utility could
+be run that would build an index to the message base, in a manner
+somewhat similar to the way "flat file" message bases are currently
+implemented on some BBS's.  Of course, you'd need to occasionally run a
+utility to delete old messages in order to keep the message base from
+growing too large, and new messages entered on the system would have to
+be exported from the system in a separate batched newsgroup file.
+However, at this writing no FidoNet-compatible BBS or message editor is
+capable of directly reading a batched newsgroup file.
+
+The second most preferable method is to convert news messages directly
+to the message format used by that system.  At this writing the
+DoveMail software includes utilities (NewsToss and NewsScan) that can
+convert batched newsgroup files to and from messages in the *.msg
+(single message per file) format.  It should be possible to convert
+batched newsgroup files to and from other FidoNet message formats as
+well.
+
+The method in which messages are stored on a BBS, and the method in
+which it is determined which new (locally-entered) messages need to be
+exported from the system will necessarily be implementation-specific.
+One method that can be used with *.msg type message bases is to
+maintain a "high water mark" in 1.msg, similar to the "high water mark"
+used for echomail messages, and additionally to mark messages received
+from other nodes as "sent" when they arrive, and locally-entered
+messages as "sent" when they have been exported, and to never re-send a
+message marked as "sent".
+
+When tossing incoming messages, duplicate messages can be detected by
+comparing the contents of the "Message-ID:" line with those of
+previously received messages.  This may be slow processing
+considerably, however, and would require storage of a history file of
+"previously seen" messages.  Another method is to look in the "Path"
+line and see if we are already listed in the path; if so, the message
+is a duplicate and should be deleted.  This method is faster and does
+not require maintenance of a history file, but will not guard against
+duplicate messages arriving from one's feed that have not passed
+through the system twice (for example, a message that arrived from two
+different paths).  Fortunately, UseNet folks seem to understand the
+need for proper topology, so those types of dupes are relatively rare.
+FidoNet sysops taking UseNet feeds must understand that it is
+IMPERATIVE that a feed of any one newsgroup be obtained from only ONE
+source, especially if they are then passing that newsgroup to any
+"downstream" nodes.  This absolutely does NOT imply that geographic
+restrictions on newsgroup distribution are necessary or desirable!
+
+Additional comments on preventing "loops" can be found in section 5 of
+RFC-1036, in the discussion of the News Propagation Algorithm.  Please
+note that only two methods of loop prevention are included in this
+standard:
+
+1) The history mechanism.  Each host keeps track of all messages it has
+seen (by their Message-ID) and whenever a message comes in that it has
+already seen, the incoming message is discarded immediately.
+
+2) Not sending a message to a system listed in the "Path" line of the
+header, or to the system that originated the message (which, in
+practice, should be listed in the Path line).
+
+No other methods of dupe loop prevention are acceptable.  In
+particular, checksums of portions of the message header or message
+itself are NOT permitted to be used for loop prevention, except perhaps
+as a method to quickly identify POTENTIAL duplicate messages before
+doing a full string comparison with the Message-ID data in the history
+file.  In no case should a checksum be used as the SOLE method of
+determining whether a message is a duplicate.
+
+When newsgroup messages are created for transmission to other systems,
+or when received messages are transmitted other systems, the individual
+messages must conform to the specifications of section 2 of RFC-1036.
+However, in order to simply programming of software designed to handle
+such messages, the following modifications to the standard are proposed
+for use within FidoNet.  Please note that these are slightly more
+restrictive than the standard permitted by RFC-1036:
+
+a. The "old format" or "A format" described in section 2 of RFC-1036 is
+NOT supported in FidoNet.  Only the format detailed in RFC-1036
+(sometimes referred to as the "B" News format) is supported.  The vast
+majority of UseNet sites currently use the "B" News format.
+
+b. The UseNet standard permits the use of "white space" to separate
+certain items in the message header, with "white space" defined as
+blanks or tabs.  It also states that "the Internet convention of
+continuation header lines (beginning with a blank or tab) is allowed."
+However, it should NOT be ASSUMED that "continuation header lines" will
+be used in any message.  It is suggested that when creating newsgroup
+messages for transmission to other systems, the use of tab characters
+be avoided in header lines, and that "continuation header lines" NOT be
+used, even if this means that a header line will be considerably longer
+than the length of a screen line.  Software that creates FidoNet-format
+messages (for display to BBS callers) from batched newsgroup files
+(that is, newsgroup message tossers) should break up such extra-long
+header lines, using a single space character ONLY (NOT a tab!) at the
+start of "continuation header lines."  Since batched newsgroup files
+received from a UseNet site may contain "continuation header lines"
+and/or tabs as "white space" in header lines, it is necessary to be
+able to decode such header lines properly, but it is strongly suggested
+that FidoNet software not CREATE messages with tabs or "continuation
+header lines" for transmission through the network.
+
+c. All lines in news messages, including header lines, shall be
+terminated with a LINE FEED (ASCII 10 decimal) ONLY.  Under NO
+circumstances shall a CARRIAGE RETURN (ASCII 13 decimal) appear in news
+messages transmitted through FidoNet (if a Carriage Return is found in
+an in-transit message it MAY be changed to a Line Feed, this being the
+sole exception to the rule about not changing the body of a message,
+but the expectation is that no Carriage Returns will appear in a news
+message).  Also, spaces appearing at the end of lines (just prior to
+the Line Feed character) are strongly discouraged since they convey no
+useful information.  Finally, there should be only a single line feed
+at the end of each message (blank lines following the last line of a
+message are not allowed, again because they convey no useful
+information).  Please note that the use of the Line Feed as a line
+terminator is fairly standard throughout UseNet, and when a news
+message is converted to a FidoNet format message it is a simple matter
+to replace Line Feeds with Carriage Returns so that the message will
+display properly.
+
+d. When constructing or adding to "Path" lines, RFC-1036 (section
+2.1.6) states that "The names may be separated by any punctuation
+character or characters (except '.' which is considered part of the
+hostname)."  However, in actual practice, only the "!" (exclamation
+point or "bang" character) is commonly used to separate names.
+Therefore, the "!" character will be considered the "standard"
+separator for system names in Path lines in messages generated in
+FidoNet.  Also, RFC-1036 states that "Normally, the rightmost name will
+be the name of the originating system.  However, it is also permissible
+to include an extra entry on the right, which is the name of the
+sender.  This is for upward compatibility with older systems." In
+actual practice, it appears that most Path lines originating in UseNet
+have a user name as the rightmost entry.  Therefore, when a Path line
+is created for a message originating in FidoNet, it is suggested that
+the following format be used (assuming a message entered by user John
+Smith at node 1:123/456):
+
+     Path: f456.n123.z1.fidonet.org!john.smith
+
+When a user name is placed in the path, all spaces in the user name
+must be replaced with periods, and all uppercase characters in the name
+should be converted to lowercase.  It is permissible to use an alias in
+place of a user's real name if the originating system runs software
+that will recognize that alias in incoming netmail messages, and remap
+such messages to the proper user if necessary.  Also, note the
+restrictions on prohibited characters in the user name as specified in
+RFC-1036 section 2.1.1.  Although section 2.1.1. deals with the "From"
+line, common sense would indicate that these same restrictions on
+prohibited characters should apply if the user name is placed in the
+Path line (with the obvious exception of the use of the period to
+replace spaces in the user name, which is required).
+
+e. Header lines defined as "optional" may be more or less optional
+depending on the keyword.  For example, the "Reply-To" and
+"Followup-To" lines should be automatically honored, if at all
+possible, when reply messages are created, and the "References" line,
+even though listed as an "optional" line, is "required for all
+follow-up messages" (replies).  On the other hand, lines such as
+"Control" and "Distribution" may have little meaning to FidoNet nodes
+(in particular, "Distribution" is meant to control distribution of a
+message along hierarchial lines, but since FidoNet topology has little
+relation to UseNet hierarchies, it is probably best to just ignore
+"Distribution" lines on in-transit messages).
+
+Additional specifications for messages, including required and optional
+header lines, are detailed in section 2 of RFC-1036.
+
+When a newsgroup is moderated, it is the responsibility of the sysop of
+each participating BBS to prevent users from entering messages in that
+area (unless the message exporting software is capable of sending any
+locally-entered messages to the conference moderator via MAIL).
+However, if a software newsgroup processor is written that both imports
+(tosses) messages to a FidoNet-format message base, and exports locally
+entered messages, and if the software does not have a way to send
+replies to the moderator via mail, then some mechanism must be provided
+to prevent the export of messages from a moderated area, so that in the
+unlikely event that there is no easy way to prevent users from posting
+messages in the moderated area, such messages will still not be sent
+out.  Since this standard does not deal with the transport of UseNet
+MAIL within FidoNet, the method for transmission of replies in
+moderated newsgroups is undefined by this document.  However, software
+authors are encouraged to provide some mechanism for private mail
+replies to newsgroup messages, in both moderated and unmoderated areas.
+
+Note that if a moderated newsgroup is carried on a system, it is the
+responsibility of the sysop to provide mail access to users so that
+replies can be (manually) sent to the conference moderator, especially
+if replies in the newsgroup area cannot be automatically routed to the
+conference moderator.
+
+One point that needs to be emphasized is there is NO message length
+limit on UseNet messages.  If a FidoNet node passes newsgroup messages
+to, or on behalf of other FidoNet nodes, it is NOT permissible to
+discard or truncate messages that exceed a preset length limit.  Note
+that in a batched newsgroup file, each message is preceded by a header
+of the form "#! rnews <length in bytes>".  Since the message text
+length is never changed in processing, it is possible to determine the
+length of a message after processing by reading in all the header
+lines, calculating the combined length of the header lines prior to
+making changes in the header (e.g. the Path line), then calculating the
+combined length of the header lines after making changes.  The
+difference between the original and the new length of the header lines
+can then be applied to the value given in the "#! rnews" line to
+determine the new message length, when is then used in the "#! rnews"
+header of the modified message.  Also, the number of bytes given in the
+"#! rnews" line, MINUS the length of the message header lines, is the
+length of the body of the message.  Once this length is known, the body
+of the message can be copied from the input file to the output file(s)
+in "chunks" small enough to fit in memory, until the end of the message
+is reached.
+
+The following comments are implementation suggestions applicable to
+current FidoNet-compatible BBS systems, though not necessarily to
+software that may be written in the future:
+
+It should be noted that when a BBS user enters a reply message, most
+FidoNet BBS software will "link" the reply message to the original by
+placing the message number of the original message in the message
+header (this is almost always the case if messages are stored in the
+"*.msg" format, in which case the number of the message being replied
+to is found at bytes 185-186 in the message header).  If the
+appropriate header lines have been stored in the text of the original
+message, it is possible to construct a reply message that meets all
+RFC-1036 specifications.  For example, a "References" line can be
+constructed from the "Message-ID" line (and the "References" line, if
+any) of the original message.  Similarly, if the original message
+contains a "Followup-To:" line, the reply can be posted to the
+newsgroup(s) specified in that line.  This may not work as expected if
+a message renumbering program or similar program messes with the
+message base before reply message is exported, so it is highly
+recommended that locally-entered newsgroup messages be exported as soon
+as practicable after they are entered.
+
+Since the user of a BBS may reply to a message entered by another user
+of the same BBS, it is recommended that when a message is exported, any
+UseNet format header lines created for the exported message also be
+written back to the original message if possible.  This will permit
+reply linking to remain intact even if two or more users of the same
+BBS participate in the same message thread.
+
+If a message is received that specifies more than one newsgroup in the
+"Newsgroups" header line, and corresponding message areas are available
+on the local system, one copy of the message should be placed in each
+such area.  For example, if the message is posted to four different
+newsgroups, and two of those groups are carried on the local BBS, then
+a copy of the message should be placed in the message base for each of
+those groups.  If users of a BBS are allowed to post a message to
+multiple newsgroups, then any message thus posted should be copied to
+the message bases of any of the other areas that are also carried on
+that system (and that the message was posted to) at the time the
+message is exported.
+
+Corrections and Additions to this document:
+
+Proposed corrections and additions to this document should be submitted
+to Jack Decker at 1:154/8, or jack.decker@f8.n154.z1.fidonet.org

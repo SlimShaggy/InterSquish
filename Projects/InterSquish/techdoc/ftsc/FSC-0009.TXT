@@ -1,0 +1,179 @@
+FSC-0009
+
+*Nodelist Flag Changes Draft Document
+
+The following is a proposed change to the nodelist.  Please  send 
+your  comments  to  either  Ken  Kaplan  at 100/22,  Ray Gwinn at 
+109/634,  or David Dodell at 114/15.  We will not be replying  to 
+all  comments  but wish to get a general feeling from the network 
+about this proposed change.  
+
+
+                   Nodelist Flag Draft Document 
+                    Primary Author: Ray Gwinn
+                  Secondary Author: David Dodell
+               Contact 114/15 or 1/0 with comments   
+                       Version 1 (11-15-87)
+
+
+I proposed that the Nodelist (comment) Flags be replaced  with  a 
+capabilities identifier.  
+
+After  all,  the  bottom  line  is  that  we  want  to  know  the 
+capabilities of the remote node before it is  contacted.  If  the 
+remote  is  not capable of performing the desired function,  then 
+there is no need to contact it.  
+
+The problem(s) with the existing method  is  that  it  originally 
+started  as  a  comment  field  and  was not planed.  At the time 
+SEAdog was the only  "extended  protocol"  program  around.  But, 
+along  came  Opus  with a different "extended protocol".  I think 
+that additional flags like WZ, BR, WR,  etc is only extending the 
+previously  unplanned  system  and  will  lead to problems in the 
+future.  For example, XP today includes file update requests, but 
+XP a year ago did not.  So,  a node using SEAdog V3.xx will  have 
+an  XP  flag  but  it  is not capable of doing update requests (I 
+think).  Thus,  XP does not really tell you what the remote  node 
+is capable of doing.  
+
+The  capabilities  identifier that I propose will do nothing more 
+than define the program(s) that  the  remote  node  is  using  to 
+accept  incoming  calls/mail/requests.  Some may say that this is 
+nothing more than the product code that  already  exists  in  the 
+mail  packet.  The  primary  difference  is that the capabilities 
+identifier  will  exist  in  the  nodelist.   This  means  it  is 
+available  without contacting the remote node,  while the product 
+code  is  not.   Also  the  product  code  is  limited   to   256 
+possibilities.  
+
+I  assume that it is desired that the nodelist flags field be two 
+non-control  characters.   If  so,   then  I  propose  that   the 
+capabilities  identifier  be  a  two digit,  base 36 number.  The 
+digits being 0 through  9  and  A  through  Z  and  are  assigned 
+sequentially.  For example, Fido may be 01 and Dutchie may be 02.  
+Also note that as defined, XP and WZ are valid.  However, I think 
+they  should  be  done  away  with,  and  identifiers be assigned 
+starting with 00 (00 meaning generic FTSC net mail protocol).  
+
+This number, once converted to binary, can be used by programmers 
+as an index into application specific data bases or  tables.  One 
+example   is   a  simple  program  that  will  tell  a  user  the 
+capabilities of a remote node.  Given the node's address and  the 
+nodelist,  the  program  could  search  the  nodelist  to get the 
+capabilities  identifier.   Then  the  program  could  use   that 
+identifier   as   an  index  into  a  data  base  to  obtain  the 
+capabilities of the remote node and display  them  to  the  user.  
+Another  example  is  a program that can use the identifier as an 
+index into a capabilities  table  that  allows  determination  in 
+advance  that  the remote is capable of the desired session prior 
+to contacting it.  
+
+
+                          Implementation
+                            ----------
+          
+First,  all nodes in the  network  are  assigned  a  capabilities 
+identifier  of  00.  This  is the capabilities code of a net mail 
+program  that  meets  the  basic   requirements   of   the   FTSC 
+specification.   Once  again,  the  purpose  of  this  identifier 
+(except 00) is to define the program(s) that the node is using to 
+process calls/requests/mail.  Also remember that  the  identifier 
+reflects  the  mail  handler.  For  example,  TBBS with a BINKLEY 
+front end will be identified by its BINKLEY identity.  
+
+The  program  author  (or  project   leader)   will   request   a 
+capabilities   identifier   from  the  assigner.   Who  does  the 
+assigning is another subject.  Along with the request must  be  a 
+written  and detailed description of all enhances features of the 
+program.   Remember,  we  are  dealing  with  automated  contacts 
+between  nodes.  In  this  context,  the  ability of a program to 
+handle 50 simultaneous callers is not an enhanced feature.  
+
+The list of features can be provided to  other  authors  so  that 
+they  may  consider  a  compatible  feature.  Note,  that  if the 
+description of the enhanced features is not sufficient for  other 
+authors  to  add  a  compatible feature,  then the program may be 
+assigned the basic 00 capabilities flag.  This little enforcement 
+rule  has  the  potential  of  lifting  a  tremendous  burden  of 
+documentation  from  the  FTSC.  If  the  committee accepting the 
+written definition is programmers, the documentation is likely to 
+be understandable.  I think the same committee should assigns new 
+capabilities codes (other than those grandfathered).  The ego  of 
+the    program   authors   would   probably   insure   sufficient 
+documentation for a capabilities identifier other than 00.  
+
+After  consideration,   the  FTSC  could  choose  to  adopt   the 
+definition  (possibly modified) as a standard.  I feel this gives 
+the a creative programmer's new features a way into the  nodelist 
+and  the  FTSC  the  ability  to consider enhancements with 20/20 
+hindsight.  At the same time,  the  FTSC  must  only  modify  the 
+provided  documentation  to  define  a  new  standard  instead of 
+starting  from  scratch.  But,  I'm  drifting,  this  is  another 
+subject.  
+
+If a new revision of the same program has additional capabilities 
+that  need  to  be defined,  then the author should request a new 
+capabilities code.  There should be a policy that only one or two 
+revisions back will have individual capabilities identifiers.  If 
+revisions more than one or two old are still in use they  can  be 
+assigned the basic 00 identifier.  
+
+The program authors should be required to prominently display the 
+capabilities  identifier.  This  will  allow  the Sysop to easily 
+provide the identifier to his network coordinator  for  inclusion 
+in  the  nodelist.  This  a  basically  a  take off of the ringer 
+equivalent code that you find in your modem manual.  
+
+
+As I have defined it, the committee that assigns the capabilities 
+identifiers can not  reject  the  new  features.  They  can  only 
+reject  the  documentation  of  the  new  features  as  not being 
+understandable.  This should keep most developers  happy  because 
+no one can tell them not to do something.  It should make the job 
+of  the FTSC simpler because they will only accept documentation, 
+not create it.  The  ego's  of  the  developers,  anxious  to  be 
+identified in the nodelist, should keep the documentation flowing 
+to the FTSC.  
+
+As  pointed out by David Dodell,  the same type of identifier can 
+be applied to modems.  That is modem 00 can be a 1200 baud  Hayes 
+(true) compatible, type 02 can be a USR Courier, etc.  
+
+What I have proposed here solves many problems, but not all.  For 
+example,  there  is  no way to tell when the wierd BBS has SEAdog 
+running.  So, a CM type flag is still required.  
+
+I  think  that  3  flags  will  take  care  of  everything.   One 
+identifies  the  mail handler,  another identifies his modem type 
+and a third  should  identify  when  mail/file  requests  can  be 
+accepted.  
+
+
+                         The other flags           
+                            ---------
+
+
+The  other  two  flags  would  represent mail reception times and 
+modem type.  
+
+For example the flag 00 would represent mail can only be received 
+during NMH.  Flag 01 would mean mail could be received 24  hours, 
+identical  to  the  meaning of the CM flag now.  Other variations 
+could be: 
+
+   00 National Mail Hour Only for Mail 
+   01 Continuous Mail 24 hour/day 
+   02 Continuous Mail 24 hour/day with 24 hr File Request Capability 
+   03 CM 24 hrs/day, File request all but NMH 
+
+The third flag would represent modem types:
+
+   00 300 baud Bell standard
+   01 1200 baud Bell standard
+   02 2400 baud 
+   03 1200 baud w/MNP
+   04 2400 baud w/MNP
+   05 USR HST Modem
+   06 Telebit Trailblazer Modem
+   07 Hayes V9600 Modem
+   08 Microcom Modem 9600 baud

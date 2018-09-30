@@ -1,0 +1,119 @@
+-
+-   FidoNet Technical Standards Committee Document Archive
+-   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-   Official FidoNet Technical Standards
+-
+fts-0001.z16 A basic FidoNet(r) technical standard, R Bush
+fts-0002 *Obsoleted by FTS-0005*
+fts-0003 *Obsoleted by FTS-0006*
+fts-0004.zip Echomail specification, B Hartman
+fts-0005.z03 The distribution nodelist,  B Baker, R Moore, D Nugent
+fts-0006.z02 YOOHOO and YOOHOO/2U2, V Perriello
+fts-0007.z03 SEAlink protocol extension, P Becker
+fts-0008.z03 Bark file-request protocol extension, P Becker
+fts-0009.z01 Message identification and reply linkage, j nutt
+-
+-   FidoNet Standards Proposals And Miscellaneous Documents
+-   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+fsc-0001 *Obsoleted by FTS-0001*
+fsc-0002 *Obsoleted by FTS-0005*
+fsc-0003.zip FidoNet Route Files Explained, B Baker
+fsc-0004.zip Zones and Zonegates explained primitively, R Bush
+fsc-0005.zip Opus 1.01 Netmail passwording scheme, W Wagner
+fsc-0006 *Obsoleted by FTS-0006*
+fsc-0007.z02 RFC-822-style msg header proposal, R Heller
+fsc-0008.lzh *Obsoleted by FSC-0015
+fsc-0009.zip Nodelist Flag Draft Document Gwinn/Dodell
+fsc-0010.zip Dutchie 2.80 SEAlink File Resynch, H Wevers
+fsc-0011.zip Experiences/corrections to FSC-0001, B Hartman
+fsc-0012 *Obsoleted by FTS-0004*
+fsc-0013 *Obsoleted by FTS-0008*
+fsc-0014.zip Binary-style msg proposal, W Wagner
+fsc-0015.zip FOSSIL 5.0 Documentation, R Moore
+fsc-0016.zip FidoNet Mail Session Startup, R Hartman
+fsc-0017.zip Archive Philosophy and Document Naming, R Bush
+fsc-0018 *Obsoleted by FTS-LIST*
+fsc-0019 *Obsoleted by FTS-0007*
+fsc-0020.zip Alternate Nodelist Flag Proposal M Presnell
+fsc-0021.zip VFOSSIL, OS/2 Video FOSSIL Appendage R Moore
+fsc-0022 *Obsoleted by FSC-0090*
+fsc-0023.zip Bundle naming convention proposal R Meyer
+fsc-0024.zip Binary bundle proposal, O McDonald
+fsc-0025.zip AVATAR Video Spec, G Stanislav
+fsc-0026 *Obsoleted by FTS-LIST*
+fsc-0027 *Obsoleted by FTS-0005*
+fsc-0028.zip Proposed file-forwarding standard, H Lee
+fsc-0029 *Reserved for future use*
+fsc-0030.zip Proposal for message identification, J Cowan
+fsc-0031.zip Proposed message id/linkage standard, M Ratledge
+fsc-0032.zip Proposed message quoting standard, M Ratledge
+fsc-0033.zip Proposal for message identification, T Kover
+fsc-0034.z02 Gateways to and from FidoNet, R Bush
+fsc-0035.zip Transparent gateways to/from FidoNet, M Shiels
+fsc-0036.zip Group Mail specification, D Lovell
+fsc-0037.zip AVATAR 0+ Video Spec, G Stanislav
+fsc-0038.z01 Proposed domain gating protocol, j nutt
+fsc-0039.z04 A type-2 packet extension proposal, M Howard
+fsc-0040.z01 Proposed modem handling extension, M Shiels
+fsc-0041 *Obsoleted by FTS-0009*
+fsc-0042.z01 A modified gateway agreement, S Furber
+fsc-0043.z02 Some hints on recognizing control lines in FidoNet(r) message text, R Bush
+fsc-0044.z02 Improved duplicate detection, J Decker
+fsc-0045.z01 Proposed new packet header, T Henderson
+fsc-0046.z05 Proposed product identifier, J Homrighausen
+fsc-0047.z01 The ^ASPLIT kludge line, P Terry
+fsc-0048.z02 Proposed type-2 packet extension, J Vroonhof
+fsc-0049.z01 A proposal for passing domain information during FTS-0006 sessions, B Hartman
+fsc-0050.z01 A character set identifier for FidoNet message editors, T Sundblom
+fsc-0051.z03 A system-independent way of transferring special characters,  T Gradin
+fsc-0052.z01 A proposal for making the PATH zone aware, G van der Land
+fsc-0053.z02 Specifications for the ^aFLAGS field, J Homrighausen
+fsc-0054.l54 The CHARSET proposal,  D McNutt
+fsc-0054.z04 A system independant way of transferring special characters, Duncan McNutt
+fsc-0055.z01 Security passwords in nodelist updates, L Kolin
+fsc-0056.z01 EMSI/IEMSI Protocol Definition, J Homrighausen
+fsc-0057.z03 Echo Area Managers - Specifications For Requests, F Fabris, J Homrighausen
+fsc-0058.z02 A New Way Of Addressing In FidoNet, W Van Sebroeck, J Spooren
+fsc-0059.z01 Newsgroup Interchange within FidoNet, J Decker
+fsc-0060.z01 Calculation and Usage of CRC's, F van der Loos
+fsc-0061.z01 Proposed Guidelines for the FileBone, E VanRiper
+fsc-0062.z03 Proposal for a Nodelist Flag Indicating Online Times, D Thomas
+fsc-0063.z01 Proposal For FidoNet Messages, J Miller
+fsc-0064.z07 InterDomain Message ID, Gating, Linking and Addressing, J Penner
+fsc-0065.z01 Type 3 ASCII: A Proposal, M Kimes
+fsc-0066.z02 Type 3 Binary: A Proposal, M Kimes
+fsc-0067.z01 A Proposal For Sensible Kludge Lines, M Kimes
+fsc-0068.z01 A Proposed Replacement For FTS-0004, M. Kimes
+fsc-0069.z01 A FidoNet (FTN) Domain Name Service, R Heller F Arnaud
+fsc-0070.z02 Improving FidoNet/UseNet Gating and Dupe Checking,
+fsc-0071.z01 Distributed FREQ (DFREQ) Specifications, B Auclair
+fsc-0072.z01 The HYDRA file transfer protocol, J Homrighausen, A Lentz
+fsc-0073.z01 Encrypted message identification for FidoNet, John Mudge
+fsc-0074.z01 Proposed echomail specification, J Souvestre, D Troendle, B Davis, G Peace
+fsc-0075.z01 Proposal for ISDN capability flags in the nodelist, J Ceuleers
+fsc-0076.z01 Proposal for netmail areatags, S Gove
+fsc-0077.z01 Proposed type-10 packet format, J Steck
+fsc-0078.z01 Gateway between FidoNet compatible networks, C Lacerda
+fsc-0079.z02 RTF mail: proposal for message formatting in the type-2 message packet, K Axon
+fsc-0080.z02 Describing FidoNet with a layered model, Mikael Staldal
+fsc-0081.z01 A type-3 packet proposal, Mikael Staldal
+fsc-0082.z01 A proposed new packet type, S. Slabihoud
+fsc-0083.z01 A proposed standard for message IDs on FTN systems, J.de.Boyne.Pollard
+fsc-0084.z01 EDX1: Electronic Data Exchange standard level 1, D.Bider
+fsc-0085.z01 Proposal for the "NOZIP" and "ERX" nodelist flags, D.Bider
+fsc-0086.z01 SRIF: Description of a new Standard Requestion Information File, M.Mucko
+fsc-0087.z01 File forwarding in FidoNet technology networks, R.Williamson
+fsc-0088.z01 Compatibility and Link Qualifier Extensions for EMSI sessions, R.Williamson
+fsc-0089.z01 The INTL: netmail addressing control line, R.Williamson
+fsc-0090.z01 FTSC Product Codes and Application Form
+fsc-0091.z01 Proposal for ISDN nodelist flags, A Lentz
+fsc-0092.z01   New control lines for forwarded messages, M.Hohner
+fsc-0093.z01   Reduced seen-by lines, F.Ellermann
+-
+- FTSC Administrative Files
+-
+ftsclist.z93 Directory of all FTSC files
+ftscprod.z93   FTSC Product Codes (see also fsc-0090)
+-
+ftsc-all.z93 Archive of all FTSC files as above
+

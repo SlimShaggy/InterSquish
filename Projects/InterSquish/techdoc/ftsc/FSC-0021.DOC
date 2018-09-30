@@ -1,0 +1,833 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+                VFOSSIL - An OS/2-Subset Video FOSSIL Appendage
+
+                         Version 1.00,  May 23,  1988
+
+                       Rick Moore,  Solar Wind Computing
+                          FidoNet Address:  1:115/333
+
+
+
+
+
+                 FidoNet Standards Committee index:  FSC-0021
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ Copyright (C) 1988, Rick Moore,  Homewood,  IL, 60430. All rights reserved.
+
+ This document may be distributed freely as long as it is distributed in its
+ original,  unmodified form.
+
+VFOSSIL - An OS/2-Subset Video FOSSIL Appendage                         FSC-0021
+                                                                         Page  2
+
+
+VFOSSIL design criteria:
+
+The VFOSSIL appendage proposed here is designed to be an compatible subset of
+the OS/2 VIO subsystem.  All services are proper subsets of the equivalent OS/2
+VIO API's,  and if you stick to the services defined in this document,  you
+will be able to compile and run your programs with very minor changes in an
+OS/2 environment.
+
+VFOSSIL (and OS/2 VIO at this time) only supports text modes.  It is possible
+to use the "set mode" service to set a graphics mode,  but that is the only
+support for pixel-oriented graphics functions provided by VFOSSIL.  The minimum
+environment supported by VFOSSIL is a 80 by 24 monochrome text screen,  and any
+program using VFOSSIL calls should be capable of operating within this level of
+support.  By querying the VFOSSIL,  the full capabilities of a specific
+implementation may be determined and used,  but all programs using VFOSSIL
+should be capable of operating with the 80 by 24 monochrome text environment.
+
+
+The organization of the video screen:
+
+The virtual screen is organized in rows of columns of character/attribute
+pairs,  hereafter referred to as cells.  The characters actually displayed
+are located on the even addresses,  the attribute for each character is
+located at character+1.
+
+Regardless of the manner in which the video screen is actually organized,  the
+programmer will view it as a a contiguous area of memory,  referred to as the
+"logical video buffer" (LVB).  The LVB is (NumRow * NumCol) cells in length.
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+                                                                         Page  3
+
+VFOSSIL installation:
+
+The VFOSSIL appendage is installed via the standard FOSSIL external
+application function.  The FOSSIL interrupt (14h) is issued with the
+following parameters:
+
+		AH = 7Eh	Install appendage
+		AL = 81h	VFOSSIL application code
+		DX = offset of VFOSSIL entry point
+		ES = segment of VFOSSIL entry point
+
+Upon return from the FOSSIL interrupt,  the following registers are
+modified:
+
+		AX = 1954h	FOSSIL signature
+		BL = 81h	VFOSSIL application code
+		BH = 01h - Installation was successful
+		     00h - Installation  was unsuccessful
+
+VFOSSIL removal:
+
+The VFOSSIL appendage is removed via the standard FOSSIL external
+application function.  The FOSSIL interrupt (14h) is issued with the
+following parameters:
+
+		AH = 7Fh	Remove appendage
+		AL = 81h	VFOSSIL application code
+		DX = offset of VFOSSIL entry point
+		ES = segment of VFOSSIL entry point
+
+Upon return from the FOSSIL interrupt,  the following registers are
+modified:
+
+		AX = 1954h	FOSSIL signature
+		BL = 81h	VFOSSIL identification code
+		BH = 01h - Removal was successful
+		     00h - Removal was unsuccessful
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+                                                                         Page  4
+
+
+VFOSSIL functions called via the standard FOSSIL interrupt (14h):
+
+The following three functions are called via the standard FOSSIL interrupt,
+int 14h.  All other VFOSSIL functions are called via the OS/2 compatible
+direct call interface.
+
+Subfunction 00h - Return VFOSSIL information
+
+	Entry:	AH = 81h	VFOSSIL application code
+		AL = 00h	VFOSSIL subfunction
+		ES:DI = Far pointer to VFOSSIL information structure
+
+	Exit:	AX = 1954h 	FOSSIL signature
+
+    This function is used before calling the open function (sub-function 01h)
+    to determine the characteristics of the VFOSSIL. Such things returned in
+    the structure are current version level and number of functions supported.
+    
+    The format of the information structure filled in by this call is as
+    follows:
+
+	DW	Size of this structure,  in bytes,  including this field
+	DW	VFOSSIL major version
+	DW	VFOSSIL revision level
+	DW	Highest VFOSSIL application function supported
+
+Subfunction 01h - Open VFOSSIL
+
+	Entry:	AH = 81h	VFOSSIL application code
+		AL = 01h	VFOSSIL subfunction
+		CX = Length of application function table (in bytes)
+		ES:DI = Far pointer to application function table
+
+	Exit:	BH = Highest VFOSSIL application function supported
+		AX = 1954h	FOSSIL signature
+
+	This VFOSSIL subfunction will initialize the table pointed to by
+	ES:DI with far pointers to the VFOSSIL application services.  The
+	number of far pointers initialized is equal to the value returned
+	in register BH + 1.  Under no circumstances will the number of
+	far pointers initialized exceed the value passed in register CX / 4.
+	All other processing necessary to ready the VFOSSIL for use by the
+	application program should be performed at this time.
+
+Subfunction 02h - Close VFOSSIL
+
+	Entry:	AH = 81h	VFOSSIL application code
+		AL = 02h	VFOSSIL subfunction
+
+	Exit:	AX = 1954h	FOSSIL signature
+
+	This VFOSSIL function terminates all VFOSSIL operations,  and leaves
+	the VFOSSIL in a state that allows for it to be removed from memory,
+	or to be reinitialized via VFOSSIL function 01h.
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page  5
+
+
+VFOSSIL application services:
+
+All calls to VFOSSIL services are made in a manner identical to the OS/2 API
+protocol.  All services are entered via a far call,  with parameters passed
+via the stack.  All services return an error code in register AX.  The
+parameters are pushed onto the stack Pascal-style,  from left to right.  The
+parameters are passed on the stack in one of the three following ways:
+
+    WORD   A one-word value pushed directly onto the stack
+
+    DWRD   A double-word value pushed directly onto the stack
+           (low word first,  followed by the high word)
+
+    PTR    A far pointer to a memory area.  Far pointers are passed
+           as double-word values,  segment followed by offset.
+
+Single-word and double-word input parameters are always passed as WORD and
+DWRD.  If the service returns information in the parameter field itself,
+then it is pushed as a PTR,  even if the object is a WORD or a DWRD.  Variable
+length parameters,  such as data structures or ASCIIZ strings, are always
+passed as PTR objects.
+
+All cursor coordinates are expressed as zero (0) based numbers.
+
+Each VFOSSIL service requires a "handle" parameter as the last parameter
+passed to the service.  At this time,  zero (0) is the only valid handle.
+
+The actual addresses used to call the application services are contained in
+the address table filled in by the VFOSSIL initialization call described
+above.  All addresses are in far (segment/offset) format.  Here is the format
+of the application service address table:
+
+Table	+00h	VioGetMode		Query current video mode
+	+04h	VioSetMode		Set video mode
+	+08h	VioGetConfig		Query video hardware configuration
+	+0Ch	VioWrtTTY		Write data in TTY mode
+	+10h	VioGetANSI		Query current ANSI state
+	+14h	VioSetANSI		Set ANSI state
+	+18h	VioGetCurPos		Query current cursor position
+	+1Ch	VioSetCurPos		Set cursor position
+	+20h	VioGetCurType		Query current cursor parameters
+	+24h	VioSetCurType		Set cursor parameters
+	+28h	VioScrollUp		Scroll screen up
+	+2Ch	VioScrollDn		Scroll screen down
+	+30h	VioReadCellStr		Read cell string from display
+	+34h	VioReadCharStr		Read char string from display
+	+38h	VioWrtCellStr		Write cell string
+	+3Ch	VioWrtCharStr		Write char string (existing attributes)
+	+40h	VioWrtCharStrAtt	Write char string (constant attributes)
+	+44h	VioWrtNAttr		Replicate attribute
+	+48h	VioWrtNCell		Replicate cell
+	+4Ch	VioWrtNChar		Replicate char
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page  6
+
+
+VioGetMode - Query current video mode
+
+
+Parameters:
+
+	PTR	Pointer to a video mode data structure
+	WORD	VIO handle (must be 0)
+
+
+Video mode data structure:
+
+	DW	Structure length (including this field)
+	DB	Mode characteristics
+		-------0	Monochrome/printer adapter
+		-------1	Other adapter
+		------0-	Text mode
+		------1-	Graphics mode
+		-----0--	Enable color
+		-----1--	Disable color (black and white)
+	DB	Number of colors supported by the display
+		1 =  2 colors
+		2 =  4 colors
+		4 = 16 colors
+	DW	Number of text columns
+	DW	Number of text rows
+	DW	Reserved
+	DW	Reserved
+	DD	Reserved
+
+
+A partial video mode buffer may be specified.  VFOSSIL returns only the data
+that will fit into the buffer.  The minimum buffer length is 3,  and the
+maximum buffer length is 12.  Partial fields are not returned.
+
+
+Error codes returned:
+
+	  0 - Successful completion
+	116 - Internal VIO failure
+	382 - Buffer too small
+	436 - Invalid VIO handle
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page  7
+
+
+VioSetMode - Set video mode
+
+
+Parameters:
+
+	PTR	Pointer to a video mode data structure (see VioGetMode)
+	WORD	VIO handle (must be 0)
+
+
+A partial video mode buffer may be specified.  The minimum buffer length is 3,
+and the maximum buffer length is 12.  Partial fields are not supported.  The
+remaining fields are set to default values.
+
+
+Error codes returned:
+
+	  0 - Successful completion
+	116 - Internal VIO failure
+	355 - Unsupported mode
+	382 - Buffer too small
+	421 - Invalid VIO parameter
+	436 - Invalid VIO handle
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page  8
+
+
+VioGetConfig - Query video hardware configuration
+
+
+Parameters:
+
+	PTR	Pointer to a video configuration data area
+	WORD	VIO handle (must be 0)
+
+
+Video configuration data area:
+
+	DW	Structure length (includes this field)
+	DW	Adapter type
+		0 = Monochrome/printer
+		1 = CGA
+		2 = EGA
+		3 = VGA
+		7 = 8514A
+	DW	Display type
+		0 = Monochrome
+		1 = Color
+		2 = Enhanced color
+		9 = 8514
+	DD	Adapter memory size
+
+
+Error codes returned:
+
+	  0 - Successful completion
+	116 - Internal VIO failure
+	382 - Buffer too small
+	436 - Invalid VIO handle
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page  9
+
+
+VioWriteTTY - Write data in TTY mode
+
+
+Parameters:
+
+	WORD	Pointer to a character string that VFOSSIL will write
+		to the screen
+	WORD	String length
+	WORD	VIO handle (must be 0)
+
+
+This service writes a string to the video screen in TTY mode.  The characters
+CR,  LF,  BS,  TAB,  and BELL are interpreted as control values rather than
+being display as values.  If ANSI mode has been enabled (see VioGetANSI,  
+VioSetANSI),  then ANSI control sequences are also interpreted as control 
+strings.  In ANSI mode,  this service is not required to be reentrant,  and
+should not be called when a MS/DOS function is in progress.  When in non-ANSI
+mode,  this service is required to be reentrant,  and may be called from 
+within a MS/DOS function.  If the write goes beyond the end of a line,  it
+continues at the start of the next line.  The write terminates at the end of
+the screen.  The cursor is left positioned at the next character position to
+be written.
+
+
+Error codes returned:
+
+	  0 - Successful completion
+	116 - Internal VIO failure
+	436 - Invalid VIO handle
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page 10
+
+
+VioGetANSI - Query current ANSI state
+
+
+Parameters:
+
+	PTR	Pointer to a one-word field in which VFOSSIL will return the
+		current ANSI state:
+			0 = Off
+			1 = On 
+	WORD	VIO handle (must be 0)
+
+
+Error codes returned:
+
+	  0 - Successful completion
+	116 - Internal VIO failure
+	436 - Invalid VIO handle
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page 11
+
+
+VioSetANSI - Set ANSI state
+
+
+Parameters:
+
+	PTR	Pointer to a one-word field indicating how ANSI processing
+		is to be set:
+			0 = Off
+			1 = On 
+	WORD	VIO handle (must be 0)
+
+
+Error codes returned:
+
+	  0 - Successful completion
+	116 - Internal VIO failure
+	421 - Invalid VIO parameter
+	436 - Invalid VIO handle
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page 12
+
+
+VioGetCurPos - Query current cursor position
+
+
+Parameters:
+
+	PTR	Pointer to a one word field in which VFOSSIL will return
+		the current cursor row
+	PTR	Pointer to a one word field in which VFOSSIL will return
+		the current cursor column
+	WORD	VIO handle (must be 0)
+
+
+This service returns the current cursor position.  Cursor coordinates are
+zero based.
+
+
+Error codes returned:
+
+	  0 - Successful completion
+	116 - Internal VIO failure
+	436 - Invalid VIO handle
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page 13
+
+
+VioSetCurPos - Set cursor position
+
+
+Parameters:
+
+	WORD	Desired cursor row
+	WORD	Desired cursor column
+	WORD	VIO handle (must be 0)
+
+
+This service sets the cursor position to the zero based coordinates specified
+by the parameters.  If either of the parameters is invalid,  the cursor
+position is left unchanged.
+
+
+Error codes returned:
+
+	  0 - Successful completion
+	116 - Internal VIO failure
+	358 - Invalid row value
+	359 - Invalid column value
+	436 - Invalid VIO handle
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page 14
+
+
+VioGetCurType - Query current cursor parameters
+
+
+Parameters:
+
+	PTR	Pointer to a cursor type data area
+	WORD	VIO handle (must be 0)
+
+
+Cursor type data area:
+
+	DW	Cursor start line
+	DW	Cursor end line
+	DW	Cursor width (always 1)
+	DW	Cursor attribute (-1 = hidden)
+
+
+Error codes returned:
+
+	  0 - Successful completion
+	116 - Internal VIO failure
+	436 - Invalid VIO handle
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page 15
+
+
+VioSetCurType - Set cursor parameters
+
+
+Parameters:
+
+	PTR	Pointer to a cursor type data area (see VioGetCurType)
+	WORD	VIO handle (must be 0)
+
+
+Error codes returned:
+
+	  0 - Successful completion
+	116 - Internal VIO failure
+	421 - Invalid VIO parameter
+	436 - Invalid VIO handle
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page 16
+
+
+VioScrollUp - Scroll screen up
+
+
+Parameters:
+
+	WORD	Top row of the scroll area
+	WORD	Left column of the scroll area
+	WORD	Bottom row of the scroll area
+	WORD	Right column of the scroll area
+	WORD	Number of rows to scroll.  A value of -1 causes the scroll
+		area to be cleared.
+	PTR	Pointer to a char/attr cell that is used to fill the scroll
+		area.
+	WORD	VIO handle (always 0)
+
+
+Error codes returned:
+
+	  0 - Successful completion
+	116 - Internal VIO failure
+	358 - Invalid row value
+	359 - Invalid column value
+	436 - Invalid VIO handle
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page 17
+
+
+VioScrollDn - Scroll screen down
+
+
+Parameters:
+
+	WORD	Top row of the scroll area
+	WORD	Left column of the scroll area
+	WORD	Bottom row of the scroll area
+	WORD	Right column of the scroll area
+	WORD	Number of rows to scroll.  A value of -1 causes the scroll
+		area to be cleared.
+	PTR	A pointer to a char/attr cell that is used to fill the scroll
+		area.
+	WORD	VIO handle (always 0)
+
+
+Error codes returned:
+
+	  0 - Successful completion
+	116 - Internal VIO failure
+	358 - Invalid row value
+	359 - Invalid column value
+	436 - Invalid VIO handle
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page 18
+
+
+VioReadCellStr - Read cell string from display
+
+
+Parameters:
+
+	PTR	Pointer to a buffer into which the cell string is to be
+		placed
+	PTR	Pointer to a one-word field which,  upon entry,  specifies
+		the length of the cell buffer (in bytes),  and,  on return,
+		contains the number of bytes actually read.  Each cell
+		occupies two bytes,  so the number of cells read is equal to
+		half of the buffer length specified.
+	WORD	Row where the read is to start
+	WORD	Column where the read is to start
+	WORD	VIO handle (always 0)
+
+
+If the read request extends beyond the end of the line,  it continues at the
+first column of the next line.  If an attempt is made to read past the end of
+the screen,  the read operation terminates and the length field is set to the
+actual number of bytes read.
+
+
+Error codes returned:
+
+	  0 - Successful completion
+	116 - Internal VIO failure
+	358 - Invalid row value
+	359 - Invalid column value
+	436 - Invalid VIO handle
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page 19
+
+
+VioReadCharStr - Read character string from display
+
+
+Parameters:
+
+	PTR	Pointer to a buffer into which the character string is to be
+		placed
+	PTR	Pointer to a one-word field which,  upon entry,  specifies
+		how many characters are to be read,  and,  on return,
+		contains the number of characters actually read.
+	WORD	Row where the read is to start
+	WORD	Column where the read is to start
+	WORD	VIO handle (always 0)
+
+
+If the read request extends beyond the end of the line,  it continues at the
+first column of the next line.  If an attempt is made to read past the end of
+the screen,  the read operation terminates and the length field is set to the
+actual number of characters read.
+
+
+Error codes returned:
+
+	  0 - Successful completion
+	116 - Internal VIO failure
+	358 - Invalid row value
+	359 - Invalid column value
+	436 - Invalid VIO handle
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page 20
+
+
+VioWrtCellStr - Write a cell string
+
+
+Parameters:
+
+	PTR	Pointer to the cell string to be written
+	WORD	Cell string length.  Since each cell occupies two bytes,
+		this number is twice the number of cells to be written.
+	WORD	Row at which write is to begin
+	WORD	Column at which write is to begin
+	WORD	Vio handle (must be 0)
+
+
+If the write request extends beyond the end of the line,  it continues at the
+first column of the next line.  If an attempt is made to write past the end of
+the screen,  the write operation terminates.
+
+
+Error codes returned:
+
+	  0 - Successful completion
+	116 - Internal VIO failure
+	358 - Invalid row value
+	359 - Invalid column value
+	436 - Invalid VIO handle
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page 21
+
+
+VioWrtCharStr - Write a character string,  using existing attributes
+
+
+Parameters:
+
+	PTR	Pointer to the character string to be written
+	WORD	Character string length
+	WORD	Row at which write is to begin
+	WORD	Column at which write is to begin
+	WORD	Vio handle (must be 0)
+
+
+The attributes of the display cells whose characters are replaced are not
+modified.  If the write request extends beyond the end of the line,  it
+continues at the first column of the next line.  If an attempt is made to
+write past the end of the screen,  the write operation terminates.
+
+
+Error codes returned:
+
+	  0 - Successful completion
+	116 - Internal VIO failure
+	358 - Invalid row value
+	359 - Invalid column value
+	436 - Invalid VIO handle
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page 22
+
+
+VioWrtCharStrAtt - Write a character string,  using constant attribute
+
+
+Parameters:
+
+	PTR	Pointer to the character string to be written
+	WORD	Character string length
+	WORD	Row at which write is to begin
+	WORD	Column at which write is to begin
+	PTR	Pointer to the display attribute to be used with each
+		character written
+	WORD	Vio handle (must be 0)
+
+
+If the write request extends beyond the end of the line,  it continues at the
+first column of the next line.  If an attempt is made to write past the end of
+the screen,  the write operation terminates.
+
+
+Error codes returned:
+
+	  0 - Successful completion
+	116 - Internal VIO failure
+	358 - Invalid row value
+	359 - Invalid column value
+	436 - Invalid VIO handle
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page 23
+
+
+VioWrtNAttr - Replicate an attribute byte,  leaving characters unchanged
+
+
+Parameters:
+
+	PTR	Pointer to the display attribute to be replicated
+	WORD	Replication count
+	WORD	Row at which write is to begin
+	WORD	Column at which write is to begin
+	WORD	Vio handle (must be 0)
+
+
+The characters contained in the display cells whose attributes are replaced
+are not modified.  If the write request extends beyond the end of the line,
+it continues at the first column of the next line.  If an attempt is made to
+write past the end of the screen,  the write operation terminates.
+
+
+Error codes returned:
+
+	  0 - Successful completion
+	116 - Internal VIO failure
+	358 - Invalid row value
+	359 - Invalid column value
+	436 - Invalid VIO handle
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page 24
+
+
+VioWrtNCell - Replicate a cell
+
+
+Parameters:
+
+	PTR	Pointer to the cell to be replicated
+	WORD	Replication count
+	WORD	Row at which write is to begin
+	WORD	Column at which write is to begin
+	WORD	Vio handle (must be 0)
+
+
+If the write request extends beyond the end of the line,  it continues at the
+first column of the next line.  If an attempt is made to write past the end of
+the screen,  the write operation terminates.
+
+
+Error codes returned:
+
+	  0 - Successful completion
+	116 - Internal VIO failure
+	358 - Invalid row value
+	359 - Invalid column value
+	436 - Invalid VIO handle
+
+VFOSSIL - An OS/2 Subset Video FOSSIL Appendage                         FSC-0021
+Application Services                                                     Page 25
+
+
+VioWrtNChar - Replicate an character,  leaving attributes unchanged
+
+
+Parameters:
+
+	PTR	Pointer to the character to be replicated
+	WORD	Replication count
+	WORD	Row at which write is to begin
+	WORD	Column at which write is to begin
+	WORD	Vio handle (must be 0)
+
+
+The attributes contained in the display cells whose characters are replaced
+are not modified.  If the write request extends beyond the end of the line,
+it continues at the first column of the next line.  If an attempt is made to
+write past the end of the screen,  the write operation terminates.
+
+
+Error codes returned:
+
+	  0 - Successful completion
+	116 - Internal VIO failure
+	358 - Invalid row value
+	359 - Invalid column value
+	436 - Invalid VIO handle

@@ -1,0 +1,61 @@
+FSC-0017
+
+     
+                         FidoNet(tm) Standards Committee
+                      Archive Philosophy and Document Naming
+                                 March 30, 1988
+     
+     
+
+Date: Tue 29 Mar 88 20:13
+From: Randy Bush
+To:   Chuck Venter
+Subj: Re: This echo
+
+AREA:NET_DEV
+
+...
+
+What is intended by this document registry
+
+o Starting a document archive with a naming convention based  on the current
+  one, FSC-nnnn.ARC.  
+
+o The first few documents are the current FSC001 & 2, but using the new naming
+  convention.  
+
+o Grabbing the dozen documents which detail the current FidoNet technology
+  (MYFSC001, N_YOOHOO, ...) , or provide well-documented proposals for changes,
+  arranging them in date order without prejudice and issuing them numbers.  
+
+The ongoing plan is 
+
+o Similarly to the NIC, when a document is revised, it is given a new number,
+  and states what documents it obsoletes.  Many have said that this should
+  have been done with FSC001.  
+
+o Occasional documents will provide bibliographies of the archive.  
+
+o Occasional documents will give advice as to which subset of the registry
+  represents the currently accepted standard.
+
+o Contributions hungrily accepted.  Send text<tm>.  
+
+
+-------------------------------------------------------------------------------
+
+
+Naming Convention
+     
+1. Document names begin with "FSC-nnnn".
+
+2. Documents are numbered sequentially from 0001, with new document numbers
+   being assigned to new drafts.
+
+3. Extensions are
+   a) .ARC - The distributed ARChive file
+   b) .TXT - ASCII text file for screen or printer
+   c) .DOC - ASCII text file for screen or printer
+   d) .CHT - ASCII chart, may be wide or long or both
+
+-30-

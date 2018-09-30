@@ -548,7 +548,8 @@ void __fastcall TiuCustomNNTPServerThread::SendNewsListDesc(void)
 //---------------------------------------------------------------------------
 void __fastcall TiuCustomNNTPServerThread::ProcessNEWGROUPS(AnsiString Argument)
 {
-  SendAnswer(215, "List of newsgroups follows");
+//SendAnswer(215, "List of newsgroups follows");
+  SendAnswer(500, "Not implemented");
   WriteLn(".");
 }
 //---------------------------------------------------------------------------

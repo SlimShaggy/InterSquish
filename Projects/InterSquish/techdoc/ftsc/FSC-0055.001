@@ -1,0 +1,97 @@
+Document: FSC-0055
+Version:  001
+Revision: 31-Mar-1991
+
+
+
+
+             Security Passwords in Nodelist Update Files
+
+                             Luke Kolin,
+               1:250/714@fidonet.org, 89:480/210@imex
+
+                          March 31st, 1991
+
+
+    Status of this document:
+
+         This FSC suggests a proposed protocol for the FidoNet(r)
+	 community,  and requests discussion and suggestions for
+	 improvements.  Distribution of this document is subject
+	 to the restrictions listed below.
+
+         Fido and FidoNet are registered marks of Tom Jennings
+         and Fido Software.
+
+         The author grants the FTSC unlimited  distribution and
+         reproduction rights  in order to facilitate discussion
+         of the proposals in this document.
+
+         MakeNL is a program by Ben Baker.
+
+         SysNL is a program by Luke Kolin.
+
+
+
+  PURPOSE
+
+	This document is intended to explain the format and purpose of
+  security passwords within nodelist update files, and to inform the
+  authors of nodelist software about its proper usage.
+
+
+  THE NEED FOR PASSWORDS
+
+	Until now, the nodelist update files that *Cs create with software
+  packages such as MakeNL or SysNL have had no security passwords inside
+  of them. The only security between the NC and an RC has been the name
+  of the update file itself. For example, the name of the Net 250 update
+  file was "Metronet.250". It was quite conceivable for a sysop, upon
+  discovering this name, to make a fraudulent update file, also called
+  "MetroNet.250", and send this to 1:12/0. The nodelist processor which
+  created the regional update file at that end would not know that the
+  file was not genuine, and this would be added to the weekly update for
+  the region.
+
+
+  PASSWORD FORMAT
+
+	It seems emminently logical that some sort of security password
+  should be added to nodelist update files, to prevent the aforementioned
+  problems from occurring. Therefore, I propose that nodelist update files
+  have an optional password in the first (header) line, right after the
+  ";A" general interest flag. The first character of this case-sensitive
+  password shall be an "at" sign @ (ASCII decimal 64 hex 40). If this
+  character is present, then all characters after it, until (but not
+  including) the next space (ASCII decimal 32 hex 20) will be considered
+  part of the password. As well, no password may be 8 characters or more
+  in length. This is a sample header line, with a password of ConSoft
+  present:
+
+  ;A @ConSoft Net 250 nodelist file for Friday, February 22nd : 10344
+
+	Please note the password starts right after the first space (ASCII 
+  32) with the ASCII 64 decimal character, and is case-sensitive. The
+  following is a sample header, without a password present:
+
+  ;A Net 250 nodelist file for Friday, March 1st : 13501
+
+
+  NOTES
+
+	It is extremely important that the password be on the first line
+  of the nodelist update file. It must commence immediately after the first
+  space (ASCII 32) character, with an ASCII 64 "at" sign. Remember, it is
+  case-sensitive.
+
+	I believe that it is up to the authors of individual nodelist
+  utilities to deal with the presence of passworded update files as they
+  believe fit. However, it is my belief that utilities, when faced with
+  a file with a bad password, retain a copy of a previous (good) update
+  file, which should be used instead of the bad one, to prevent the equally
+  nasty problem of a bad update file preventing an entire network/region
+  from being included.
+
+	Please note that I do not participate in either the FTSC or NET_DEV
+  conferences. I can be reached at 1:250/714@fidonet.org, or in Imex at
+  89:480/210@imex.

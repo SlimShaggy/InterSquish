@@ -1,0 +1,285 @@
+Document: FSC-0071
+Version:  001
+Date:     17-Jan-1993
+
+
+
+
+                  Distributed FREQ (DFREQ) Specifications
+                      Bill Auclair, FidoNet 1:141/545
+                            January 17, 1993
+
+
+
+
+Status of this document:
+
+     This FSC suggests a proposed protocol for the FidoNet(r) community,
+     and requests discussion and suggestions for improvements.
+     Distribution of this document is unlimited.
+
+     Fido and FidoNet are registered marks of Tom Jennings and Fido
+     Software.
+
+
+
+
+       Distributed File Requests:  What Are They?
+       ------------------------------------------
+
+         DFREQ programs are designed to allow both sysops and  users
+         to  make Distributed File Requests from other  BBS  systems
+         listed in FidoNet<tm> or compatible nodelists.   There  are
+         several major differences between Distributed File  Request
+         methodology (hereafter referred to as DFREQ)  and  existing
+         FidoNet FREQ and/or file distribution formats.
+
+         FidoNet file request technology was designed only  for  the
+         direct  transmittal of file requests  from  one  system  to
+         another.   DFREQ technology allows routing of file requests
+         from  the  originating  system  along  a  user-configurable
+         "chain" of systems,   ending at  the  target  node.    This
+         methodology  allows the setup of  no-cost,   local  routing
+         paths for  file requests between distant systems that would
+         normally  incur long-distance phone charges.
+
+
+
+       How DFREQs Work
+       ---------------
+
+         Distributed File Request methodology can be separated  into
+         2 main parts-- the REQUEST and the ACKNOWLEDGEMENT.
+
+         The  REQUEST represents the initial stage,  in which  DFREQ
+         data  from the originating system has not yet  reached  its
+         target,  and thus carries no accompanying  requested  files
+         with  it.   DFREQ data may be relayed via file  or  netmail
+         message attach through any number of  intermediate  systems
+         on its way to its ultimate target,  which is defined by the
+         contents  of the request  file.   The  path  taken  by  the
+         request to its target is determined by routing data used by
+         the DFREQ processors of participating nodes in the chain.
+
+         The ACKNOWLEDGEMENT is the result of a  processed  request,
+         and  is created whether or  not  the  requested  files  are
+         available  at the target  system.   The  DFREQ  information
+         formerly  carried by the request  is  used  to  create  the
+         acknowledgement,  set   its   destination   back   to   the
+         originating system, file- or netmail-attach requested files
+         (if any) for transmission, and/or provide information as to
+         why  requested  file(s)  were  unavailable  at  the  target
+         system.  Request data is deleted by the target system after
+         the  acknowledgement is created.   The path  taken  by  the
+         acknowledgement  back  to  the  originating  system   again
+         depends upon the routing configurations of the chain nodes,
+         but need not be the same as the path  previously  travelled
+         by the request.
+
+         ASCII  text files are used to transport  DFREQ  information
+         between nodes.  These carrier files are similar in form and
+         function to the .TIC files used by the TICK<tm>  file  echo
+         utility.
+
+         The DFREQ process starts when a user generates a  DFR  file
+         containing  file request information,  using the  local  or
+         on-line mode of a DFREQ processor.
+
+
+
+       DFR Files
+       ---------
+
+         DFREQ  data for the REQUEST stage is  transmitted  using  a
+         file with a .DFR (Distributed File Request) extension.  The
+         filename is a randomly-generated 8-digit number.  DFR files
+         carry  information  on  the  net/node  of  the  originating
+         system, net/node of the target system, the name of the user
+         who originated the request,  the filenames and descriptions
+         of  the files to be requested,  the path travelled  by  the
+         request  on its way to the  target  system,  and  date/time
+         stamps  indicating when the request was processed  by  each
+         node in the path.  DFRs are transmitted via file or netmail
+         message attach.
+
+
+
+       DFA Files
+       ---------
+
+         DFREQ  data for the ACKNOWLEDGEMENT  phase  is  transmitted
+         using a file with a .DFA (Distributed File Acknowledgement)
+         extension.   The  8-digit  filename   of   the   previously
+         processed  DFR request file is retained.   DFA files  carry
+         information  on the  net/node  of  the  originating  system
+         (formerly the target system in the DFR file),  the net/node
+         of  the target system (formerly the originating  system  in
+         the  DFR file),  the name of the  user  who  generated  the
+         request,  the filenames and  descriptions  of  successfully
+         requested  files,  and the filenames and  associated  error
+         information for any unsuccessfully requested or unavailable
+         files.   The full  path  information  from  the  previously
+         processed DFR file is retained,  and is appended with  path
+         and  datestamp information representing the travel  of  the
+         DFA file back to its new target, the source of the original
+         DFREQ.  DFAs are transmitted via file or netmail attach.
+
+
+
+       Error Messages
+       --------------
+
+         When  requests for any or all files in a DFREQ can  not  be
+         fulfilled  for some  reason,  information  as  to  why  the
+         request  was not satisfied is included  in  the  DFA  file,
+         replacing the file descriptions of the  unavailable  files.
+         Reasons for file unavailability can include:
+
+
+          o  File(s) not found or not available at target system
+
+          o  OKFile path does not exist on target system
+
+          o  File(s) not found in inbound area-- node xxx/xxx
+
+
+         DFA  files may be appended with error  information  by  any
+         processing  system in the chain  back  to  the  originating
+         node, depending upon where the error condition occurs.
+
+
+
+       DFR/DFA File Formats
+       --------------------
+
+         DFR and DFA files are ASCII text files that transport DFREQ
+         information between systems.   The DFR file is used  during
+         the REQUEST stage of the transaction.  The DFA file is used
+         during the ACKNOWLEDGEMENT stage of the transaction.
+
+         New  DFR files are created by the DFREQ processor using its
+         local  or on-line user  mode.   A  random  8-digit  numeric
+         filename and .DFR extension are assigned to the file.  File
+         format for a newly-created DFR is shown below:
+
+
+         Created by  GOFER v0.05a, Copyright (C) 1992 by Bill Auclair
+         Origin      141/545
+         Requestor   Bill Auclair
+         Target      141/455
+         File        LOGON.LZH 2969 01-17-90 generic telix log-on script
+
+
+         The first line of the DFR holds information identifying the
+         program/version  used to create it.   No empty  spaces  are
+         allowed above this line,  or between any of the lines  that
+         follow.
+
+         The  second line of the DFR  contains  Origin  information.
+         This  indicates the net/node number  of  the  system  which
+         generated the DFR.
+
+         The third line of the DFR contains  Requestor  information.
+         This provides the name of the user who initiated the DFREQ.
+
+         The  fourth line of the DFR  contains  Target  information.
+         This indicates the net/node number of the system  which  is
+         to  receive the DFR and process  it  to  deliver  requested
+         files.
+
+         All  lines beginning with  the  "File"  identifier  contain
+         filename and description information taken from remote file
+         lists.   Filenames and descriptions must be separated by at
+         least one space.  No empty lines are allowed after File
+         information.
+
+         When  a DFR  is  sent  to  another  system,  that  system's
+         net/node information is appended to it, along with date and
+         time  stamp  information  indicating  when  the   DFR   was
+         processed by the system.   This information accompanies the
+         DFR  throughout its entire journey.   A DFR file with  Path
+         information appended to it is shown below:
+
+
+         Created by  GOFER v0.05a, Copyright (C) 1992 by Bill Auclair
+         Origin      141/545
+         Requestor   Bill Auclair
+         Target      141/455
+         File        LOGON.LZH 2969 01-17-90 generic telix log-on script
+         Path        141/507   15 Nov 92 07:40:31
+
+
+         Information contained within the DFR file  above  indicates
+         it  has already traveled through  the  intermediate  system
+         141/507  on its way from Origin system  141/545  to  Target
+         system 141/455.  No empty lines are allowed after Path
+         information.
+
+         When  a DFR file reaches  its  Target  destination,  it  is
+         converted  into a DFA  file,  and  its  file  requests  are
+         evaluated by the target system.  Conversion of DFRs to DFAs
+         is  done by retaining the DFR filename,  changing the  .DFR
+         extension  to .DFA,  and reversing Origin and Target  data.
+         Thus,  a DFR file originally named 12345678.DFR from Origin
+         141/545 for Target 141/455 becomes 12345678.DFA from Origin
+         141/455 for Target 141/545, as shown below:
+
+
+         Created by  GOFER v0.05a, Copyright (C) 1992 by Bill Auclair
+         Origin      141/455
+         Requestor   Bill Auclair
+         Target      141/545
+         File        LOGON.LZH 2969 01-17-90 generic telix log-on script
+         Path        141/507   15 Nov 92 07:40:31
+         Path        141/485   15 Nov 92 08:02:55
+         Path        141/455   15 Nov 92 08:15:23
+         Path        141/455   15 Nov 92 08:15:25
+
+
+         Note the dual Path lines for the Target system.   The first
+         line represents processing as a DFR,  the second represents
+         processing as a DFA.
+
+         The  successfully-processed DFA file  is  returned  to  the
+         system  that  originated  the   DFREQ,   along   with   the
+         accompanying  requested file.   The  DFA  as  received  and
+         processed by the originating system is shown below:
+
+
+         Created by  GOFER v0.05a, Copyright (C) 1992 by Bill Auclair
+         Origin      141/455
+         Requestor   Bill Auclair
+         Target      141/545
+         File        LOGON.LZH 2969 01-17-90 generic telix log-on script
+         Path        141/507   15 Nov 92 07:40:31
+         Path        141/485   15 Nov 92 08:02:55
+         Path        141/455   15 Nov 92 08:15:23
+         Path        141/455   15 Nov 92 08:15:25
+         Path        141/485   15 Nov 92 10:01:06
+         Path        141/507   15 Nov 92 10:27:35
+         Path        141/545   15 Nov 92 10:31:59
+
+
+         If the Target system receiving the DFR file cannot  satisfy
+         the  DFREQ,  the file description for the unavailable  file
+         contained  in  the  new  DFA   is   replaced   with   error
+         information.   The DFA is  then  transmitted  back  to  the
+         system  that  originated  the  DFREQ.   Error   information
+         contained  within  the  DFA  file  as   returned   to   the
+         originating system is shown below:
+
+
+         Created by  GOFER v0.05a, Copyright (C) 1992 by Bill Auclair
+         Origin      141/455
+         Requestor   Bill Auclair
+         Target      141/545
+         File        LOGON.LZH !ERR018! File Not Available From 141/455
+         Path        141/507   15 Nov 92 07:40:31
+         Path        141/485   15 Nov 92 08:02:55
+         Path        141/455   15 Nov 92 08:15:23
+         Path        141/455   15 Nov 92 08:15:25
+         Path        141/485   15 Nov 92 10:01:06
+         Path        141/507   15 Nov 92 10:27:35
+         Path        141/545   15 Nov 92 10:31:59
+
+

@@ -1,0 +1,419 @@
+FSC-0014
+                                A Bundle Proposal
+
+                                 Wynn Wagner III
+                                  January, 1988
+
+
+UPFRONT
+-------
+
+What follows is a proposal for a new structure of message bundles that
+are transmitted between Fidonet systems.
+
+Currently we deal with "packet version 2."  This is a proposed format
+for packet version three.
+
+The version number should be recognizable by TYPE-2 programs, but the
+older programs will not be able to do anything more than report an
+error.  In other words, there is no direct upwards compatibility except
+for the offset in the _BundleHeader (see below) of the TYPE-3 signal.
+
+Because of this, any conversion should be slow... possibly a year or more.
+Interim systems would have to be able to pack and unpack both kinds
+of bundles.  It would be required for the packer to know whether its
+target system knows about TYPE-3 bundles or not... either by some node
+list flag or by using a control file.
+
+I think it is important that a new structure be seriously considered,
+but it is also vital that we approach such a change with a mind to
+keeping it an evolutionary process rather than an overnight revolution.
+It is important that TYPE-2 systems be retired using attrition instead
+of compulsion.
+
+This proposal is described in detail... possibly too much detail.
+The design looks scarier than it really is.  Code to process this
+kind of a bundle is almost trivial.
+
+One design feature is that putting a message bundle together is 
+somewhat more involved than taking one apart.  The theory is that we
+will be getting more and more tiny installations operating as points.
+Collecting and unpacking such things as echomail will be easier even
+on small/slow computers.  Heavy volume traffic with lots of packing
+and unpacking is usually carried on by computers more capable of
+heavy work.  Please note that the added work on the shoulders of
+the packer is almost microscopic, but it exists.  This uneven distribution
+of the work is intentional.
+
+
+------------------------------------------------------------------------------
+
+PRELIMARIES: METHODS
+--------------------
+
+         Messages are transmitted in "bundles."
+
+         A bundle is a sequence of "packets."  Every bundle has at
+         least two packets: a header and a footer.
+
+         This document describes the layout and use of those
+         packets as well as the general format of a bundle.
+
+
+   
+   
+------------------------------------------------------------------------------
+
+PRELIMINARIES: DATA
+-------------------
+
+
+  #define BUNDLEVER 3
+  #define EIDSIZ    (sizeof(struct _Address)+sizeof(unsigned long))
+
+  struct _Address {
+     unsigned int      Zone;
+     unsigned int      Net;
+     unsigned int      Node;
+     unsigned int      Point;
+  };
+
+      DATA NOTES:
+
+         "WORD" is a two byte unsigned integer with the most significant
+                byte first.  This storage arrangement is backwards from
+                the way INTEL chips store numbers, but it is more in-line
+                with the way the rest of the universe does it.  The
+                conversion for MsDOS and other INTEL programmers is quite
+                trivial.
+
+                A routine called SWAP can be used, where...
+
+                        unsigned int pascal SWAP(unsigned int VALUE);
+
+                Here's the code...
+
+                            SWAP Proc Near
+                                 mov   bx, sp
+                                 mov   ax, [bx+2]
+                                 xchg  ah, al
+                                 ret 2
+                            SWAP EndP
+
+         "UNSIGNED LONG" is a four byte unsigned integer with the most
+               significant word first.  Again, this storage arrangement
+               conflicts with the method used by INTEL, but the trans-
+               formation to "MSW first" is quite simple and it really
+               makes the non-MsDOS programmers feel more comfortable.
+
+         "UNSIGNED CHAR" is an 8-bit datum that can have any value
+               between 0 and 0xff.
+
+         CHARACTER ARRAYS are null-padded unless otherwise noted. There
+               is a difference between "null-terminated" (common to
+               C-language programming) and "null-padded" found here.
+               Unless there is a conflicting note, insignificant bytes
+               of a character array must be set to zero.
+
+         UNUSED DATA are always set to zero.
+
+      
+
+------------------------------------------------------------------------------
+
+BUNDLE HEADER
+-------------
+   
+  struct _BundleHeader {
+     struct _Address   B_Destination;    /* Address of target system    */
+     struct _Address   B_Origination;    /* Address where bndl started  */
+     unsigned int      B_Local1;         /* Used by bundler, etc        */
+     unsigned int      B_Version;        /* Always 3                    */
+     unsigned long     B_CreationTime;   /* Unix-type stamp (1970-base) */
+     unsigned int      B_BundlerMajor;   /* Major version of bundler    */
+     unsigned int      B_BundlerMinor;   /* Minor version of bundler    */
+     unsigned char     B_Password[9];    /* NULL-padded array           */
+     unsigned char     B_Local2;         /* Local use only              */
+     unsigned char     B_Product[4];     /* Meaningful to same product  */
+     unsigned char     B_FTSC[4];        /* Reserved by FTSC            */
+  };
+
+      BUNDLE HEADER NOTES:
+
+         The offset of B_Version coincides with the location of the
+         `ver' field in type two bundle headers.
+
+         The B_Local1 and B_Local2 fields have no meaning during the
+         actual transfer.  It is to hold such information as COST
+         and/or BAUD rate of use to the sending system.
+
+         B_Password is a NULL-padded field that can contain uppercase
+         alpha bytes or ASCII digits.  It should not contain lowercase
+         characters, punctuation, control characters, etc.  This is a
+         NULL-padded field... not just NULL-terminated.  A maximum of
+         8 bytes are significant.
+
+         Note that the BUNDLER is identified by product code.  This 
+         does NOT necessarily have anything to do with the software
+         that actually transmits the bundle.  This structure deals
+         with message bundles, and the product identification shows
+         which computer program was responsible for that layer of
+         a netmail session.  The software providing transportation
+         is more properly identified during a session-level negotiation 
+         (eg WaZOO's YooHoo) or in a dynamically generated structure 
+         (eg TeLink's block zero).  TYPE-3 tries to keep the various
+         layers of the system separate and easily identifiable.  This
+         document describes data, not the method by which they are
+         passed from one system to another.
+
+
+      BUNDLE BODY NOTES:
+
+         The bundle header packet is followed by one or more of the
+         following packet types.  Each of these packets begin with 
+         two bytes that identify the packet version and the packet
+         type.  In all cases, the version is three (0x03).
+
+         Packet types include
+
+                  END_SIGNAL        0
+                  AREA_HEADER       1
+                  MESSAGE_HEADER    2
+                  TEXT              3
+                  ECHOMAIL_INFO     4
+                  MISCINFO          128-256
+
+         One message is built using at least two packets (MESSAGE_HEADER
+         and TEXT).  Optionally, a message might also have ECHOMAIL_INFO
+         and MISCINFO packets.  Packets associated with a message must
+         be bundled in numerical order (by packet type)... the header
+         comes first, followed by the text, possibly followed by echomail
+         information, and possibly ending with some miscellaneous packets.
+
+         This arrangement of bundles allows the development of
+         state machine type programs which effect efficient message
+         processing even on slow or small computers.  Here's a
+         quick coding example:
+
+               for(;;)
+                 switch(fgetc(BUNDLE)) {
+                    default:  printf("Not Type-3 message"); return -1;
+                    case 3:   switch(fgetc(BUNDLE)) {
+                                 case -1: printf("EOF?");   return -1;
+                                 case 0:  printf("Done\n"); return 0;
+                                 case 1:  GetMsgArea();     break;
+                                 case 2:  GetMessage();     break;
+                                 default: printf("Pkt?");   break;
+                              };
+                 };
+
+                     NOTE: For those re-reading and spotting what looks
+                           like a mistake... the `GetMessage()' routine
+                           would also take care of TEXT and any ECHOMAIL  
+                           or MISCINFO packets.
+
+                           Also, for a little added robustness, the
+                           default item that prints "Pkt?" should look
+                           for a value of 0x03 (or and end of the file)
+                           before returning to the processing loop.
+
+
+
+------------------------------------------------------------------------------
+
+BUNDLE FOOTER
+-------------
+
+  struct _BundleEnd {
+     unsigned char     M_Version;        /* Always 3                    */
+     unsigned char     M_PacketType;     /* Always 0                    */
+  };
+
+      
+      BUNDLE END NOTES:
+
+         All bundles end with this packet.  It is not optional.
+
+
+
+------------------------------------------------------------------------------
+
+MESSAGE AREA
+------------
+
+  struct _AreaHeader {
+     unsigned char     E_Version;        /* Always 3                    */
+     unsigned char     E_PacketType;     /* Always 1                    */
+     unsigned byte     E_NameLength;     /* Actual bytes in E_Name      */
+     unsigned byte     E_Name[1];        /* VARIABLE-length field       */
+  };
+
+      AREA HEADER NOTES:
+
+         The area header packet marks the start of a sequence of
+         messages destined for the same message area.
+
+         Often E_Name will contain the name of an echomail area.
+         If the legnth and first byte of E_Name are zero, it means
+         that the following messages are inter-system traffic
+         (ie regular netmail).
+
+         The maximum value for E_NameLength is 63.
+
+         E_Name can contain uppercase characters, digits, and the
+         following punctuation: $ . - _ & # @ !
+
+         Note that E_NameLength combined with E_Name make up what
+         is often considered a "Pascal style string."  E_Name is
+         NOT a null-terminated array (aka "ASCIIZ").
+
+
+
+
+
+------------------------------------------------------------------------------
+
+MESSAGE HEADER
+--------------
+
+  struct _MessageHeader {
+     unsigned char     M_Version;        /* Always 3                    */
+     unsigned char     M_PacketType;     /* Always 2                    */
+     struct _Address   M_Destination;    /* FINAL Destination           */
+     struct _Address   M_Origination;    /* Where message was entered   */
+     unsigned long     M_CreationTime;   /* Unix-type stamp (1970-base) */
+     unsigned int      M_Attributes;     /* Standard Fidonet bitweights */
+     unsigned char     M_FromLength;     /* Number of bytes in FROM     */
+     unsigned char     M_ToLength;       /* Number of bytes in TO       */
+     unsigned char     M_SubjectLength;  /* Number of bytes in SUBJECT  */
+  };
+
+
+      MESSAGE HEADER NOTES:
+
+         Every message begins with a message header packet.  This
+         structure is created by the system where the message
+         originated.  If there are any intermediate stops before
+         it reaches its destination, it is the responsibility of
+         intermediate systems to maintain all of this information
+         without any modification.
+
+         Following this header come three char-type data: FROM, TO,
+         and SUBJECT.  Using the final three fields of the header,
+         a program can quickly read and process/store the the message.
+
+         None of the character items is null-terminated.  Their
+         lengths are determined by values in the message header.
+
+
+
+
+
+------------------------------------------------------------------------------
+
+MESSAGE TEXT/BODY
+-----------------
+
+  struct _Text {
+     unsigned char    T_Version;         /* Always 3                    */
+     unsigned char    T_PacketType;      /* Always 3                    */
+     unsigned int     T_ByteCount;       /* Number of bytes ( <0x1000)  */
+     unsigned int     T_Data[1];         /* VARIABLE-length field       */
+  };
+
+      TEXT NOTES:
+
+         The body of a message is contained in one or more _Text packets.
+
+         No _Text packet is ever more than 1000H bytes long.  That's
+         4096 bytes to the terminally base-10 folks.  Of course there
+         can be an infinite number of text packets, but you are
+         absolutely positively guaranteed that with the TYPE-3 method,
+         you will never need a buffer larger than 1000H.
+
+         In addition to ASCII values 20h through 7Eh (inclusive),
+         the following control codes are legal for TEXT data.
+         Note that <cr> and <softCR> are NOT in this list.
+
+            <stx>  02H  ... material from here to next <lf> is
+                            a quote from the parent message
+            <lf>   0Ah  ... forced <cr/lf>
+            <dle>  10h  ... replicate
+
+         Other control characters and values 7fH and above are
+         symptoms of a damaged message.
+
+         REPLICATE is a three byte sequence:  <dle><value><length>.
+         For example, if a message contains the bytes 10h, 20h, 09h ...
+         it would mean that message display programs should replicate
+         the <space> character nine times.  
+
+         There is no minimum or maximum line length.  If there is no
+         <lf> before the display program needs one, it is the display
+         program's responsibility to provide the needed "line wrap."
+
+         One "line" can cross from one _Text packet to another.
+
+
+
+
+
+------------------------------------------------------------------------------
+
+ECHOMAIL
+--------
+
+  struct _EchomailInfo {
+     unsigned char     EI_Version;       /* Always 3                    */
+     unsigned char     EI_PacketType     /* Always 4                    */
+     unsigned char     EI_Parent[EIDSIZ];/* "up" message thread         */
+     unsigned char     EI_Child[EIDSIZ]; /* "down" message thread       */
+     unsigned int      EI_SeenbyCount;   /* Number of SEENBY items      */
+     struct _Address   EI_Seenby[1];     /* VARIABLE-length field       */
+  };
+
+
+      ECHOMAIL INFO NOTES:
+
+            The EI_Parent and EI_Child fields contain some kind of
+            identification of the parent and child messages.  The size
+            of the fields corresponds to the size of an _Address
+            structure plus the size of a Unix-type time stamp.
+
+
+
+------------------------------------------------------------------------------
+
+A KLUDGE, BY ANY OTHER NAME...
+------------------------------
+
+  struct _MiscInfo {
+     unsigned char     MI_Version;       /* Always 3                    */
+     unsigned char     MI_PacketType;    /* 0x80-0xff, assigned by FTSC */
+     unsigned char     MI_ByteCount;     /* Size of miscinfo data       */
+     unsigned char     MI_WhoKnows;      /* Miscellaneous stuff         */
+  };
+
+
+      MISCELLANEOUS INFO NOTES:
+
+            This is the catch-all packet type that replaces "The Dreaded
+            IFNA Kludge."
+
+            If present, they are the last packets associated with a
+            message.  _MiscInfo items are bound to a message, and it
+            is the responsibility of any packer to maintain any 
+            _MiscInfo packets exactly as they arrived on any message
+            that will be retransmitted (ie netmail and echomail).
+
+            Values above 0xf0 have a special meaning.  They are 
+            reserved for the severe case that FTSC needs to make some
+            kind of change that isn't backwards compatible.  In most
+            cases, unrecognized _MiscInfo packets should be preserved
+            but otherwise ignored.  If the packet type is 0xf0 through
+            0xff, it should be considered an error condition not to
+            understand the packet.
+
+
+                                      ###
+

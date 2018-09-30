@@ -1,0 +1,195 @@
+Document: FSC-0042
+Version:  001
+Date:     03/25/90
+
+
+
+
+            Proposed Modification to the Gateway Agreement Between
+                 WWIVnet and FidoNet(r) via the "NetSEX" Program
+
+                                 Steven Furber
+                               1:105/50@fidonet
+
+
+
+
+         Information
+
+            This FSC is being distributed to members of the FidoNet(r)
+            community in order to solicit their reactions to the
+            proposals contained in it.  While the issues discussed may
+            not be directly relevant to the problems of FidoNet,  they
+            may be interesting to implementers.  Distribution is
+            unlimited.
+
+
+                                      ---
+
+
+         0.0) A QUICK INTRODUCTION AND STATEMENT OF INTENT
+
+         The request for a gateway between WWIVnet and FidoNet through
+         a program called  NetSEX was sent in  to Randy Bush (1:105/6)
+         approximately a  month ago. During that  time there have been
+         many questions pertaining to NetSEX  that I feel are relevent
+         to the proposed gateway between WWIVnet and FidoNet.
+
+         The major questions that I feel needs to be dealt with are:
+
+            Will it  be possible for  WWIV Technology Networks  to use
+            the  NetSEX gateway,  and if  so: will  a seperate gateway
+            agreement be necessary?
+
+            Will  it  be  possibile  for  WWIV  BBSes  that are not in
+            WWIVnet  or  WWIV  Technology  Networks  to  use NetSEX to
+            interface their BBS with FidoNet?
+
+         The  current gateway  proposal that  I have  sent in pertains
+         only to WWIVnet and FidoNet. What  I would like to do is have
+         that policy  be between FidoNet  and a "NetSEX-Project"  that
+         will keep  a list of  who's using NetSEX,  what their FidoNet
+         address is, what their  WWIV Technology Network addresses are
+         (for the NetSEX node and BBS  node), and if they gateway to a
+         WWIV Technology Network: which one.
+
+         To support  my reasoning I  will discuss each  question a bit
+         and explain my proposal.
+
+         1.0) WILL IT BE POSSIBLE  FOR WWIV TECHNOLOGY NETWORKS TO USE
+         THE  NetSEX  GATEWAY,  AND  IF  SO:  WILL  A SEPERATE GATEWAY
+         AGREEMENT BE NECESSARY?
+
+         There have been several proposed-alternatives to WWIVnet that
+         be  WWIV  Technology  Networks.  Various  planners from these
+         networks have asked whether or not  they would be able to use
+         NetSEX  to   gateway  between  FidoNet   and  their  proposed
+         networks, and if so what steps would need to be taken.
+
+         These proposed networks would be using BBSLIST.NET (a list of
+         all nodes in the network,  similar to FidoNet's NODELIST) and
+         CONNECT.NET (a  listing of all nodes  in the BBSLIST.NET file
+         and how they  connect to one another-- a  topology map) files
+         that are  independent of WWIVnet.  They would be  using their
+         own nodenumbering schemes (however still be restricted to the
+         65k maximum).
+
+         There were  various possible things  offered by these  people
+         that would possily work, but in  the end my response has been
+         that the current proposed  policy between WWIVnet and FidoNet
+         is between  those two networks,  and if they  were to gateway
+         between their non-WWIVnet WWIV Technology Networks they would
+         need to approach the FTSC for an agreement.
+
+
+         1.1) WILL THERE BE ANY  POSSIBILITIES FOR WWIV BBSes THAT ARE
+         NOT IN WWIVnet  OR WWIV TECHNOLOGY NETWORKS TO  USE NetSEX TO
+         INTERFACE THEIR BBS WITH FidoNet?
+
+         There  are   several  WWIV  BBSes  that   are  interested  in
+         connecting  with FidoNet  but are  not interested  in joining
+         WWIVnet (which  is the only network  currently operating with
+         WWIV Technology).  Of the several people  who have asked, all
+         of them are  running FourDog but would like  to get the speed
+         of NetSEX  and the correct placing  of Netmail into mailboxes
+         as opposed to the method FourDog uses.
+
+         It is possible to run NetSEX on a non-WWIVnet BBS by creating
+         the  data files  for a  WWIV Technology  Network that contain
+         their  NetSEX  node  and  their  "WWIVnet"  node.  They would
+         essentially be  faking out the software  by running a network
+         consisting of two nodes.
+
+         This  question I  have  been  unable to  sufficiently answer.
+         While this situation would  involve someone that only belongs
+         to  FidoNet, it  would still  be using  software designed  to
+         gateway and it would be gatewaying messages from FidoNet to a
+         WWIV Technology Network that consisted of one node.
+
+
+         2.0) MY PROPOSED AGREEMENT
+
+         What I  would like to do  is provide all sides  with the best
+         possible solution that will privide  all sides with that same
+         solution. As  it stands now, the  proposed gateway is between
+         FidoNet  and WWIVnet.  What I  would rather  see is  a policy
+         between  FidoNet and  an entity  called "The  NetSEX Project"
+         that  would  keep  track  of  where  NetSEX  is being used to
+         interface and/or  gateway with FidoNet. To  be more specific,
+         and entity that would do the following:
+
+            a) keep  track of all WWIV-BBSes  running NetSEX simply to
+               interface with FidoNet. These would be systems that are
+               not in WWIVnet or any  other WWIV Technology Network. A
+               listing of their FidoNet  address, node number used for
+               the BBS,  and node number  used for the  NetSEX address
+               would be kept.
+
+            b) keep  track of all  WWIV-BBses running NetSEX  that are
+               connected to  a WWIV Technology  Network. A listing  of
+               their FidoNet address, the  name of the WWIV Technology
+               Network they  belong to, what  address they use  in the
+               WWIV Technology  Network, and the  address in the  WWIV
+               Technology Network they are using for their NetSEX node
+               would be kept.
+
+            c) do monthly or bi-monthly  tests of all NetSEX nodes and
+               create a conference (EchoMail for FidoNet, Sub for WWIV
+               systems) to support and discuss NetSEX.
+
+            d) have  a reserved range  in the WWIV  Technology Network
+               for  NetSEX  (and/or  other  gateways)  nodes, and have
+               someone in  that network serve as  a liason between the
+               "NetSEX Project" and the WWIV Technology Network.
+ 
+            e) upload all of the files  on one or more FidoNet systems
+               where  the various  members of  the FTSC  who work with
+               gateways can track down information they may need.
+
+         Given   these  actions,   the  following   is  hoped   to  be
+         accomplished:
+
+            a)  permit  non-WWIV  Technology  Network  systems  to use
+               NetSEX  while  being  covered  by  an agreement between
+               FidoNet to do so.
+
+            b) permit  non-WWIVnet yet still  WWIV Technology Networks
+               to  use  NetSEX  while  being  covered  by an agreement
+               between FidoNet and the "NetSEX Project" to do so.
+
+            c) keep an  index of all systems using  NetSEX, and keep a
+               listing of what WWIV Technology Networks are accessable
+               through FidoNet.
+
+            d)  offer   an  easy-access  place   for  people  to   get
+               information  pertaining  to  NetSEX,  FidoNet, and WWIV
+               Technology Networks.
+
+         This proposed entity, the "NetSEX Project" would be an entity
+         existing  off of  FidoNet. I  offer  to  do all  of the  data
+         collection and  send the information to  the people who would
+         like it (providing  it is of reasonable cost  phone the phone
+         connections).
+
+         There are many benefits, and no drawbacks that I can see.
+
+
+         3.0) AN END NOTE
+
+         I am expecting that  this will be approved, or  even if it is
+         it will not be without some form of modification. It seems to
+         me  that this  would be  the best  way to  handle the  NetSEX
+         gateway  without  spending  a  great  deal  of time approving
+         individual networks  that are based  around the same  network
+         technology. This proposal was made  from the point of view of
+         someone that are working from within FidoNet.
+
+         ----
+         Steven Furber,
+
+         FidoNet 1:105/50
+         WWIVnet 1@5300
+         UUCP    ..!uunet!m2xenix!legion!n5300.u1
+
+
+                                      ---

@@ -1,0 +1,68 @@
+
+          FidoNet Technical Standards Committee Document Archive
+
+    Official FidoNet Technical Standards
+
+FTS-0001.RAR A basic FidoNet(r) technical standard, R Bush
+FTS-0003.RAR *Obsoleted by FTS-0006*
+FTS-0004.RAR Echomail specification, B Hartman
+FTS-0005.RAR The distribution nodelist,  B Baker, R Moore
+FTS-0006.RAR YOOHOO and YOOHOO/2U2, V Perriello
+FTS-0007.RAR SEAlink protocol extension, P Becker
+FTS-0008.RAR Bark file-request protocol extension, P Becker
+
+    FidoNet Standards Proposals And Miscellaneous Documents
+
+FSC-0001.RAR *Obsoleted by FTS-0001*
+FSC-0002.RAR *Obsoleted by FTS-0005*
+FSC-0003.RAR FidoNet Route Files Explained, B Baker
+FSC-0004.RAR Zones and Zonegates explained primitively, R Bush
+FSC-0005.RAR Opus 1.01 Netmail passwording scheme, W Wagner
+FSC-0006.RAR *Obsoleted by FTS-0006*
+FSC-0007.RAR RFC-822-style msg header proposal, R Heller
+FSC-0008.RAR *Obsoleted by FSC-0015
+FSC-0009.RAR Nodelist Flag Draft Document Gwinn/Dodell
+FSC-0010.RAR Dutchie 2.80 SEAlink File Resynch, H Wevers
+FSC-0011.RAR Experiences/corrections to FSC-0001, B Hartman
+FSC-0012.RAR *Obsoleted by FTS-0004*
+FSC-0013.RAR *Obsoleted by FTS-0008*
+FSC-0014.RAR Binary-style msg proposal, W Wagner
+FSC-0015.RAR FOSSIL 5.0 Documentation, R Moore
+FSC-0016.RAR FidoNet Mail Session Startup, R Hartman
+FSC-0017.RAR Archive Philosophy and Document Naming, R Bush
+FSC-0018.RAR *Obsoleted by FTS-LIST*
+FSC-0019.RAR SEALINK File Transfer Protocol, SEA
+FSC-0020.RAR Alternate Nodelist Flag Proposal M Presnell
+FSC-0021.RAR VFOSSIL, OS/2 Video FOSSIL Appendage R Moore
+FSC-0022.RAR Application form for FTSC product code
+FSC-0023.RAR Bundle naming convention proposal R Meyer
+FSC-0024.RAR Binary bundle proposal, O McDonald
+FSC-0025.RAR AVATAR Video Spec, G Stanislav
+FSC-0027.RAR *Obsoleted by FTS-0005*
+FSC-0028.RAR Proposed file-forwarding standard, H Lee
+FSC-0030.RAR Proposal for message identification, J Cowan
+FSC-0031.RAR Proposed message id/linkage standard, M Ratledge
+FSC-0032.RAR Proposed message quoting standard, M Ratledge
+FSC-0033.RAR Proposal for message identification, T Kover
+FSC-0034.RAR Gateways to and from FidoNet, R Bush
+FSC-0035.RAR Transparent gateways to/from FidoNet, M Shiels
+FSC-0036.RAR Group Mail specification, D Lovell
+FSC-0037.RAR AVATAR 0+ Video Spec, G Stanislav
+FSC-0038.RAR Proposed domain gating protocol, j nutt
+FSC-0039.RAR A type-2 packet extension proposal, M Howard
+FSC-0040.RAR Proposed modem handling extension, M Shiels
+FSC-0041.RAR MSGID / REPLY:  A proposal, j nutt
+FSC-0042.RAR A modified gateway agreement, S Furber
+FSC-0043.RAR Some hints on recognizing control lines in
+             FidoNet(r) message text, R Bush
+FSC-0045.RAR Proposed new packet header, T Henderson
+FSC-0046.RAR Proposed product identifier, J Homrighausen
+FSC-0047.RAR The ^ASPLIT kludge line, P Terry
+FSC-0056.RAR EMSI/IEMSI Protocol Definition, J Homrighausen
+FSC-0057.RAR [00] Файл добавлен 10-07-97
+FTSCLIST.RAR Directory of all FTSC files
+
+POLICY4.RAR  --- FIDONET Policy ---
+
+FSC000-6.RAR Файл добавлен 10-07-97
+FSC-0057.RAR Файл добавлен 10-07-97

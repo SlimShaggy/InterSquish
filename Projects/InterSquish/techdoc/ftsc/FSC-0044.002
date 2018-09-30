@@ -1,0 +1,679 @@
+Document: FSC-0044
+Version:  002
+Date:     07-Oct-1990
+
+
+
+
+        An improved method of duplicate message detection and prevention
+                                  Jack Decker
+                                1:154/8@Fidonet    
+
+
+
+
+Status of this document:
+
+     This FSC suggests a proposed protocol for the FidoNet(r) community,
+     and requests discussion and suggestions for improvements.
+     Distribution of this document is subject to the restrictions stated
+     in the copyright paragraph below.
+
+     Fido and FidoNet are registered marks of Tom Jennings and Fido
+     Software.
+
+
+Purpose:
+
+The purpose of this document is to present a proposal for an improved method
+of duplicate message detection and prevention, that could eventually replace
+the existing PATH and SEEN-BY lines currently used within Fidonet.  The
+principal advantages of this method over previous schemes is that it is fully
+Domain-, Zone-, and Point-aware, and that it adds far fewer bytes to a message
+than the current combination of SEEN-BY and PATH lines.  It can also be run in
+parallel with existing SEEN-BY and PATH lines for an indefinite period, thus
+allowing a "transition period" of as long as is necessary for software to be
+converted.
+
+Copyright:
+
+This document is Copyright 1990 by Jack Decker.  However, permission is
+granted for any and all non-commercial use, providing the contents of this
+document are not altered in any way.  Also, permission is expressly granted
+for any use by developers of software primarily intended to be used in the
+Fidonet amateur communications network, or in any similar amateur
+communications network that primarily uses Fidonet technology and protocols,
+whether that software is commercial or not.
+
+Comments on this proposal, and suggestions for improvement are welcomed by the
+author.  In particular, suggestions on how this proposal might be reworded to
+make the meaning clearer are especially welcome.
+
+
+A. Definition:
+
+In this document the characters ^A (caret and capital A) will be used to
+represent a 0x01 (SOH) byte.  It will be most commonly used in reference to
+the "^APTH line", which will be a line that begins with a 0x01 byte
+immediately followed by the letters "PTH" (and then by additional data as
+specified below).
+
+
+B. Why a new method of duplicate message detection is needed:
+
+Most of the methods of duplicate message detection currently used in Fidonet
+echomail processing operate by trying to find some distinguishing
+characteristic of an echomail message (whether it be something deliberately
+included in the message, such as an EID, MSGID, etc. type of "kludge line", or
+something which is contained in all echomail messages, such as the message
+header).  Typically, either the item being used for duplicate detection itself
+or a checksum of that item is then saved in a data file, and if another item
+comes in with that same distinguishing characteristic, the message is
+considered to be a duplicate message.  The data files used to store
+previously-seen message data can occupy a significant amount of disk space if
+many conferences are carried on a system.
+
+Unfortunately, all such schemes seem to suffer from the drawback that under
+the proper circumstances, messages that are not duplicates of each other may
+be created with identifying characteristics that are similar enough to be
+falsely recognized as duplicates.  The circumstances under which this can
+happen may differ from method to method, but none are totally foolproof.
+Thus, it's possible that messages may be deleted as duplicates even though in
+reality they are not duplicates, but rather they are simply messages that
+contain data that make them appear to be duplicates.
+
+The most common cause of duplicate messages is improper echomail topology
+(also known as the infamous "dupe loop").  While there are certainly other
+ways that duplicates can be generated, improper topology is far and away the
+leading cause.  Further, many of the current duplicate elimination schemes
+will NOT catch most of the duplicates that are NOT generated as a result of
+improper topology (which is why duplicate messages are seen occasionally, even
+though duplicate message detection schemes are currently in use).
+
+Unfortunately, if a duplicate killer is to be effective, it must store the
+identifying characteristics for the last several thousand messages that have
+passed through a particular system.  This not only uses up disk storage space,
+it consumes extra processing time during echomail processing, since each new
+arriving message must be compared to the data list in the attempt to determine
+if it is, indeed, a duplicate.
+
+A better approach would be to store within a message itself data that
+identifies it as having already been received by a particular system, before
+sending it on to another system.  Then, if the same message came back to a
+given system in a "dupe loop", it would be possible to positively identify it
+as one that has already been seen on that particular system.  And, since the
+data necessary to identify the message as a duplicate is stored within the
+message itself, it is possible to use this method without the necessity of
+storing great amounts of data on previously-seen messages (in many
+implementations this alone would save 10K or more of disk space per conference
+carried!).
+
+Were it not for the fact that the PATH line present in most echomail messages
+does not contain Zone or Point information, we could use it for that purpose.
+However, since it does not contain that information, it cannot and should not
+be used in that manner.  Another drawback of the PATH line is that because it
+is physically located at the end of a message (after the SEEN-BY lines), if
+only the last part of a message is scrambled or deleted, the PATH line
+information will be lost.
+
+
+C. Proposal:
+
+1) A new type of kludge line (commonly known within FIDONET as an "IFNA kludge
+line"), which combines certain characteristics of the existing PATH and
+SEEN-BY lines, will be placed into each echomail message.  This line, known as
+the ^APTH line, will be placed at the TOP of the message (not necessarily the
+first line, but prior to the body of the message text).  IMPORTANT: Support
+for the existing PATH and SEEN-BY lines will be retained as long as is
+necessary to accommodate everyone in Fidonet, but eventually the ^APTH line
+could possibly replace both the current PATH and SEEN-BY lines.
+
+2) The ^APTH line will contain full five-dimensional addressing
+(Zone:Net/Node.Point@Domain), BUT elements that are the same as the previous
+entry in the line need not be repeated (except when a message passes to a new
+domain, in which case the full address of the first node in the new domain
+shall be given).  When the "point" portion of an address stands alone, it
+shall be preceded by at least a "." character (to distinguish it from a node
+address).
+
+3) If a system is importing messages and finds a message with its own address
+already in the ^APTH line, it will discard the message (unless that address is
+in the very last position on the line... this allows for the odd situation
+where a point or another task on the same system has already inserted the
+system's address in the ^APTH line, or where it is desirable to process the
+same message a second time).
+
+4) One (and only one) modifier character may appear just AFTER any address on
+the ^APTH line.  When using the ^APTH for duplicate message checking only, you
+may just skip past any such address, unless it's your own address (see
+examples later in this document).  In that case, strip the address and the
+modifier character (in other words, if you see your own address but it's
+immediately followed by a modifier character, remove that address, add yours
+to the end of the ^APTH line, and toss the message anyway).  The reason for
+doing this is to allow the design of an echomail processor that doesn't rely
+on SEEN-BY's.  Such a processor could append a modifier character (such as a
+"!") to an address, in order to indicate that "this message hasn't really
+passed through this node, but don't send it back there" (which would be the
+equivalent of a SEEN-BY statement for that node, indicating that this message
+has already been sent to that node).  Thus the ^APTH line could eventually
+take the place of SEEN-BY lines, but you could still have a "fully coupled"
+triangular or rectangular topology.  In this case, you'd add the nodes that
+are part of that fully coupled topology to the ^APTH line BEFORE sending the
+message to them, but with the special character after the address.  The
+receiver would know that the message didn't really pass through that node yet,
+but it should NOT send it to that node under any circumstances.
+
+(Please note that during the initial design of software to create ^APTH lines,
+you would not have to worry about generating the special case with the
+trailing modifier characters, you'd just have to be able to handle them as
+shown in the examples below if you came across one).
+
+
+D. Specifications and examples:
+
+The general specifications for a ^APTH line, and a general outline of how an
+incoming message might be processed follows.
+
+A valid ^APTH line will contain at a minimum the string ^APTH followed by a
+single space character and the network address of the system that created the
+^APTH line, in Zone:Net/Node[.Point]@Domain format, where ^A is a 0x01 byte
+(SOH) and the point address is required only if the system is a point
+(specifically, a system that is NOT a point should not use .0).
+
+Once again, the FIRST Fidonet-technology address specified in a ^APTH line is
+expected to contain, at a minimum, Zone, Net, and Node numbers, and a valid
+Domain string preceded by the "@" character.  If any of these are missing from
+the FIRST address, the line should be considered defective (exception: See
+Note 5, "Messages sent to/from non-Fidonet-technology networks").  It will be
+left to the discretion of the software author as to how to handle a message
+with a defective ^APTH line.
+
+Subsequent addresses in the ^APTH line are delimited by spaces and should
+contain only that information that is different from the previous entry on the
+line, except when a message passes into a new domain (in which case the full
+address of the first system in the new domain shall be given) or when a
+bossnode receives a message from a point, in which case the bossnode should
+append its node number only.  Specific examples follow:
+
+     a. If the Domain and Zone are the same as the previous address, but the
+        net is different, then only Net/Node[.Point] should be used.
+
+     b. If the Domain, Zone and Net are the same as the previous address, but
+        the node is different, then only Node[.Point] should be used.
+
+     c. If the Domain, Zone, Net, and Node are the same as the previous
+        address, but the point is different, then only .Point should be used.
+        Note that in this case, the period is included.
+
+     d. If the Domain, Zone, Net, and Node are the same as the previous
+        address, but the previous address contains a point specifier and the
+        receiving system is not a point (i.e., it IS the bossnode), then only
+        Node should be used.  .0 (point zero) might also be a valid entry in
+        this case, but only if the bossnode consistently identifies itself to
+        other systems using a full five-dimensional address.  For example, a
+        message that originated on 1:234/5.6@Fidonet and went from there to
+        1:234/5 would contain a ^APTH line in this format:
+                        ^APTH 1:234/5.6@Fidonet 5
+        If the bossnode is also considered to be point zero, then
+                        ^APTH 1:234/5.6@Fidonet .0
+        Would be equally valid.
+
+In the case of a "fully connected" topology, nodes may be added to the ^APTH
+line even though a message has not actually passed through those nodes, to
+prevent the message from being sent to those nodes.  Such nodes should have an
+exclamation point character ("!") appended to the end of the entry,
+immediately following the node or point number.  These nodes should be added
+to the very end of a new or existing ^APTH line, after the address of the node
+which added them.
+
+For example, suppose that 157/200, 154/9, and 228/6 were in a "fully
+connected" topology.  When a message was received by 157/200 and then sent to
+154/9 and 228/6, the ^APTH line might look something like this:
+
+     ^APTH: 3:711/431.5@Fidonet 431 403 1:124/4210 4115 157/200 154/9! 228/6! 
+
+When a message arrives on one of the nodes indicated by the exclamation point,
+the exclamation point entry should be removed, and the node should add itself
+to the end of the line in the normal manner.  For example, after the message
+containing the above ^APTH line were received at 154/9, it would be modified
+to read:
+
+     ^APTH: 3:711/431.5@Fidonet 431 403 1:124/4210 4115 157/200 228/6! 154/9 
+
+Please note that at the time of this proposal, the exclamation point (!) is
+the ONLY "officially recognized" modifier character that can be expected to be
+appended to a ^APTH line address (except for the @Domain string, of course),
+however, the possibility remains that someone may figure out a good reason to
+use a different trailing character for some other (but similar) purpose, so I
+am allowing for that possibility by using the generic terminology "modifier
+character" rather than the more specific "exclamation point" throughout this
+document.
+
+The ^APTH line must be terminated with a carriage return and/or linefeed (a
+carriage return followed by a linefeed is preferred, and should be used by all
+systems capable of generating a carriage return/linefeed combination).
+
+There is no specified limit on the length of a ^APTH line.  Each message
+should contain only one ^APTH line, even if it extends beyond the typical 80
+column screen width.  The ^APTH line is primarily intended for use by the
+conference mail processing software, so primary consideration is being given
+to ease of processing the line, rather than making it easily human-readable
+(most software will not display kludge lines hidden behind a ^A character in
+any event).
+
+
+E. Pseudo-outline of message processing
+
+Here is a suggested flow pseudo-outline showing one way that messages might be
+processed in a standalone program that runs between the import and export
+cycles of an existing conference mail processor such as ConfMail (this outline
+assumes that the standard Fido/Opus style *.msg files are used, though
+obviously that need not be the case):
+
+1.  Open *.msg file for input
+
+2.  Open temporary file for output
+
+3.  Copy header (first 190 bytes) from input to output file.  The following
+    operations begin immediately following this header.
+
+4.  Examine each line of input file (a line is delimited by a carriage return,
+    linefeed, or any combination thereof) for one of the following:
+
+    a.  A blank line - Write to output and examine next line.
+
+    b.  A line containing spaces only - Write to output and examine next line.
+
+    c.  A line that begins with a 01 byte (SOH) - GoTo 5.
+
+    d.  A line that does not meet any of the above specifications.
+
+        I.   Create a line containing the string ^APTH followed by a single
+             space character and your network address, in
+             Zone:Net/Node[.Point]@Domain format, where ^A is a 0x01 byte
+             (SOH) and the point address is required only if you are a point
+             (specifically, a system that is NOT a point should not
+             necessarily use .0).  This line should be terminated with a
+             carriage return and/or linefeed (a carriage return followed by a
+             linefeed is preferred).
+
+        II.  Write the line created in 4.d.I. to the output file.
+
+        III. Write the line input in 4. to the output file.
+
+        IV.  Goto 9.
+
+5.  If a line begins with a 0x01 (SOH) byte, examine the keyword immediately
+    following it.
+
+    a.  If the keyword is NOT "PTH", write the entire line to output and
+        examine the next line (go back to 4).
+
+6.  If a line begins with ^APTH, examine each address in the line in turn.
+    Addresses start immediately following the characters "PTH " (note the
+    space).
+
+    a.  The FIRST Fidonet-technology address (not counting any
+        pseudo-addresses consisting solely of "@Domain") is expected to
+        contain, at a minimum, Zone, Net, and Node numbers, and a valid Domain
+        string preceded by the "@" character.  If any of these are missing
+        from the FIRST Fidonet-technology address, the line should be
+        considered defective (See Note 5, "Messages sent to/from
+        non-Fidonet-technology networks", for information on "@Domain"
+        entries).  It will be left to the discretion of the software author as
+        to how to handle a message with a defective ^APTH line.
+
+    b.  As each address is found, any Zone, Net, and Node numbers and Domain
+        strings found should be stored in temporary variables, to be used as
+        defaults for subsequent addresses when only a partial address is
+        given.  For example, the first address will contain a Zone number.
+        This should be stored in a temporary variable and used as the default
+        Zone for all subsequent addresses, until and unless another Zone
+        number is seen in the line, at which time that Zone number should be
+        stored in the temporary variable and used as the default Zone.
+
+    c.  If an address is found that consists entirely of the "@" character
+        (as the first character of the address) followed by a domain name
+        (with or without punctuation), all temporary variables (defaults)
+        should be cleared (since any subsequent Fidonet-technology address
+        should contain full Zone:Net/Node[.Point]@Domain information).
+        Otherwise, such pseudo-addresses (consisting solely of @Domain) may be
+        ignored at systems that do not serve as inter-network gateways (such
+        entries are maintained only by inter-network "gateway" software).
+        However, they should not under any circumstances be removed from the
+        ^APTH line.
+
+7. As each address is found, it should be compared against the system's
+   address.  If a match is found:
+
+     a. Check to make sure that the address is not a point address if the
+        system's address does not contain a point specifier.  If the system's
+        address is given without a point specifier, then it should not be
+        considered a match if ANY point address is found in the ^APTH line
+        address that is being compared (not even .0 - for example, if the
+        address 1:234/5.0 is seen in the ^APTH line, and 1:234/5 is the given
+        system address, then it is NOT a match).
+
+     b. If the address does match exactly, check to see if a modifier
+        character (specifically the "!" character) immediately follows the
+        address.  If it does, then that address must be removed from the
+        line at that point.
+
+        I.   When removing an address, please make sure that you do not change
+             the address of subsequent entries.  This may require modification
+             of the next entry on the line, if one exists.  For example,
+             suppose you had a "fully connected" topology where 1:157/200 sent
+             an echo to both 1:154/9 and 1:154/970. The ^APTH line might end
+             as follows:
+                             ..... 157/200 154/9! 970!
+             However, after modification of the ^APTH line, it should read:
+                             ..... 157/200 154/970! 9
+             You can see that if 154/9 were simply deleted without regard to
+             what follows on the line, the following (incorrect) line might
+             result:
+                             ..... 157/200 970! 154/9  (THIS IS INCORRECT)
+             The above is incorrect because 154/970 has been transformed into
+             157/970.
+
+        II.  After removing an address followed by a modifier character,
+             continue to scan any remaining addresses in the ^APTH line in
+             case a match is found later in the line.  If no other matches
+             are found, proceed as if no match had been found.  Goto 8.
+
+     c.  Check to see if the address is the last one on the line (not counting
+         addresses that have a modifier character immediately following
+         them).  If this address is followed only by the end of the line, or
+         ONLY by addresses that have a modifier trailing character, then
+         there is a very high probability that we have either inadvertently
+         or deliberately processed this message twice, and it is not really a
+         duplicate.  In this case, the original *.msg file should be left
+         untouched.
+
+         I.   Close both the input and output files.
+
+         II.  Delete the temporary output file.  END.
+
+     d.  If a match is found, and it is not followed by a modifier
+         character, and it is not the last address on the ^APTH line, then the
+         message is a duplicate message and should be treated as such (either
+         by deleting it, or moving it to a "bad messages" area or the netmail
+         area).
+
+         I.   Close both the input and output files.
+
+         II.  Delete the temporary output file.
+
+         III. Either delete or move the original .msg input file, as
+              appropriate.  END.
+
+8.  If the end of the ^APTH line is reached and a match has not been found,
+    then add the system's address to the end of the ^APTH line.  Then write
+    the modified ^APTH line to the output file.
+
+         I.   If one or more addresses with an appended modifier character
+              (used within "fully-coupled" topologies) are to be added to the
+              ^APTH line, they should be added at the very end of the line,
+              after the address of the system currently processing the
+              message).
+
+9.  Copy the remainder of the input file to the output file.  Close both files.
+
+10. Delete the input file.
+
+11. Rename the temporary output filename to the old input filename.  END.
+
+[End of outline]
+
+
+F.  Additional notes and clarifications:
+
+Note 1:  In section 7.b.I. I mentioned the necessity of not simply deleting a
+node from the ^APTH line without checking to see if the next address in the
+^APTH line needs to be modified.  This can easily be accomplished if TWO sets
+of temporary variables are kept, for the CURRENT and PREVIOUS Domain, Zone,
+Net, and Node information (Point addresses are NOT kept as defaults, thus
+there is no need to store Point information).  When reading the FIRST address
+in the ^APTH line, the Domain, Zone, Net, and Node information of that address
+would be stored in both the CURRENT and PREVIOUS variables.  Thereafter,
+whenever a new Domain string or  Zone, Net, or Node number is explicitly
+specified in a ^APTH line address, the new value(s) are stored in the CURRENT
+variables, but first the CURRENT values are moved to the PREVIOUS values.
+
+To help visualize this, let's again suppose we have a ^APTH line that ends as
+follows (all of these addresses are in Fidonet Zone 1):
+
+     ..... 157/200 154/9! 970!
+
+Let's suppose that we are processing this message on 154/9, and will need to
+remove the 154/9! address.  When we encounter 157/200, our variables will be
+set as follows:
+
+       Previous | Current
+Domain  Fidonet | Fidonet
+Zone      1     |    1
+Net       ?     |   157
+Node      ?     |   200
+
+Now, when we read 154/9, our current values will be moved to the previous:
+
+       Previous | Current
+Domain  Fidonet | Fidonet
+Zone      1     |    1
+Net      157    |   154
+Node     200    |    9
+
+We now have the data we need to determine what needs to be added to the next
+address, after we delete 154/9.  In this case, we need only compare the
+Previous and Current addresses to determine which are UNEQUAL.  In this case,
+the Zone and Domain are the same, but the Net and Node are not.  So, if the
+following address lacks either the Net or Node, we'll have to add those.  Now
+we delete the 154/9! and look at the next address, 970.  At this point our
+variables will look like this:
+
+       Previous | Current
+Domain  Fidonet | Fidonet
+Zone      1     |    1
+Net      154    |   154
+Node      9     |   970
+
+Again, we compare to see which addresses are UNEQUAL.  In this case, only the
+NODE address is.  So we know we do NOT have to add the NODE address, nor do we
+have to add the Zone or Domain information (because they were not different on
+the first compare).  We only need add those address components which were
+unequal on the first compare, but equal on the second compare.  So, in this
+case, the Net address must be added to the next address in the ^APTH line,
+leaving as a result:
+
+     ..... 157/200 154/970!
+
+The current system address is then added back in at the end of the line, thus:
+
+     ..... 157/200 154/970! 9
+
+Note that whenever a new Domain is specified, the full address (four- or
+five-dimensional, depending on whether a point address is given) must be used.
+In other words, an address that includes an "@Domain" string but that does not
+also include the Zone, Net, and Node components of the address is considered
+invalid (it does not meet specifications).
+
+Note 2:  In section 4.d it is suggested that, when a line that is neither
+blank nor a kludge line (that begins with a ^A character) is found, a ^APTH
+line be added at that point.  However, there are reports that under certain
+circumstances (particularly when messages are "forwarded" or "hurled"),
+certain software may insert a non-kludge line prior to previously-existing
+kludge lines in a message.  It should be recognized by software authors that a
+non-kludge line should NEVER be inserted in front of existing kludge lines
+located at the start of a message, if those kludge lines are still valid (and
+if they are NOT still valid, they should be removed.  When a message is
+forwarded or hurled, it is probably desirable to remove duplicate control
+information since what is essentially happening is that the text of a previous
+message is being inserted into a NEW message.  Since the message is new, the
+"old" duplicate control information is no longer valid).
+
+Software authors that are implementing the ^APTH line in their software should
+never search beyond the first text line of a message for the ^APTH line,
+because if one is found later in the text, it is in all probability an old
+^APTH line that was inadvertently copied over from another message, and is not
+relevant to the current message.
+
+
+Note 3:  This is an optional suggestion, for use during the transition period
+in which the ^APTH line has to coexist with more traditional PATH and SEEN-BY
+lines.  If ^APTH line checking is being used during the import phase of
+echomail processing in a conference mail processor, it might be a good idea to
+optionally check to make sure that all ^APTH line addresses that are in the
+system's home Zone and Domain (including those with an appended modifier
+character) have been properly included in the SEEN-BY lines, and to add any
+that have not been so included.  It should be obvious that ^APTH line
+addresses that are NOT in the system's home Zone and Domain should NOT be
+added to the SEEN-BY lines.  If this feature is implemented, it may be a good
+idea to give the sysop the ability to enable or disable it by means of a
+command line switch or a configuration file option.
+
+
+Note 4:  If nodes with trailing modifier characters are inserted into a ^APTH
+line for the purpose of indicating "SEEN-BY" nodes in a fully coupled
+topology, it is permissible (but not required) to include those nodes ONLY in
+the ^APTH lines of messages actually exported to the nodes participating in
+the circular topology.  In other words, it's permissible to add such nodes to
+the ^APTH lines of messages during the import cycle, in which case messages
+with ^APTH lines containing the added nodes would be exported to all nodes.
+However, it's also permissible to add those nodes to the ^APTH line during the
+export cycle, including them only in the ^APTH lines of the nodes that need to
+see them.  Please keep in mind that such nodes are added only to the END of
+the ^APTH line, AFTER the address of the system processing the message.  In
+any event, it's up to the software author to implement this feature in such a
+manner that duplicates will not be created.
+
+Similarly, if a node RECEIVES a message containing a ^APTH line that lists
+nodes with trailing modifier characters, it is permissible to remove those
+nodes from the ^APTH line if it can be positively ascertained that they are no
+longer required.  Generally speaking, this should NOT be done unless there is
+absolutely NO possibility of the message being exported to one of the nodes in
+question.  Note that in most situations, if a ^APTH line contains a node with
+a trailing modifier character, but it is followed by a node number (other than
+your own) that does NOT have a trailing modifier character (that is, the node
+with the trailing modifier character is not one of the last nodes on the
+line), then it can usually be safely removed since it will have already
+"passed through" the fully-coupled topology.
+
+Using the previous example of 157/200, 154/9, and 154/970 participating in a
+fully-coupled topology, the ^APTH line as received at 154/9 and 154/970 might
+end as follows:
+
+     ..... 157/200 154/9! 970!
+
+However, please note that if 157/200 also feeds other nodes that are NOT part
+of this particular fully coupled topology, there is no real reason they would
+have to see the "154/9! 970!" at the end of the line.  However, there is no
+prohibition against including those nodes in the ^APTH lines of messages
+exported to other nodes.
+
+Once this example message arrives at 154/9, the ^APTH line would be changed to
+look like this:
+
+     ..... 157/200 154/970! 9
+
+Now, when this message is exported from 154/9 to another node (154/111 for
+example), that node may remove the "154/970!" as long as 154/9 remains in the
+^APTH line, since as long as the message cannot be sent back to 154/9, it
+cannot re-enter the fully-coupled topology.  The ^APTH line at this point
+(after the message is received on 154/111) might look like this:
+
+     ..... 157/200 154/9 111
+
+It would probably not be advisable to remove the "154/970!" at 154/9 in this
+example, even if the message has already been exported, because the message
+might need to be re-exported (such as when a new board picks up an echo feed).
+
+When in doubt, nodes with trailing modifier characters (other than your own)
+should be left in the ^APTH line.  While there is a cost of a few extra bytes
+per message if you leave them in, it does not compare to the cost of the
+duplicate messages that could be generated if they are removed
+indiscriminately.
+
+
+Note 5:  Messages sent to/from non-Fidonet-technology networks:  When a
+message originates in, or is sent to, a non-Fidonet-technology network (a
+network that does not use the Zone:Net/Node.Point addressing format), it is
+permissible to indicate this in the ^APTH line by using the syntax "@Domain"
+standing alone.  For example, a message that comes into Fidonet via a gateway
+from the Internet might show a ^APTH line as follows:
+
+     ^APTH: @Internet 1:114/15@Fidonet 5 ...
+
+Note that in the above example, the first Fidonet-technology address must
+still contain, at a minimum, Zone, Net, Node, and Domain information.
+
+It's also permissible to show a non-Fidonet-technology network at some point
+in the ^APTH line other than at the beginning, if for some odd reason a
+conference starts out in a Fidonet-technology network, passes through a
+non-Fidonet-technology network, and then is picked up by another
+Fidonet-technology network.  For example,
+
+     ^APTH: [Fidonet addresses] ..... 114/5 15 @Internet 200:5000/400@Metronet
+
+Note that "@Internet" stands alone in the above example, meaning that the
+conference originated in Fidonet, passed into the Internet (where the ^APTH
+line was not maintained), and then back into a Fidonet-technology network
+(Metronet in this case).  Note that any Fidonet-technology address that
+follows a standalone Domain specifier must contain, at a minimum, Zone, Net,
+Node, and Domain information.
+
+The question immediately arises, how do you maintain the original
+Fidonet-technology ^APTH line while the message passes through another
+(non-Fidonet-technology) network?  This could be left solely to the discretion
+of the designers of the gateway software, but in order to maintain a standard
+that can be followed by authors of different gateway software packages, I
+suggest that the ^APTH line be converted to one or more lines that start with
+the keyword FtnPth (For "Fidonet-technology ^APTH line), with the @Domain
+address of the non-Fidonet-technology network to which the message is being
+passed inserted as the last entry in the list.  For example, the following
+^APTH line
+
+     ^APTH: 3:711/431.5@Fidonet 431 403 1:124/4210 4115 114/5 15
+
+... would be converted to the following ASCII text line in the message as sent
+to the Internet:
+
+     FtnPth: 3:711/431.5@Fidonet 431 403 1:124/4210 4115 114/5 15 @Internet
+
+If the receiving network has a line length limitation, then it may be
+necessary to break the ^APTH line into multiple FtnPth lines.
+
+If the message is later passed back into a Fidonet-technology network, the
+gateway software should ideally be able to take the FtnPth information and
+convert it back to proper ^APTH line syntax, adding the name of the network
+that the message was received from if not the same as the last network
+indicated in the FtnPth line(s).  Of course, if no FtnPth lines exist in
+message, then the gateway software should ideally create one, showing the
+network that the message was received from as the first entry in the ^APTH
+line.
+
+If this is done correctly (and if non-Fidonet-technology networks can be
+persuaded to leave the FtnPth lines intact), duplicate message detection can
+be maintained even if a message passes through a non-Fidonet network.  In
+addition, those in the other network will have access to information showing
+where the message originated, which systems it passed through, and where it
+entered their network, which can be a big help in tracking problem messages.
+Finally, this information can be used to prevent undesirable message paths
+(for example, a message that enters Fidonet from a non-Fidonet-technology
+network and then is later sent back into that same network at a different
+gateway point, thus causing a potential duplicate message in the other
+network).
+
+Please note that in the above examples, references to @Internet are for
+example purposes only, and are not intended to specify the "correct" domain
+name (in preference to "UseNet" or "UUCP", for example).  Determination of the
+"correct" domain name for non-Fidonet-technology networks may be left to those
+who operate the domain gateways.
+
+Jack Decker
+October 7, 1990
+
+Change History:
+
+Version 001: 04/01/90 - Original document
+Version 002: 10/07/90 - Added support for Domains, and other minor
+             modifications to the text (mostly error correction).
+

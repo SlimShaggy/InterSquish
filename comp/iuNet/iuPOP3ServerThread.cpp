@@ -53,6 +53,7 @@ void __fastcall TiuCustomPOP3ServerThread::ClientExecute(void)
   {
     Prepare();
     FSuccessLocked=false;
+
     try
     {
       SendOk("POP3 Server ready");
@@ -67,6 +68,9 @@ void __fastcall TiuCustomPOP3ServerThread::ClientExecute(void)
       UnLockMailDrop();
   }
 }
+
+
+
 //---------------------------------------------------------------------------
 void __fastcall TiuCustomPOP3ServerThread::HandleRecivedCommand(AnsiString Command)
 {
@@ -308,6 +312,7 @@ void _fastcall TiuCustomPOP3ServerThread::ProcessQUIT(AnsiString Argument)
     	DeleteMsg(FMessages->Items[i]->MsgId);
 	SendOk("Dewey POP3 Server signing off");
   UnLockMailDrop();
+  //this->Terminate();
 
 }
 //---------------------------------------------------------------------------

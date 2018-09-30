@@ -1,0 +1,57 @@
+
+
+-------- Msg 476 of 504 in area NETM_MY "Личная почта" ------------------------
+- From : Nick Slepchenko  2:5064/20                            14:20  27/Dec/99
+- To   : Ivan Uskov  2:5055/101.3@fidonet                      14:20  27/Dec/99
+- Subj : pkt -> news
+- Attr : Recv Pvt Kill 
+-------------------------------------------------------------------------------
+
+ *** Все это было в RU.WINDOWS.NT.FIDO ...
+
+
+Приветствую, Ivan!
+
+ ■ Hу вот... Опять этот Ivan Uskov написал письмо Oleg Kruglyakoff...
+ ■ Было это еще 27 Дек 99 в 00:16... А я, как всегда, не мог не ответить...
+
+ IU>  Кстати, есть способ получить регистрацию совершенно бесплатно. Для
+ IU> этого нужно растолковать мне, как происходит аутентификация в SMTP
+ IU> протоколе. Скажу сразу, RFC2554 я читал, но вот заставить IS правильно
+ IU> выполнять процедуры "AUTH LOGIN" не получается. Будет достаточно, если
+ IU> кто-нибудь пришлет мне лог общения outlook express с SMTP-сервером
+ IU> поддерживающим расширения AUTH.
+
+     Вдогонку предыдущему письму...
+
+[ _■_ Отсюда и вниз смотрим файл <Smtp.log> _■_ ]
+
+Outlook Express 5.00.2417.2000
+SMTP Log started at 12/27/1999 14:17:48
+SMTP: 14:18:08 [rx] 220 ricserver.gov.sta.ru ESMTP Server (Microsoft Exchange
+Internet Mail Service 5.5.2448.0) ready
+SMTP: 14:18:08 [tx] EHLO server
+SMTP: 14:18:08 [rx] 250-ricserver.gov.sta.ru Hello [10.11.0.102]
+SMTP: 14:18:08 [rx] 250-XEXCH50
+SMTP: 14:18:08 [rx] 250-HELP
+SMTP: 14:18:08 [rx] 250-ETRN
+SMTP: 14:18:08 [rx] 250-DSN
+SMTP: 14:18:08 [rx] 250-SIZE 0
+SMTP: 14:18:08 [rx] 250-AUTH LOGIN
+SMTP: 14:18:08 [rx] 250 AUTH=LOGIN
+SMTP: 14:18:08 [tx] AUTH LOGIN
+SMTP: 14:18:08 [rx] 334 VXNlcm5hbWU6
+SMTP: 14:18:08 [tx] aXpiaXJrb20=
+SMTP: 14:18:08 [rx] 334 UGFzc3dvcmQ6
+SMTP: 14:18:08 [tx] ZXJ0ZmNkdw==
+SMTP: 14:18:08 [rx] 235 LOGIN authentication successful
+SMTP: 14:18:08 [tx] MAIL FROM: <izbirkom@govsta.ru>
+SMTP: 14:18:08 [rx] 250 OK - mail from <izbirkom@govsta.ru>
+SMTP: 14:18:08 [tx] RCPT TO: <administrator@gov.sta.ru>
+SMTP: 14:18:09 [rx] 250 OK - Recipient <administrator@gov.sta.ru>
+SMTP: 14:18:09 [tx] DATA
+SMTP: 14:18:09 [rx] 354 Send data.  End with CRLF.CRLF
+SMTP: 14:18:09 [tx]
+---
+ * Origin: И кто его придумал, этот ориджин? (2:5064/20)
+

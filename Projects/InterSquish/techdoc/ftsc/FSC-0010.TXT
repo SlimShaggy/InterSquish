@@ -1,0 +1,397 @@
+FSC-0010
+
+RESYNC, a sealink protocol enhancement by Henk Wevers  2/0
+==========================================================
+
+
+What is resync (recovarable sealink)
+------------------------------------
+
+Resync is a protocol enhancement on Sealink by Sea corporation
+that allows the protocol to pickup broken transfers were it was
+interrupted. The coding overhead is very minor because almost all
+routines needed are already part of most sealink implementations.
+
+As a sideeffect transmissions of exact duplicate files (from whatever
+source) will only result in the two programs exchanging EOT and thus
+saving a lot of transfertime and costs.
+
+The protocol
+-------------
+
+The capability of doing ackless sealink
+is signalled by the SENDER by having
+byte  41 (1 based) in block 0 of a sealink file transfer being <> 0. 
+Recovery is signalled in the sameway by byte 42 <> 0.
+
+Recoverable sealink starts off like normal (unrecoverable sealink).
+After the receiver has received block zero without errors the
+receiver checks for a duplicate filename in its incoming file
+directory. When a match is found the time and datestamp are checked
+and when they match the resync procedure is started otherwise`
+the transfer goes on like normal.
+
+Recovery procedure:
+
+RECEIVER
+--------
+
+The receiver sends the following block to the
+sender:
+
+<sync> <blocknumber> <eot> <crclow> <crchigh>
+
+sync = $22
+blocknumber: ascii , number of block to resume with, 1 based
+eot = $03
+crc as usual
+
+The reason this form is choosen is that it is the same block as used
+for passing the filename in sealink based filerequests so the code
+was already there.
+
+now the receiver waits ontil the line dies (looks for a 1 sec pause)
+then sends $05 and waits for ACK or NAK from the sender. If nak is
+received the recovery procedure is restarted . After a given number
+of failed tries the session is aborted.
+
+After an ACK the receiver 'seeks' at the given
+block and resumes sealink transfer.
+
+
+SENDER
+------
+
+The sender has the capability to recognize returning ACK, NAK and
+SYNC. When a SYNC is received the sender stops all output, purges its
+outputbuffers and tries to get the resyncinfo.
+(some smart programming to allow an unintended sync caused by
+linenoise may make the protocol more stable. You may also test for
+ack/nack directly after the SYNC because the ascvii blocknumer
+garantees that a received ack/nak probably means a spurious sync. ).
+As soon as the blocknumber is received the sender acks and resume
+the sealink transfer at the given block.
+
+NOTES
+------
+
+This only works if the receiver closes a partly recived file
+properly, gives it the right name and sets the right time/date.
+In the current dutchie 2.80 implementation it also
+only works for files, not for mailpackets, but that is only a
+question of implementation and choise.
+
+IMPLEMENTATION
+---------------
+
+Currently only dutchie 2.80 implements this enhancement. testing
+has shown that the protocol is very stable and works well.
+Some code in turbo pascal follows to help those who want to
+implement it.
+
+1. The code used for transferring the wanted restart blocknumber
+   to the sender. In real implementations this code will be shared 
+   by the filerequest stuff.
+
+  function resyncok(blknum:integer):boolean;
+
+Var
+ blockstring : string[5];
+ tries,
+ ch,
+ n            : Integer;
+
+Begin
+  str(blknum,blockstring);
+  tries := 0;
+  repeat
+    tries := tries +1;
+    if ((not Comm_Carrier(Comport)) or keyescape or ( tries >=8)) then
+    begin
+      If not Comm_Carrier(Comport) then Logit(3,1,'Lost Carrier') else
+      If (tries>=8) then Logit(3,1,'Too much errors') else
+      Logit(3,1,'Keyboard <esc>');
+      dumerr := fileerr;
+      resyncok := false;
+      exit;
+    end;
+    Comm_purge_in(ComPort);
+    ClearCrC;
+    comm_transmit(comport,22);
+    For n:= 1 to length(blockstring) do
+    Begin
+      Comm_transmit(Comport,Ord(blockstring[n]));
+      UpdatCrc(ord(blockstring[n]));
+    End;
+    UpdatCrc(0);
+    UpdatCrc(0);
+    Comm_Transmit(Comport,$03);
+    Comm_Transmit(ComPort,Lo(CrcAccum));
+    Comm_Transmit(ComPort,Hi(CrcAccum));
+    Comm_purge_in(comport);
+    {wait for a 1 sec pause}
+    {Wait until line dies}
+    Repeat
+      Ch := timed_read(ComPort, 10);
+    Until (Ch = $FFFF);
+    comm_transmit(comport,05);
+    ch := timed_read(Comport,20);
+  until (ch=ACK);
+  resyncok := true;
+end;
+
+
+2. part of sender ack/nack logic to handshake
+   above code
+
+function getsyncblock(var c:integer):Boolean;
+var t1 : real;
+    n,
+    Crclo,
+    CrcHi,
+    pl,
+    code,
+    ch : integer;
+    temp1,
+    temp : string64;
+    label 100;
+
+
+begin
+  ReqName := '';
+  getsyncblock := false;
+  t1 := timerset(50);
+  repeat
+    ch := timed_read(comport,0);
+    if ((ch > $1F) and (ch <$7F)) then ReqName := ReqName + Chr(ch);
+    if ((ch = ack) or (ch = nak)) then
+    begin
+      c:= ch;
+      goto 100;
+    end;
+    if not comm_carrier(Comport) then goto 100;
+  until ((ch = $03) or timeup(t1));
+  CrcLo := Timed_Read(Comport,10);
+  CrcHi := Timed_Read(Comport,10);
+  ClearCrc;
+  For n := 1 to length(ReqName) do UpdatCrc(ord(reqName[n]));
+  UpdatCrc(0);
+  UpdatCrc(0);
+  {now wait for enquiry (must be within 5 secs)}
+  t1 := timerset(50);
+  repeat
+    ch := timed_read(comport,50);
+  until ((ch = $05) or timeup(t1));
+
+  If ((Lo(CrcAccum) = CrcLo) and (Hi(CrcAccum) = CrcHi)) then
+  Begin
+    val(reqname,outblk,pl);
+    Comm_transmit(Comport,ACK);
+    getsyncblock :=true;
+  end
+  else
+    begin
+    fixwindow;    
+    Writeln('           Bad Checksum');
+    Comm_transmit(comport,Nak);
+    end;
+100:
+end;
+
+
+
+
+  Procedure AckChk;
+
+    {  The Various ACK/NAK states are:
+    0:   Ground state, ACK or NAK expected
+    1:   ACK received
+    2:   NAK received
+    3:   ACK, bloknumber received
+    4:   NAK, bloknumber received
+    }
+
+  Var
+    c : Integer;
+    label 100;
+
+  Begin
+
+    ackrep := false;
+    c := timed_read(ComPort,0);
+    While c <> $FFFF Do
+    Begin
+      If ((Ackst = 3) Or (Ackst = 4)) Then
+      Begin
+        Slide := 1;
+        If (Rawblk = (c Xor $FF)) Then
+        Begin
+          Rawblk := Outblk-((Outblk-Rawblk) And $FF);
+          If ((Rawblk >= 0) And (Rawblk <= Outblk) And (Rawblk > (Outblk-128))) Then
+          Begin
+            If (Ackst = 3) Then  {advance for an ACK}
+            Begin
+              If (Ackblk <= Rawblk) Then Ackblk := Rawblk;
+              Slide := SeaWindow;
+              ackseen := ackseen + 1;
+              if (ackless and (ackseen > 10)) then
+              begin
+                ackless := false;
+                fixwindow;
+                writeln(#13,'- Overdrive disengaged                  ');
+              end;
+              fixwindow;
+              Write(#13, '  ACK ', Rawblk:5, ' == ')
+            End
+            Else
+            Begin
+              If (Rawblk < 0) Then Outblk := 0 Else Outblk := Rawblk;
+              If numnak < 4 then slide := seawindow else slide := 1;
+              fixwindow;
+              Write(#13, '  NAK ', Rawblk:5, ' == ');
+            End;
+            Ackrep := true;
+          End;
+        End;
+        Ackst := 5;
+      End;
+
+        If ((Ackst = 1) Or (Ackst = 2)) Then
+        Begin
+          Rawblk := c;
+          Ackst := Ackst+2
+        End;
+
+        If (Not(Slide = SeaWindow) Or (Ackst = 0)) Then
+        Begin
+          If (c = syn) then
+          begin
+            Write(#13, '  Resync received                          ',#13);
+            if not getsyncblock(c) then
+            begin
+               if ((c = ack) or (c=nak)) then goto 100;
+               numnak := 255;
+                exit;
+            end;
+            ackblk := outblk-1;
+            beginblk := outblk-1;
+          end;  
+100:
+          If (c = Ack) Then
+          Begin
+            If (Not(Slide = SeaWindow)) Then
+            Begin
+              Ackblk := Ackblk+1;
+              fixwindow;
+              Write(#13, '  ACK ', Ackblk:5, ' -- ');
+              ackrep := true;
+            End;
+            Ackst := 1;
+            NumNak := 0;
+          End
+          Else
+          Begin
+            If ((c = Crc) Or (c = Nak)) Then
+            Begin
+              If (Chktec > 1) Then
+              Begin
+                If (c = Nak) Then Chktec := 0 Else Chktec := 1;
+                If (Modem Or Modem7) Then Ackblk := 0;
+              End;
+              Comm_purge_out(Comport);
+              TimeWait(6);
+              If Not(Slide = SeaWindow) Then
+              Begin
+                Outblk := Ackblk+1;
+                fixwindow;
+                Write(#13, '  NAK ', Ackblk+1:5, ' -- ');
+                Ackrep := true;
+              End;
+              Ackst := 2;
+              NumNak := NumNak+1;
+              If BlkSnt > 0 Then Toterr := Toterr+1;
+            End;
+          End;
+        End;
+
+        If (Ackst = 5) Then Ackst := 0;
+        c := timed_read(ComPort,0);
+      End;
+  End;
+
+
+3. part of receiver logic
+----------------------------
+
+{we come here after successfully receiving block zero}
+
+   If Sealink then
+   begin
+     Timestring := Seatime((((Buffer[8]*256.0)+Buffer[7])*256.0+Buffer[6])*256.0+Buffer[5]);
+     ackless := false;
+      If (Buffer[41]  <> 0) then
+     begin
+       writeln('- Overdrive engaged');
+       ackless := true;
+     end;
+     If (Buffer[42]  <> 0) then
+     begin
+       writeln('- Recovery enabled');
+       recovers := true;
+     end;  
+   end;
+   Assign(Afile, FileDir+filenm);
+   Reset(Afile);
+   If IOResult = 0 Then
+   Begin
+     if sealink and recovers then
+     begin
+      {find date/time}
+       code := FindFirst(Filedir+filenm);
+       If code = 0 Then
+       begin
+         {we have a duplicate ?}
+         If file_name = filenm then
+         begin
+           {check timestamp}
+           tstring[0] := #4;
+           tstring[1] := Chr(dir.time[1]);
+           tstring[2] := Chr(dir.time[2]);
+           tstring[3] := Chr(dir.date[1]);
+           tstring[4] := Chr(dir.date[2]);
+           if tstring  = timestring then
+           begin
+             Blknum :=Trunc(file_size/128)+1;
+             startblk := blknum-1;
+             Str(blknum,blkstring);
+             LogIt(3,1, 'Resynced from '+blkstring);
+             if resyncok(blknum) then
+             begin
+               resyncflag := true;
+               longseek(afile,(blknum-1)*128);
+               truncate(afile);
+             end
+             else
+             begin
+               sealinkrx := false;
+               goto 150;
+             end;
+           end;
+         end;
+       end;
+     end;
+     if not resyncflag then
+     begin
+       if not overwrite then
+       begin
+         filenm[1] := '$';
+         LogIt(3,1, 'Renamed to '+filenm);
+       end
+       else Logit(3,1,'Overwrote old file !');
+     end;
+   End;
+
+
+PLEASE COMPARE THESE TO THE ORIGINAL SEA DOCUMENTS ON SEALINK
+(IN C)
+

@@ -1,0 +1,33 @@
+
+  | Document: FSC-0089
+  | Version:  001
+  | Date:     31 October, 1995
+  |
+  | Robert Williamson FidoNet#1:167/104.0
+
+ The INTL: netmail addressing control line
+ Robert Williamson FidoNet#1:167/104.0
+
+
+ Purpose:  to provide complete destination and origin addressing information.
+
+ Replaces: INTL, TOPT, FMPT, MSGTO and DOMAIN:
+
+ Usage:    ALL netmail.
+
+ Format:
+ Fully  Qualified  FTN  Addresses (FQFA) are used to simply parseing.  All
+ fields  must  be  present,  nothing may be assumed.  It is differentiated
+ from  the  old  INTL control by the presence of the colon ":".  The colon
+ also makes it fully compliaint with the control line convention specified
+ in FTS1.
+
+ SOH||INTL:" "DFTN#dzone:dnet/dnode.dpoint OFTN#ozone:onet/onode.opoint||CR
+
+ d.... indicates a Destination address field
+ o.... indicates an Originator address field
+ dftn and oftn are uppercase.
+ || indicates concatination and is used for illustration only.
+ SOH = 0x01
+ CR  = 0x0D
+

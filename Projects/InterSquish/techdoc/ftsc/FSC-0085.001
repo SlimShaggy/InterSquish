@@ -1,0 +1,68 @@
+
+  | Document: FSC-0085
+  | Version:  001
+  | Date:     03 September 1995
+  |
+  | Denis Bider, FidoNet#2:380/129.0
+
+/*
+
+Date: 25-Jul-1995
+Document: Descriptions of the "NOZIP" and "ERX<n>" nodelist flags
+Purpose: To give a system that is about to send some mail to a system
+   not already defined by its operator in its configuration some idea
+   about what kind of mail the mentioned destination system accepts
+Author: denis bider, ofs->FidoNet#2:380/129.0
+
+
+
+
+The NOZIP nodelist flag and its affects on the MN nodelist flag
+===========================================================================
+Generally, most FTN systems are able to receive compressed mail from any
+other FTN system. Up to now, the official compression format between
+systems has been ARC. This document, however, puts the ZIP format to that
+position.
+   *  A system whose nodelist entry contains neither an "MN" and neither
+      a "NOZIP" flag is assumed to support both ARC and ZIP.
+   *  A system whose nodelist entry contains an "MN" flag is assumed not
+      to support any compression at all.
+   *  A system whose nodelist entry contains a "NOZIP" flag is assumed to
+      support ARC compression, while not supporting ZIP compression.
+   *  Both "NOZIP" and "MN" flags cannot appear in the same nodelist entry.
+      If they, by some accident, do, the system should be assumed not to
+      support any mail compression.
+
+Since the majority of systems support ZIP compression, a flag indicating
+that this type of compression is NOT supported has is proposed instead of a
+flag indicating that this type of compression IS supported, the reason
+being to minimize the amount of changes required to the nodelist.
+
+The format of the NOZIP flag is, simply, "NOZIP".
+The format of the MN flag stays the same.
+
+
+
+The ERX<n> nodelist flag
+===========================================================================
+The presence of this flag in a system's nodelist entry indicates that the
+system is able to process ERX mail packets of level <n>. The current
+minimum and maximum values of <n> are both "1", indicating that the system
+is able to process ERX packets of level 1, meaning that the packets can
+only contain EDX message items. Please refer to EDX1.TXT for the EDX and
+ERX specifications.
+
+The format of the "ERX<n>" nodelist flag is
+   "ERX" <n>
+as in "the three letters 'E', 'R' and 'X', immediately followed with the
+token <n>", where <n> is a number in decimal notation, with currently all
+values but '1' being reserved.
+
+
+
+If your system does not support ZIP and you do not yet have a NOZIP flag in
+your nodelist entry, or if your system is able to process ERX packets and
+you do not yet have an ERX<n> flag, please urge your NC or RC, whichever
+appropriate, to update your nodelist entry as soon as possible.
+
+// EOF */

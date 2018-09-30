@@ -47,6 +47,7 @@ protected:
   void __fastcall SetSquishCfgName(AnsiString Value);
   void __fastcall SetUsersCfgName(AnsiString Value);
   void __fastcall SetMaskAreasCfgName(AnsiString value);
+  
 
 public:
   bool FRegKeyExist;
@@ -56,6 +57,7 @@ public:
 
   __fastcall TiuIssNNTPServer(TComponent* Owner);
   virtual __fastcall ~TiuIssNNTPServer();
+        AnsiString __fastcall GetUsersFileName();
 
 __published:
 __property AnsiString AreasMasquerade  = { read=FAreasMasquerade, write=FAreasMasquerade };
@@ -197,6 +199,7 @@ private:
   TUserInfo FUserInfo;
   bool FDedicatedPoint;
   TListOfX<TFTNAddress> *FReciptAddreses;
+  TUserInfo loginUser;
 
   inline TiuIssSMTPServer * __fastcall GetISS(void);
   /*{

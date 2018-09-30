@@ -1,0 +1,102 @@
+Document: FSC-0040
+Version:  001
+Date:     02/23/90
+
+               
+
+                            Extended Modem Handling
+                                Michael Shiels
+                              1:250/410@fidonet
+
+
+
+    Information:
+
+        The purpose of this FSC is to focus discussion on particular
+        problems in Fidonet(r) and possible methods of solution.  No
+        proposed solutions in this document are intended as
+        standards for Fidonet.  Rather, it is hoped that a general
+        consensus will emerge as to the appropriate solution to such
+        problems, leading eventually to the adoption of standards.
+        Distribution is subject to the limitations listed below.
+
+
+
+
+Copyright 1989, Michael Shiels.  All rights reserved.  The right to distribute 
+for non-commercial use is granted to the FidoNet Technical Standards Committee,
+provided that no fee is charged.  This may be posted on FidoNet electronic BBSs
+which charge no fee for accessing this document.  Any and all other reproduction
+or excerpting requires the explicit written consent of the author.
+
+Modem Handling
+--------------
+
+The current nodelist doesn't provide enought information for really fancy
+handling of modems and connections.  With the advent of line sharing between
+modems/faxes certain additions to the nodelist flags are required.
+
+I am currently writing a product which will handle and use the following codes
+
+Y.... where .... can consist of the hardware protocols the modem understands
+    A   300 V.21          > Usually one of these flags would be present to
+    B   300 Bell 103      > designate the chosen 300 baud hardware protocol
+    C  1200 V.22 or Bell 212A
+    D  2400 V.22bis
+    E  9600 V.29
+    F  9600 V.32
+    G  9600 V.32 non-trellis coded
+    H 14400 V.32bis
+    I
+    J
+    K
+    L
+    M
+    N 19200 PEP
+    O  9600 HST 9600/300 backchannel
+    P  9600 HST 9600/450 backchannel
+    Q 14400 HST 14400/450 backchannel
+    R
+    S
+    T
+    U
+    V
+    W
+    X
+    Y
+    Z
+    
+
+Z.... where .... can consist of the software protocols the modem understands
+    A   MNP1    Block mode (half duplex)
+    B   MNP2    Stream mode (full duplex)
+    C   MNP3    Stream mode with Start/Stop bit striping
+    D   MNP4    Stream mode with Start/Stop bit striping and large packet sizes
+    E   MNP5    Data compression
+    F   MNP6
+    G   MNP7 
+    H   MNP8
+    I   MNP9
+    J   MNP10
+    K   MNP11   ????
+    L   MNP12   ????
+    M   MNP13   ????
+    N   V.42 or LAP-M
+    O   V.42bis
+    P   LAP-B   Hayes V9600
+    Q
+    R
+    S
+    T
+    U
+    V   Non-fully compatible MNP (S15 bit 6 on an USR HST)
+    W   No Guard tone
+    X   550Hz Guard tone (some European countries) 
+    Y   1800Hz Guard tone (UK, some Commonwealth countries)
+    Z   Do reverse carrier processing when dialing this node
+    
+
+I am in the process of designing a very sophisticated modem dialing language
+and would like to propose the following additions to the node list
+to help facilitate better modem/line handling with the advent of
+different modem standards etc.

@@ -1,0 +1,117 @@
+ | Document: FSC-0080
+ | Version:  002
+ | Date:     01 Jun 1996
+ |
+ | Mikael Ståldal, 2:201/337
+
+                  Describing FidoNet with a layered model
+                   Mikael St†ldal, 2:201/505.337@FidoNet
+                               revision 2
+
+
+Introduction
+============
+FTS-1 tries to describe FidoNet with the OSI model. I think that the FTS-1
+description is rather impractical and not very useful, it gives few of the
+advantages that a layered model could give.
+
+Instead I made my own layered model. My model has nothing to do with OSI.
+
+
+Why this model?
+===============
+The main goal with this model is to make FidoNet more flexible make it
+easier to change into newer and better protocols and data structures.
+
+It should be possible to change one layer without affecting the others.
+
+
+Description of the layers
+=========================
+
+Transmission layer
+------------------
+This is the hardware that preforms the actual communication between
+computers. It may be fully reliable, but it isn't always so upper layers
+must be able to deal with errors.
+
+Today, this is often the telephone network (PSTN), a modem (with protocols
+like V.22 and V.32) and an asynchronous serial port (such as RS-232C). This
+layer also includes any real-time error correction (V.42, MNP4) and data
+compression (V.42bis, MNP5) in the modem, but it's not always present.
+
+A replacement could be ISDN with ISDN-adapter and a parallel port to allow
+higher data transfer rates.
+
+
+Transfer layer
+--------------
+File transfer protocols (such as Zmodem).
+
+The file transfer protocol must provide error correction and be fully
+reliable.
+
+Note that this layer may be bypassed, the Session layer may (and does)
+communicate directly.
+
+
+Session layer
+-------------
+Session handshake protocols (YooHoo, EMSI) implemented in mailers. This
+layer can reliably send files directly between two systems. It doesn't
+perform any routing. It doesn't know about NetMail, EchoMail etc.
+
+The upper layers uses logical addresses (node numbers), this layer performs
+address resolution (often by using a nodelist) to obtain the physical
+address (e.g. telephone number) necessary to establish a connection.
+
+The upper layers can tell if a file should be sent immediately, when
+appropriate or be placed on hold.
+
+When files are received, this layer tells the upper layers.
+
+Note that unlike OSI and other models, sessions in this model are physical
+connections rather than logical connections.
+
+
+Transport layer
+---------------
+This layer handles routing and transport of NetMail, EchoMail and other
+files. The format of mail packets is defined in this layer, except the
+internal structure of a packed message.
+
+A mail processor takes received NetMail and EchoMail and places it in the
+local message base. It also looks there for messages to send.
+
+
+Presentation layer
+------------------
+Here is the internal structure of a packed message defined.
+
+In TYPE-2, this layer is totally mixed up with the Transport layer. In new
+packet formats, they will hopefully be separated.
+
+
+Application layer
+-----------------
+Here is the local message base (stored messages) defined.
+
+
+Interaction between layers
+==========================
+
+Interaction between Session layer and Transport layer
+-----------------------------------------------------
+The Session and Transport layers does only interact between sessions, not
+during them. The reason is that is should be possible to keep them in
+different programs and implement it in single tasking operating systems like
+MS-DOS. This doesn't prevent the Session and Transport layers from running
+simultaneously in a multitasking system.
+
+
+Comments
+========
+There is one problem with this model, how to describe the File Request
+server function (and other similar server functions). Sending Requests are
+no problems, that's just sending a *.REQ file. The server function have to
+be implemented directly in the Session layer.

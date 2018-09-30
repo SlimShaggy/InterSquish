@@ -1,0 +1,49 @@
+
+
+-------- Msg 479 of 504 in area NETM_MY "Личная почта" ------------------------
+- From : Ryszard Szklennik  2:5100/13.5                        03:01  27/Dec/99
+- To   : Ivan Uskov  2:5055/101.3@fidonet                      03:01  27/Dec/99
+- Subj : pkt -> news
+- Attr : Recv Pvt Kill 
+-------------------------------------------------------------------------------
+
+*** Ответ на письмо из RU.WINDOWS.NT.FIDO (RU.WINDOWS.NT.FIDO).
+
+||*()*|| From: 'Ryszard Szklennik' <rsz@complife.net>
+Пpивeт, Ivan!
+
+Ivan Uskov в пoнeдeльник, 27 дeкaбpя 1999 в 00:16 oбpaтил[cя|acь|ocь] к Oleg 
+Kruglyakoff:
+
+ IU>  Кстати, есть способ получить регистрацию совершенно бесплатно. Для этого
+ IU> нужно растолковать мне, как происходит аутентификация в SMTP протоколе.
+ IU> Скажу сразу, RFC2554 я читал, но вот заставить IS правильно выполнять
+ IU> процедуры "AUTH LOGIN" не получается. Будет достаточно, если кто-нибудь
+ IU> пришлет мне лог общения outlook express с SMTP-сервером поддерживающим
+ IU> расширения AUTH.
+
+220 X1 NT-ESMTP Server ***** (IMail 5.04 25288-1)
+EHLO wstm
+12:25 00:07 SMTPD(C7620528) [192.168.0.111] EHLO wstm
+250-***** says hello
+250-SIZE 0
+250-8BITMIME
+250-DSN
+250-ETRN
+250-AUTH LOGIN PLAIN CRAM-MD5
+250-AUT
+AUTH LOGIN
+334 VXNlcm5hbWU6
+aW5pdHk=
+334 UGFzc3dvcmQ6
+bGF0ZWRyZWFt
+235 authenticated
+
+Если мало -- могу подкинуть на паpу суток тестовый паpольный SMTP/IMAP аккаунт 
+и фтп-доступ к логам в онлайне.
+
+Cпacибo, извинитe, yхoжy -
+Ryszard
+--- Microsoft Outlook'98 8.5.5104
+ * Origin: Для соединения с провайдером изучите Инструкции.  (2:5100/13.5)
+

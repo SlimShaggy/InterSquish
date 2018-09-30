@@ -1,0 +1,217 @@
+Document: FSC-0060
+Version:  001
+Date:     08-Mar-1992
+
+
+
+
+                        Calculation and Usage of CRC's
+                             Frank van der Loos
+                                 2:285/305.4         
+
+
+
+
+Status of this document:
+
+     This FSC contains information of value to the general FidoNet(r)
+     community.  Distribution of this document is unlimited.
+
+     Fido and FidoNet are registered marks of Tom Jennings and Fido
+     Software.
+
+
+
+
+This document is written by :
+
+    Frank van der Loos
+    Torenstraat 123
+    3311 TR Dordrecht
+    The Netherlands (Europe)
+    FIDO mail : 2:285/305.4
+
+Thanx to :
+    Willem van Pelt
+    FIDO mail : 2:285/305
+    - for giving me a mail-box :-))
+    - for telling me some theoretical stuff about CRC's
+
+    Richard Faasen (Yeaahh "Pfjew" he says)
+    FIDO mail : 2:285/311
+    - for giving me some CRC programs
+
+    Arie Ballegooyen
+    FIDO mail : 2:283/300
+    - for giving me all the original FTS & FSC doc's
+
+
+
+This doument is a DOC in which the CRC encoding and some usages of this
+encoding are explained. Also some routines are included. In some of the
+FTS & FTC doc's the encoding is very badly and sometimes wrong explained
+this will take a lot of time when you are planning to program a CRC encoding
+routine instead of using a routine which is made by someone. I will also
+include some routines and also the scheme to make a CRC routine so you
+can easily make a CRC check routine yourself in your program.
+
+What is a CRC :
+
+Simply explained a CRC is a division and the remainder is the CRC value.
+I think this example will help you to understand it :
+
+1011 / 10011101 \
+       1011
+       ----
+         1011
+         1011
+         ----
+            001 (This is the CRC value)
+
+Look familiar to division as you are used to learn at school. But there
+are some differences.
+
+When substracting a bit the following table is used :
+0 - 0 = 0
+0 - 1 = 1
+1 - 0 = 1
+1 - 1 = 0
+
+There is a function called XOR which will use this table. When you are
+substracting 0-1 = 1 then there is a shortage and normally you will take
+a higher bit to complete to substraction.
+
+234
+ 91 -
+-----
+143
+
+You cutted 200 to 100 because 3-9 = negative. But with the CRC you
+DO NOT use this !!!
+
+The divisor used with CRC encoding is a divisor with 1 bit more then
+de actual CRC. This is explained by the remainder which is always 1 bit
+less then the divisor. If not then you can divide it a time again, not ?
+
+Now you have to perform dividing on a row of char's and you can't do that
+without a special trick. What you do is shifting all the bits one by one
+into the CRCvalue and then checking if you can perform a division. Lets
+have a look at this example :
+
+1011 / 10011101 \
+
+We are gonna use a CRC of 3 bits (the highest bit is always cutted).
+The first bit is the checkbit. We can divide if this bit is 1. In that
+case the value is big enough to divide.
+
+
+   x 100 no we can not divide
+    perform a shift to left and shift in the next bit.
+   1 001 yes we can divide
+     divide it by 1011
+   0 010 the divided value (XOR'ed)
+         we can not divide so shift to left and shift in the next bit.
+   0 101 the shifted value + shifted bit.
+         we can not divide so shift to left and shift in the next bit.
+   1 011 the shifted value + shifted bit.
+         divide it by 1011
+   0 000 the divied value (XOR'ed)
+         we can not divide it so shift to left and shift in the next bit.
+   0 000 the shifted value + shifted bit.
+         we can not divide it so shift to left and shift in the next bit.
+   0 001 the shifted value + shifted bit.
+         we can not divide it so shift to left and shift in the next bit.
+         OOOppps sorry the bits are gone so this is the remainder
+     001 The 3 bit remainder (is 1 less then the divisor)
+
+
+  0 101 no we can not divide so
+    no we can not divide
+    shift to left and take the next bit.
+   1 011 yes we can divide
+   0 000 the divided value (XOR'ed)
+   0 001 oke we have shifted again to left and took again the next
+     bit.
+   0 010 again
+   0 101 again
+
+Compare it to the division performed at page 1 and you will see the result
+is the same. But this method is more comfortable for computers. In fact
+it is the same way to divide but we as humans can take more bits and we
+can see direct if it is possible to divide and the computer can not. But if
+we have to check every bit it will take a lot of time to put in every time
+1 bit by bit. Now luckily for you that is not neccesairy. The computer and
+also your program can shift in byte per byte. But then you have to try the
+division 8 times every time you have putted in a byte. And the byte you have
+put in has to fit in your CRC. So when you have a CRC which is 2 bits in
+length than it won't fit of course. Bu generally a 16 bit CRC is used and
+even CRC32 are now in use. When in the near future CRC64 are used I'm not
+surprised. Oke now to the computuer programming stuff. Here is a table with
+a good method to implement a CRC16 in any language. After this a program
+is stated with all the documentation in it. Remember a CRC16 has a 17bit
+divisor. Bit 16 (As you know we start at bit 0) is 1. When not we have again
+ a smaller divisor.
+
+CRC : wordvalue
+
+{ This routine has to be executed 8 times }
+IF CRC bit 15 = 1
+then
+shift left 1, divide by divisor (16 bits)
+else
+shift left 1, {do not divide cause we can't}
+
+{After this put in the next byte}
+CRC = CRC + inputbyte
+
+{end of this routine}
+
+Simple isn't it. Now for the more experienced programmers a sample in
+pascal at the next page.
+
+
+inpbyte = input byte for CRC
+oldCRC = old crc value
+divisor = the least 16 bits of the divisor string
+
+Function CRC16 ( inpbyte : byte, oldCRC : word, divisor : word ) : word ;
+
+var
+tel : word;
+temp : word;  {A simple variable to use to store the CRC)
+
+begin
+temp := oldCRC;
+for tel := 1 to 8 do
+begin
+
+  If (temp and $8000)= $8000
+  then
+    begin
+      temp := temp shl 1;
+      temp := temp xor divisor;
+    end
+  else
+    begin
+      temp := temp shl 1;
+    end;
+
+  { Now we have to put in the next byte }
+
+  temp := temp xor inpbyte;
+
+  CRC16 := temp;
+
+end;
+
+{End of routine}
+
+This routine is easily to expand to CRC32. In that case you have to expand
+your divisor and temp and CRC function to LONG value's.
+
+Some additional information about CRC's :
+
+CRC16 divisor =  $1021 ( + bit 16 = $3021 )
+The CRC16 feed value (when you first call the CRC routine) is $0000
+CRC32 divisor =  $77073096 ( + bit 32 = $17707306 )
+The CRC32 feed value (when you first call the CRC routine) is $FFFFFFFF

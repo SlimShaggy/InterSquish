@@ -1,0 +1,176 @@
+FSC-0020
+
+                     Alternate Nodelist Flag Proposal
+
+                           by Marshall Presnell
+                              (109/639.106)
+
+                            November 13, 1987
+                                     
+       Permission  to  reprint  and  distribute  this  document is 
+       granted so long as no payments are incurred for the use and 
+       distribution of this document and the author is credited.
+
+       $Revision:   1.1  $
+
+       $Log:   E:/SRC/NLPROC/PROJFILE/NODELIST.PRV  $
+   
+      Rev 1.1   13 Nov 1987 15:50:56   M. Presnell
+   Added Update log into document body
+
+       ------------------------------------------------------------
+       
+                              NODELIST FLAGS
+                                A Proposal
+
+       In order  to properly  code a function to read and interpret
+       the nodelist  flags, several vexing problems arise. The most
+       significant problem  is simply figuring out the capabilities
+       of the  software running  at a  particular node. In order to
+       solve this  confusion, I  propose the following standards to
+       be accepted  by the  FTSC, IFNA,  and  any  other  anciliary
+       organizations  which   contribute   to   the   content   and
+       maintenance of the nodelist.
+       
+       First, a  code needs  to be  established for  each piece  of
+       NETMAIL PROTOCOL CAPABLE software. This defines exactly WHAT
+       will answer  the phone  and transfer  mail according to FTSC
+       netmail  protocol   standards.  For  the  current  arena  of
+       software,  I  propose  the  flag  and  operand  approach  as
+       follows:
+       
+            ST: <- the FLAG, ST meaning System Type
+       
+            Operands:
+       
+            FD1 - Fido Version 11?
+            FD2 - Fido Version 12?
+            SD? - SEAdog version ?
+            OP1 - Opus version 1.?
+            BT? - BinkleyTerm version ?
+            TY? - Tabby version ?
+            DT? - Dutchie version ?
+            (and others as needed, apologies to those I omitted)
+       
+            Therefore, the complete type flag would read:
+       
+                 ST:FD2 for Fido v12x
+                 ST:OP1 for Opus version 1.xx
+                 ST:SD4 for SEAdog version 4.x
+       
+            This  gives the nodelist processor (and we illogical
+            humans)  a  much  easier  time  in  interpreting the
+            nodelist. I also recommend that the operands be of a
+            set length (in the above example, 3 characters).
+       
+       Second, a  PROTOCOL code  needs to be established, using the
+       same FLAG:OPERAND  approach as the system type flag. In this
+       case:
+       
+            PR: <- The FLAG, meaning PRotocol
+       
+            and the operands:
+       
+            TS - TSYNC          (Fido v11 and v12)
+            SL - SEAdog Link    (SEAdog)
+            WZ - WaZoo          (Opus)
+            others as the technology progresses.
+       
+            The operand field may contain multiple operands, as
+            follows:
+       
+            PR:WZ/TS <- to indicate an Opus system
+       
+            In  the  event  of multiple operands, the most desired
+            protocol for network communications should be first in
+            the list of operands.
+       
+       Third, the  operation hours,  as before  in  a  FLAG:OPERAND
+       combination as follows:
+       
+            OH: <- Operation Hours
+       
+            This  flag  is  followed  by the operation hours of the
+            system regarding inbound MAIL only. The operation hours
+            are in a fixed format as follows:
+       
+                 D.HHMM-D.HHMM
+       
+            where  D  is the day number (Sunday being 1), HH is the
+            24 hour military  hour, and MM is the minute. A special
+            case of the day being 0 means all days 1 through 7. ALL
+            times are EST (purely  arbitrary,  but ALL times in the
+            nodelist  should  have  a  common base reference time).
+            Therefore, a system which runs national  mail time only
+            would be as follows:
+       
+                 OH:0.0400-0.0500
+       
+            Multiple  operational  hours  may  be  specified  by
+            separating the separate time specifiers with a slash
+            as follows:
+       
+                 OH:D.HHMM-D.HHMM/D.HHMM-D.HHMM/D.HHMM-D.HHMM
+       
+            Continuous inbound mail would be indicated as follows:
+       
+                 OH:1.0000-7.2359
+       
+            It is important to note that these times are when the
+            system  is  able  to  RECEIVE mail. These are NOT the
+            actual operation  hours  of the BBS (if one exists at
+            that node).
+       
+            The  time known as National Mail Hour (04:00 to 05:00
+            EST)  is  automatically   ASSUMED  and  need  not  be
+            incorporated into the FLAGS field. Since it is one of
+            the  baseline  requirements  for  being listed in the
+            nodelist, this assumption is a relatively safe one.
+       
+            Also,  this method should also be used to indicate the
+            time(s) when File Requests are accepted. The suggested
+            flag for  File  Requests is "FR:" and follows the same
+            time specification logic as the OH: flag.
+       
+       Fourth, modem flags need  to  be  standardized  (until  the
+       modems themselves can be  standardized),  for  a  hopefully
+       "stop gap" measure, we could use the following:
+       
+            MDM: for the flag,
+       
+            TLB for Telebit Trailblazer
+            HST for USR Courier HST
+            H96 for Hayes 9600
+            (and others as needed)
+       
+            Only ONE of these modem types can appear per node, and
+            it has  no  relavence  unless the baud rate is greater
+            than or equal to 9600.
+       
+            (This is one of those flags we can get rid of once the
+            modem manufacturors establish a standard.)
+       
+       Fifth, the  Mail Only flag. Basically, it need to be changed
+       to "#MO"  instead of  "MO:". All  flags which  do  not  have
+       operands should not contain the colon (:) character.
+       
+       Flags occur  following the  seventh comma in a nodelist line
+       and continue  to the end of the physical line. All flags and
+       flag:operand combinations  are separated by commas, with the
+       last flag  on  the  line  terminated  by  the  end  of  line
+       character. Order of the flags is not critical.
+       
+       ------------------------------------------------------------
+       
+       I hope this proposal will serve to elicit ideas and comment.
+       Please direct any inaccuracies, suggestions for improvement,
+       comments,  and  constructive criticism to  Marshall Presnell
+       at Fido node 109/639.106
+       
+       Thank you.
+    
+
+
+
+
+

@@ -1,0 +1,305 @@
+Document: FSC-0068
+Version:  001
+Date:     13-Dec-1992
+
+
+
+
+                      A Proposed Replacement For FTS-0004
+
+                                  Mark Kimes
+                               1:380/16@fidonet
+    
+
+
+
+Status of this document:
+
+     This FSC suggests a proposed protocol for the FidoNet(r) community,
+     and requests discussion and suggestions for improvements.
+     Distribution of this document is unlimited.
+
+     Fido and FidoNet are registered marks of Tom Jennings and Fido
+     Software.
+
+
+
+
+Echomail documentation:
+======================
+
+
+
+Definition:
+==========
+Echomail, sometimes called broadcast or conference mail, is netmail
+(ref. FTS-0001) containing additional control information that allows it
+to be "echoed" (forwarded) from node (site) to node.  Echomail is
+divided into areas, or conferences, with unique names.
+
+The format for packets, message headers and message text is identical to
+that specified for netmail in FTS-0001.
+
+
+
+Control lines in general:
+========================
+A control line is a line of text in the message's body (the
+nul-terminated text portion of a message following the binary header;
+see FTS-0001) ended by a carriage return. Some control lines are
+preceded by a ^a (control-a, ASCII character 1) and are sometimes
+referred to as "kludge lines."  Kludge lines are normally not shown when
+displaying a message; the reading software will treat the initial ^a as
+meaning "not (normally) for human consumption."
+
+
+
+Required control information:
+============================
+AREA:  An AREA tag is what makes the difference between netmail and
+echomail.  The AREA line must be the first line in an echomail message's
+body.  An AREA line's format is simply:
+
+AREA:<areaname>
+
+The AREA tag is specifically _not_ preceded by a ^a.  It might be a good
+idea for an application to allow for but not produce AREA tags with ^a
+prefixes.
+
+Where <areaname> is the unique name of the echomail conference.  For
+compatibility with existing software, area names should not begin with
+the plus or minus ("+" or "-") symbols.  Area names must not contain
+control characters (less than ASCII character 32, a space).  Leading
+and trailing spaces on the area name should be ignored (and preferably
+not produced).  Compares on the area name should be case insensitive.
+
+Area names are generally kept as short as possible while still
+maintaining uniqueness and some sense of what the area's topic is about.
+
+
+The purpose of the SEEN-BY control line is to protect fully connected
+polygon topology (see Topology below) from duplicate message looping.
+Keeping SEEN-BYs beyond a small topology group is wasteful and should be
+avoided, but a message must contain at least "Tiny Seenbys" in order to
+avoid choking older mail processors.  Tiny Seenbys are the node
+currently processing the message and any nodes to which that node is
+sending the message.  This means that in all cases a SEEN-BY line will
+contain more than one address.
+
+SEEN-BYs are located after any Origin line and before any PATH line(s).
+
+A SEEN-BY line has the following format:
+
+SEEN-BY <net/node> <[net]/node> ... <[net]/node>
+
+The 2-D addresses following the SEEN-BY tag are "net sticky," which
+means that net information is not duplicated if unchanged from the
+previous address listed.  For example, if 380/20 sends a message to
+380/16, 380/100 and 170/1, the SEEN-BY line would read:
+
+SEEN-BY 170/1 380/16 20 100
+
+SEEN-BY tags are specifically _not_ preceded by ^a.  It might be a good
+idea for applications to allow for but not produce SEEN-BY tags with ^a
+prefixes.
+
+SEEN-BY addresses _are_ specifically sorted by net/node.  It might be a
+good idea for applications to allow for but not produce unsorted SEEN-BY
+addresses.
+
+SEEN-BY lines should not exceed 79 bytes in length; if more addresses
+are required than can be represented on one line, a carriage return
+followed by another SEEN-BY tag followed by more addresses should be
+added.
+
+Current practice is to strip SEEN-BYs at zone and domain gates since
+their 2-D nature make them useless for duplicate message checking beyond
+a given zone.
+
+
+
+Optional control information:
+============================
+Origin:  Origin lines, when they appear, contain the text " * Origin: "
+at the start of the line, and an address in parentheses at the end of
+the line.  Between these two portions of the line there may be some
+other text which can be ignored.  Origin lines may contain addresses in
+many formats, from simple 2-D net/node to 5-D domain addresses.
+
+An echomail processor should never choke because a message contains no
+Origin.
+
+Origin lines are specifically _not_ preceded by ^a, and should be no
+longer than 79 characters in total length.
+
+Some existing mail processors may choke on echomail that does not
+contain an origin line.  Therefore, for maximum compatibility, echomail
+processors should have an option, perhaps on a conference-by-conference
+basis, to assure all messages originating at a site contain an Origin
+(adding a default one if not already present).  In situations where an
+Origin is not used, a MSGID (see below) should be used so that private
+(netmail) replies are possible.
+
+Some gateways add their own Origin line and change any existing Origin
+line to " # Origin: <rest of original origin>".  You should keep this in
+mind if attempting to use Origin lines to find the "real" origin of a
+message.
+
+
+PATH:  PATH line(s), when they appear, follow the message's SEEN-BY
+line(s).  PATH lines are specifically preceded by ^a, and should be no
+longer than 79 characters in length.
+
+PATH lines have only one purpose:  to convey to a human some information
+about which systems have processed (forwarded) a message, and in what
+order.  The 2-D (net/node) nature of PATH coupled with the practice of
+not stripping PATH lines from a message at zone gates make it impossible
+to reliably use for the prevention of duplicate message looping (you
+can't tell if 380/16 refers to 1:380/16 or 2:380/16, or
+Dufusnet#1:380/16 instead of Fidonet#1:380/16).
+
+A PATH line has the following format:
+
+^aPATH <net/node> <[net]/node> ... <[net]/node>
+
+Like SEEN-BYs, PATH lines consist of a tag, ^aPATH, followed by 2-D "net
+sticky" addresses.  Unlike SEEN-BYs, PATH is specifically _not_ sorted,
+and it's possible there will be only one address.  For example, assuming
+all nodes support PATH, given that a message originates on 380/16, and
+goes through 380/20 to 380/100, the PATH line at 380/100 would read:
+
+^aPATH 380/16 20
+
+and the PATH line at 380/20 would read simply:
+
+^aPATH 380/16
+
+
+
+Other optional information:
+==========================
+Tear line:  A tear line, when it appears, consists of three dashes
+("---") at the beginning of a line, sometimes followed by a space and
+some text, possibly the name of the editor, packer, or BBS that created
+or first manipulated the message.  Tear lines, when present, are located
+just before the Origin line.
+
+Tear lines serve no control purpose, but are often placed into messages
+for historical reasons.  They should be considered as what they are:
+just part of the message text.
+
+
+MSGID:  A control line defined in FTS-0009.  Identifies the origin
+address of the message, and provides a unique serial number that can be
+used for linking replies and duplicate message control.
+
+
+REPLY:  A control line defined in FTS-0009.  In conjunction with MSGID,
+can be used to link replies to original messages.
+
+
+INTL, TOPT:  Netmail routing control lines defined in FTS-0001.  These
+control lines should not appear in echomail as they impart "false"
+information after the first "stop" due to the nature of echomail.
+
+
+FMPT:  A control line defined in FTS-0001.  Identifies point portion of
+from address.  This control line should not appear in echomail unless
+there is no MSGID and the Origin line doesn't list the point portion of
+the address.
+
+
+You may find other (experimental) kludge lines in an echomail message.
+Generally speaking, a kludge which is "netmail only," like a routing
+kludge or a "VIA" line, should not appear in echomail.  Remember that
+the cost of transmitting a message will be borne by many nodes, and
+extraneous, unuseful information produces unnecessary additional cost.
+All control information in echomail messages should be kept as small as
+possible.
+
+If you're curious about the uses of an experimental kludge and/or are
+considering supporting it, check for an FSC-* document covering it.
+
+
+
+Security considerations:
+=======================
+Echomail processors that attempt to provide a "secure" environment
+should not rely on the message header address, but use the packet header
+address (and possibly the password field) instead.  The packet header
+field will reflect who sent you the message.  Message header addresses
+are usually also changed to reflect the forwarder instead of the "real"
+origin, but this is not guaranteed (and perhaps not even desirable).  To
+find the "real" origin of a message, check for a MSGID and/or Origin
+line.
+
+
+
+Topology considerations:
+=======================
+Nothing creates duplicate message loops faster than bad topology.
+Consider the following simple diagram:
+
+                B<---->C
+                ^      ^
+     A<-------->|      |<-------->F
+                v      v
+                D<---->E
+
+This topology contains a duplicate message loop.  Consider:  B receives
+mail from A and forwards to C, D and F.  C, D and F forward to E.  If we
+connect the polygon so:
+
+                B<---->C
+                ^\    /^
+     A<-------->|  \/  |<-------->F
+                v /  \ v
+                D<---->E
+
+In this topology (fully connected polygon), no such duplicate message
+sending occurs.  While fully connected polygons can be effective in some
+networks (these are the reason SEEN-BYs can be necessary for more than
+backward compatibility), a better topology in general is the star and/or
+tree:
+
+                                             +<-->E
+                                             ^
+                                             |
+                                             v
+            another tree           +<-->D<-->+<-->F
+                  ^                ^         ^
+                  |                |         |
+                  |                |         v
+                  v                v         +<-->G
+another tree <--->A<--------->B<-->+
+                  ^                ^         +<-->H
+                  |                |         ^
+                  |                |         |
+                  v                v         v
+            another tree           +<-->C<-->+<-->I
+                                             ^
+                                             |
+                                             v
+                                             +<-->J
+
+Echomail topology should be carefully monitored by the systems involved
+to prevent formation (or quickly disassemble) costly duplicate message
+looping constructs.
+
+
+
+Acknowledgements:
+================
+Tom Jennings "created" Fidonet.  Jeff Rush "created" echomail.  Bob
+Hartman's ConfMail docs served as the echomail specification for years,
+and did so admirably; the mail moved.
+
+
+
+Related documents:
+=================
+FTS-0001            (transport layer, packet format, various kludge lines)
+FTS-0009            (MSGID and REPLY)
+FSC-0039            (alternate packet header format)
+FSC-0043            (hints on recognizing control information)
+FSC-0045            (alternate packet header format)

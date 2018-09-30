@@ -1,0 +1,170 @@
+
+  | Document: FSC-0076
+  | Version:  001
+  | Date:     03rd December 1993
+  | Author:   Steve T. Gove
+
+
+                        A Proposal for NetMail AreaTags.
+
+                                 Steve T. Gove
+                               1:106/6.0@fidonet
+
+
+Status of this document:
+========================
+
+              This FSC suggests a proposed protocol for the
+         FidoNet(r) community, and requests discussion and
+         suggestions for improvements.  Distribution of this
+         document is unlimited.
+
+              Fido and FidoNet are registered marks of Tom
+         Jennings and Fido Software.
+
+General Introduction:
+=====================
+
+              Within the FTN networks today is the ability to
+         belong to a variety of networks.  These can include, but
+         are not limited to, FidoNet, RBBSNet, AlterNet, etc.
+         Within each of these specific networks is the ability to
+         pass "NetMail" both routed and direct.  But what if
+         someone belongs to many of these networks?  How does one
+         differentiate netmail between them?  Currently, NetMail
+         does NOT allow for an AreaTag to allow for specifying
+         between different Domains.  I propose that this change.
+         My proposal is to allow for the areatag, for netmail, to
+         be called "NETMAIL".
+
+              current netmail  - none
+
+              current echomail - AREA:<echoname>  ex. AREA:Binkley
+
+              proposed netmail - NETMAIL:<domain> ex. NETMAIL:FidoNet
+                                                  ex. NETMAIL:RBBSNet
+
+              This would allow for multi domain'd netmail to be
+         seperated into seperate sub-directories to allow our
+         netmail readers to differentiate between them and allow
+         for replying based on their originating Domain.
+
+Compatability
+=============
+
+               "Compatibility is a set of abilities which, when
+         taken as a whole, make it safe to list a net or node in
+         the FidoNet nodelist."
+
+              I believe that utilization of my proposal, will
+         allow for full backwards compatability with reguard to
+         netmail and will allow, at the same time, for forward
+         progress to be achieved, both, within the fidonet
+         community and with other FTN networks.
+
+
+NetMail Definition:
+===================
+
+              NetMail is a driving force behind FidoNet, and
+         allows for the communication between two individuals
+         anywhere in the world.
+
+              See FTS-0001.015 for details on netmail packet
+         structure.
+
+Required Control Information:
+============================
+
+              An "AREA:" tag is what makes the difference between
+         netmail and echomail.  This would change the definition
+         between NetMail and EchoMail, as practiced today.  This
+         proposal, however, would not effect EchoMail.  NetMail
+         would now, simply, have an areatag named "NETMAIL".
+
+              The NETMAIL line must be the first line in an
+         netmail message's body.  A NETMAIL line's format is
+         simply:
+
+                    NETMAIL:<DomainName>
+
+         The NETMAIL tag is specifically _not_ preceded by a ^a.
+
+              Where <DomainName> is the unique name of the
+         NetMail's origin.  Area names should not begin with the
+         plus or minus ("+" or "-") symbols.  Area names must not
+         contain control characters (less than ASCII character
+         32, a space).  Leading and trailing spaces on the area
+         name should be ignored (and preferably not produced).
+         Compares on the netmail name should be case insensitive.
+
+              NetMail <Domain> names are generally kept as short
+         as possible while still maintaining uniqueness and some
+         sense of which Domain the NetMail belongs to.
+
+
+EchoMail Definition:
+====================
+
+              Echomail, sometimes called broadcast or conference
+         mail, is netmail (ref. FTS-0001) containing additional
+         control information that allows it to be "echoed"
+         (forwarded) from node (site) to node.  Echomail is
+         divided into areas, or conferences, with unique names.
+
+
+Acknowledgements:
+================
+Tom Jennings who "created" Fidonet.
+Jeff Rush who "created" echomail.
+Mark Kimes - 1:380/16@fidonet  (fsc-0068.a01)
+
+Related documents:
+==================
+FTS-0001            (transport layer, packet format, various
+                     kludge lines)
+Policy4             (whether you agree or not...!)
+
+
+PSEUDO-CODE
+===========================================================
+
+              For historical reasons, the term packet is used in
+         FidoNet to represent a bundle of messages, as opposed to
+         the more common use as a unit of communication, which is
+         known as a block in FidoNet.
+
+An Inbound Mail packet arrives.  (0000fff1.mo0)
+The packet is unpacked and b498c880.pkt is found.
+
+A "Tosser" looks at the *.pkt for an areatag,
+
+  IF AREA: THEN (EchoMail) toss to appropriate area,
+      IF NETMAIL: THEN toss to "Tosser" defined netmail area
+           according to domain,
+        IF NOT AREA: OR NETMAIL:  THEN *.pkt is (old-style) netmail
+           toss to "Tosser" defined netmail area.
+
+
+Sample "Tosser.CFG" file excerpt
+-----------------------------------------------------------
+
+NetArea       FidoNet        E:\Mail\NM_Fido
+NetArea       RBBSNet        E:\Mail\NM_RBBS
+NetArea       AlterNet       E:\Mail\NM_AltNt
+NetArea       OtherNet       E:\Mail\NM_OtrNt
+
+BadArea       BAD_MSGS       D:\Bad_Msgs
+
+DupeArea      DUPES          E:\Mail\Dupes
+
+LocalArea     Bad_Mail       D:\Bad_Mail
+LocalArea     Bad_GMD        D:\Bad_GMD
+LocalArea     WIMM           D:\WIMM
+
+EchoArea      File_Announce  D:\File_Announce          1:106/6
+EchoArea      MHS            D:\MHS\Mail\Users\Steve   1:124/1301
+EchoArea      Test           D:\T\Test                 1:106/6 .1
+EchoArea      R19SysOp       D:\R\R19Sysop             1:106/2000
+
+

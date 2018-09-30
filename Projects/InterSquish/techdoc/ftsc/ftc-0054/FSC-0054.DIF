@@ -1,0 +1,21 @@
+
+Revision 4
+----------
+
+Added history.
+
+Includes Open Document Architecture (ODA) reference.
+
+Included FSC-0051 references.
+
+Further detailed specifications of levels 3 & 4.  This has expanded
+quite a bit.
+
+Stressed importance of case sensitivity.
+
+Stressed use of CHRS over CHARSET.
+
+Further detailed specifications of the standard ISO character sets,
+including ISO standard numbers.  Be sure you use the international
+standards and not a proprietary one!
+

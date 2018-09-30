@@ -1,0 +1,362 @@
+
+  | Document: FSC-0077
+  | Version:  001
+  | Date:     03rd December 1993
+  | Author:   Jason Steck
+
+                    Type-10 Packet Format
+                  An FSC Standard Proposal
+
+
+I.  Introduction:
+
+     Over time, the traditional FidoNet FTS-0001 "Type 2"
+packet format has been repeatedly shown to be inadequate in
+a wide variety of advanced implementations.  The
+inadequacies of the type-2 format have been particularly
+evident in multi-zone and multi-domain environments.
+     When type-2 was originally established, it was
+sufficient to existing networking needs.  FidoNet was the
+"only show in town" and the 2-dimensional net/node
+arrangement was easily adequate to the requirements of the
+network.  However, growth in FidoNet required the
+introduction of "zones" to separate large geographical areas
+from each other.  The advent of echomail led directly to the
+creation of sub-node "point" systems, adding a fourth
+dimension to the addressing scheme.  The explosion in recent
+years of similar-technology, non-FidoNet networks has
+required the addition of a fifth dimension, the "domain" to
+differentiate between potentially conflicting addresses in
+different networks.
+     The 2-dimensional type-2 format is clearly inadequate
+to a 5-dimensional addressing requirement.  Various schemes
+have evolved to attempt to compensate for the failings of
+the type-2 environment.  Type 2.2 (FSC-0045) and type-2+
+("capability word" -- FSC-0039) packet format modifications
+have been devised to attempt to modify the packet format to
+include necessary addressing information.  Further, a
+plethora of message text "kludge lines" (lines hidden behind
+an ASCII #01 character) have been inserted to provide
+additional addressing information required by modern
+implementations.
+     The major failing of all these schemes, however, comes
+when they run square-on into the "real world".  Competing
+implementations often use slightly different formats or
+requirements within packet formats and kludge lines.  The
+mere existence of kludge lines impose significant
+performance and message test size and content penalties for
+mail processors.
+     This proposal seeks to establish a new packet format
+which would resolve the problems and inadequacies presented
+by the existing formats.  In acknowledgment of the fact that
+a theoretical proposal is useless without a practical
+implementation, this proposal has been implemented in the
+JMail 2.10 (and later) versions of electronic mail
+processors.  In the interests of reverse-compatibility, it
+is STRONGLY RECOMMENDED that any implementations of this
+proposal include some mechanism for supporting older formats
+and their popular modifications.
+     This proposal establishes a detailed packet format
+including packet header and internal message structure.  The
+format assumes the utilization of the FidoNet-style
+zone:net/node.point@domain addressing format.  Other
+addressing formats, such as UUCP RFC-822 domain addressing
+and/or "bang-path" addressing are not directly supported by
+this format.
+
+
+II.  The 5-Dimensional Address
+
+     The 5-dimensional address consists of the elements (in
+hierarchical order) domain, zone, net, node, and point.  The
+full ASCII representation of this is
+"zone:net/node.point@domain".  Where the point number is
+zero (a full node system as opposed to a dependent point
+system), the period (.) and the point number (0) may be
+excluded.
+     Implementations with size concerns may desire to
+include some facility to "assume" or "guess" at particular
+elements of a particular address based on prior addresses or
+user-supplied criteria.  This capability also has advantages
+when dealing with older formats which supply less than
+complete information.
+
+III.  Type-10 Packet Format
+
+     A.  Conventions
+
+     All binary numerical values in a type-10 packet are
+stored in Intel's byte-swapped format.
+     Within this document, all binary numerical values will
+be given in hexadecimal notation (base-16) using the (#)
+designator and right-justified with leading zeros.  For
+example, a single-byte value of 10 would be designated as
+"#0A" while a word-length, two-byte value of 10 would be
+designated as "#000A".
+     "NULL" is equivalent to either a #00 byte or #0000 word
+value.
+
+     B.  File Naming Conventions -- *.P10
+
+     Type-2 packet formats established the convention of
+using the PKT extension on file names.  This naming
+convention enabled mail-processing software to easily
+determine which files within a given directory were intended
+to be processed.
+     In order to prevent conflicts and preserve easy reverse-
+compatibility, it is necessary for any upgraded format to
+utilize a different file naming convention.  Type-10 packets
+are named with an extension of P10.  This has the additional
+effect of providing an easy new path for additional
+standards -- for example, a theoretical type-11 packet could
+use, without conflict, an extension of P11.
+     Archived type-10 mail packets may use the same
+archiving file name conventions established for type-2
+packets.  Indeed, the different file naming convention of
+type-10 packets allows the inter-mixing of packet types
+within a single archive.
+
+     C.  Packet Header
+
+     The PacketAddressRecord contains a complete 5-
+dimensional address.
+
+          (* Address structure -- Pascal notation *)
+          PacketAddressRecord = RECORD
+               Domain : ARRAY[1..8] of char;
+               Zone, Net, Node, Point : integer;
+          END;
+          
+          /* Address structure -- C notation */
+          struct PacketAddressRecord {char domain[8],int
+          zone,int net,int node,int point};
+
+     A packet header must appear at the beginning of each
+type-10 packet file.
+
+          (* Packet Header structure -- Pascal notation *)
+          PacketHeaderRecord = RECORD
+               PktType : byte;
+               PktFrom,PktTo : PacketAddressRecord;
+               PktPWd : ARRAY[1..8] of char;
+               ProdCode : word;
+               ProdVer : word;
+          END;
+          
+          /* Packet Header structure -- C notation */
+          struct PacketHeaderRecord {unsigned char
+          PktType,struct PacketAddressRecord PktFrom, struct
+          PacketAddressRecord PktTo, char PktPWd[8],unsigned
+          int ProdCode,                 unsigned int
+          ProdVer]
+
+
+     The PktType field contains a numerical value indicating
+the packet type format of the rest of the packet.  The
+PktType field of a type-10 packet will always contain the
+value #0A.  This value has been placed in byte 0 of the file
+to provide a convenient upgrade path for future packet
+formats.
+     The PktFrom field contains a PacketAddressRecord
+structure indicating the address of the sending system.
+     The PktTo field contains a PacketAddressRecord
+structure indicating the address of the destination system.
+     The PktPWd field may contain a 1-8 byte (NULL padded)
+password for the securing of links between systems.  If the
+link has no password protection, this field will contain 8
+NULL bytes.
+     The ProdCode field contains a 0-65535 numerical value
+indicating the product code assigned by a relevant standards
+committee for the software package producing the packet.
+     The ProdVer field contains a 0-65535 value.  The hi-
+order byte contains the major version number and the low-
+order byte the sub-version number.  The ProdCode and ProdVer
+fields are used to detect and assist in the elimination of
+format errors produced by errant software implementations.
+
+     D.  Packet Body Format
+
+     After a packet header, a type-10 packet will contain
+any number of packet "blocks".  Individual blocks may not
+exceed 30720 bytes (30 kilobytes) in length.  (This allows
+for easy buffering and data manipulation.)
+     Each block is prefaced with a "block header" to define
+the type of information contained within the block:
+
+          (* Block header structure -- Pascal format *)
+          BlockHeaderRecord = RECORD
+               BlockID : longint;
+               BlockType : byte;
+               BlockLen : word;
+               BlockCRC : word;
+          END;
+          
+          /* Block header structure -- C format */
+          struct BlockHeaderRecord {long int blockid,
+          unsigned char BlockType, unsigned int BlockLen,
+          unsigned int BlockCRC}
+
+     The BlockID field is used for error-checking purposes.
+It must alwasy be set to #22AAE0.
+     The BlockType field contains a numerical value from 0-
+255 indicating the type of data contained within the block:
+
+     #00 - Packet Terminator Block. (BlockLen and BlockCRC
+fields must be set to #0000.)  This block indicates an end-
+of-file.  Data beyond this point will be ignored.
+     #01 - Command Block.  This block is for system-to-
+system commands and requests. This block is not yet
+implemented and will be detailed in a future revision to
+this document.
+     #02 - Message Header Block.
+     #03 - Seen-by Block.
+     #04 - Path Block.
+     #05 - Message Text Block.  (More than one successive
+#05 block may be used to hold the text of messages greater
+than the maximum block size.  In theory, this allows for
+truly unlimited-length message capability.  However,
+implementations which intend to communicate with older, type-
+2 are realistically limited to message sizes which can be
+adequately buffered by type-2 processors.)
+
+     The BlockLen field indicates the number of bytes within
+the block.
+     The BlockCRC field is optional.  If the value of field
+is other than #0000, then the field will contain the CRC
+value of the field data (excluding the Block Header).  This
+allows for some degree of integrity-checking on packet data.
+
+     Following each Block Header will be BlockLen bytes of
+data of the type specified in the BlockType indicator.  A
+normal message would break down into a Message Header block
+(#02) followed by a Seen-by Block (#03), followed by a Path
+Block (#04), followed by one or more Message Text Blocks
+(#05).
+
+     Some data areas will contain structured sub-fields.
+These are as follows:
+
+     #02 - Message Header Block.  Each sub-field within this
+     data block will be prefaced with a numerical sub-field
+     identifier, followed by a single byte indicating the
+     length (in bytes) of the sub-field, followed by the
+     appropriate sub-field.  Sub-fields are as follows:
+     
+          #01 - From Name.  This is the ASCII name of the
+     person who originally wrote the message.  This sub-
+     field is required on all messages.
+          #02 - To Name.  This is the ASCII name of the
+     person to whom the message is directed.  This sub-field
+     is required on all messages.
+          #03 - Subject.  This is the ASCII representation
+     of the originator-entered subject.
+          #04 - Date/Time Group (binary -- length byte will
+     always be #04).  This is the date and time the message
+     was originally entered.  It is stored in the 32-bit
+     "longint" format.  This is a "packed" time format used
+     by MS-DOS to store file date/time records.  This or a
+     #05 sub-field is required on all messages.
+          #05 - Date/Time Group (ASCII -- length byte will
+     always be #13).  This is an ASCII date/time
+     representation of the origination date/time of the
+     message in the format specified in the FTS-0001
+     document (DD MMM YY  HH:MM:SS)  This or a #04 sub-field
+     is required on all messages.
+          #06 - MSGID line.  This is an FSC-0036 compliant
+     MSGID line.  It is a required sub-field on all echomail
+     messages.
+          #07 - Origin Address (PacketAddress Format --
+     length byte will always be #10).  This is the network
+     address of the originating system of the message.  This
+     sub-field is required on all messages.
+          #09 - Destination Address Override (PacketAddress
+     Format -- length byte will always be #10).  This sub-
+     field contains an override for the destination address
+     of the corresponding messages.  Processors should
+     determine that each message is destined for the address
+     listed in the PacketHeaderRecord except where
+     specifically overridden in a #09 sub-field.
+          #0A - Echomail Area Name.  This sub-field
+     indicates the echomail area that the message is being
+     distributed in.  This sub-field is required on all
+     echomail messages.
+          #0B - Origin Line.  This sub-field contains the
+     origin line for echomail messages.  This sub-field is
+     optional, but is realistically required on all
+     implementations which intend to communicate using any
+     older type-2 format.
+          #0C - FLAGS line.  This sub-field contains the
+     message attributes in FSC-0053 format.  The leading
+     ASCII #01 (control-A) character should be excluded from
+     this sub-field, but implementations should be tolerant
+     of common minor FSC-0053 variations.
+          #0D - Tear Line:  This sub-field contains a
+     tearline (not to exceed 35 characters including the
+     leading "---" characters.  This line is required on all
+     echomail messages.
+          #0E - PID Line:  This sub-field contains the
+     optional Product Identification (PID) line.
+          #0F - REPLY:  This sub-field contains the optional
+     REPLY field, used with MSGID lines for message thread
+     linking purposes on echomail messages.
+     
+     #03 - Seen-by Block.  The Seen-by Block contains
+     address information of the systems which have "seen" an
+     echomail message.  This data is used to prevent sending
+     multiple copies of messages to a single system.  Seen-
+     by blocks are required on all echomail messages.
+     Implementations will append information for all
+     addresses the local system is sending the current
+     message to prior to actually sending any message.  Seen-
+     by information for systems not in the same domain as
+     the destination system must be excluded.  The local
+     system's address information in a minimal requirement
+     on all messages.
+          The data is a series of two-byte integers.  The
+     first four integers indicate (in order) the zone, net,
+     node, and point number of the first address in the
+     list.  This address serves as a "base" from which other
+     addresses "evolve" as explained below:
+     
+          Positive value (greater than or equal to 0):  node
+     number (zone and net information same as previous
+     address and point number equals 0).
+          Negative number (less than zero EXCEPT -32768):
+     number multiplied by -1 equals new net number (absolute
+     value).  Next number will be new node number.
+          "Reset number" (-32768): indicates new full
+     address block.  Next four integers will equate to (in
+     order) the zone, net, node, and point number of next
+     address in seen-by list.  Later addresses will "evolve"
+     from this number.
+     
+          This storage format allows for an extremely
+     flexible and compact method of storing seen-by
+     information.
+     
+     #04 - Path Block.  This block contains the addresses
+     that the current message has passed through.  This
+     information is maintained across all domain boundaries.
+     Whenever a system processes a message, it adds its own
+     address to the end of this list.  Address records are
+     stored in PacketAddressRecord format.
+     
+IV.  Development and Implementation Assistance
+
+     As this is a proposal for a new standard, it is
+reasonable to expect ambiguities and problems to eventually
+develop in potential implementations of the standard.  The
+author of this standard is available to clarify matters of
+interpretation or ambiguity or problems in coding or
+implementation of the standard.  Public-domain code
+"snippets" of critical portions of the standard
+implementation will be made available when necessary and
+feasible.
+     The author may be reached at the addresses below:
+
+     Jason Steck                   1:285/424@FIDONET
+     PROZ Software                 200:5000/400@METRONET
+     12105 W. Center Rd #103       39:70/200@LDSSNET
+     Omaha, NE 68144               42:1009/424@CANDYNET
+                              Ready Room BBS (402)691-0946
+
