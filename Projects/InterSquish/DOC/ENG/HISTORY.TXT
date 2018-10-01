@@ -1,5 +1,10 @@
 InterSquish NNTP Server
 
+08.09.2018  Version 2.0.5.21
+            Changes by Andrew Ivanov:
+            ! Fixed a bug that prevented clients from sending messages with 
+            certain subject lines
+
 22.10.1999  Version 1.3.3
            -New parameter: TwitIPAddr, using wildcards allowed.
             The remote systems which IP addresses match the wildcards will 
