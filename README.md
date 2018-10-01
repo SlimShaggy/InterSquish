@@ -1,5 +1,8 @@
 # InterSquish
 ## NNTP Server / FTN Gate for Windows
+
+[English docs](Projects/InterSquish/DOC/ENG)
+
 ## 1. Назначение
 InterSquish предназначен для конвертации эхоконференций, хранимых в формате эхопроцессора Squish, в News-формат. Фактически InterSquish является NNTP-сервером, который хранит сообщения в Squish- или JAM-базе. Основным применением InterSquish является гейтование фидошных конференций в ньюсгруппы и обратно. Так же имеется возможность двустороннего гейтования нетмейла (SMTP->FTN и FTN->POP3).
 
@@ -61,3 +64,7 @@ a.sakhno@tut.by\
 Чтобы собрать исполняемый файл InterSquish, необходимо сбилдить проект Projects\InterSquish\IS.bpr в Borland C++ Builder 6 (https://winworldpc.com/product/borland-c-builder/6x). В репозитории также имеется ряд пакетов .bpk и групп проектов .bpg. Билдить их не нужно - в основном проекте пакеты не используются, а содержащиеся в них .cpp-файлы просто добавлены в него напрямую.
 
 В результате сборки получается исполняемый файл IS.EXE, который можно упаковать в zip вместе с документацией и примерами конфигов с помощью скрипта Projects\InterSquish\\!makedist.cmd.
+
+## 11. Прочее
+* [FAQ](Projects/InterSquish/DOC/RUS/IS_FAQ.TXT)
+* [История версий](Projects/InterSquish/DOC/RUS/history.txt)
