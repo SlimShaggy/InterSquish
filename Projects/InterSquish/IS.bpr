@@ -35,10 +35,10 @@
     <DEFFILE value=""/>
     <RESDEPEN value="$(RESFILES) isNNTP.dfm isControlWindow.dfm isSMTP.dfm isPOP3.dfm"/>
     <LIBFILES value=""/>
-    <LIBRARIES value="indy.lib vcldbx.lib vclx.lib bdertl.lib vcldb.lib 
+    <LIBRARIES value="iuScripts.lib iuFTN.lib indy.lib vcldbx.lib vclx.lib bdertl.lib vcldb.lib 
       dbrtl.lib vcl.lib rtl.lib"/>
     <SPARELIBS value="rtl.lib vcl.lib dbrtl.lib vcldb.lib bdertl.lib vclx.lib vcldbx.lib 
-      indy.lib"/>
+      indy.lib iuFTN.lib iuScripts.lib"/>
     <PACKAGES value="rtl.bpi vcl.bpi dbrtl.bpi vcldb.bpi bdertl.bpi"/>
     <PATHCPP value=".;..\..\comp\iuFTN;..\..\comp\iuFTN;..\..\comp\iuFTN;..\..\comp\iuFTN;..\..\comp\iuFTN;..\..\comp\iuFTN;..\..\comp\iuFTNPlus;..\..\comp\iuFTNPlus;..\..\comp\iuLogs;..\..\comp\iuMisc;..\..\comp\iuMisc;..\..\comp\iuMisc;..\..\comp\iuMisc;..\..\comp\iuMisc;..\..\comp\iuMisc;..\..\comp\iuMisc;..\..\comp\iuMisc;..\..\comp\iuNet;..\..\comp\iuNet;..\..\comp\iuNet;..\..\comp\iuNet;..\..\comp\iuNet;..\..\comp\iuNet;..\..\comp\iuNet;..\..\comp\iuNet;..\..\comp\iuNet;..\..\comp\iuNet;..\..\comp\iuScript;..\..\comp\iuScript;..\..\comp\iuScript;..\..\comp\iuScript;..\..\comp\iuRSA;..\..\comp\iuRSA;..\..\comp\iuRSA;..\..\comp\iuRSA;..\..\comp\iuRSA;..\..\comp\iuRSA;..\..\comp\iuRSA;..\..\comp\iuRSA;..\..\comp\iuRSA;..\..\comp\iuRSA;..\..\comp\iuRSA;..\..\comp\iuRSA"/>
     <PATHPAS value=".;"/>
@@ -140,7 +140,7 @@ AutoIncBuild=0
 MajorVer=2
 MinorVer=0
 Release=5
-Build=21
+Build=22
 Debug=0
 PreRelease=0
 Special=0
@@ -152,7 +152,7 @@ CodePage=1251
 [Version Info Keys]
 CompanyName=SAND
 FileDescription=InterSquish NNTP/SMTP/POP3 Server-gate
-FileVersion=2.0.5.21
+FileVersion=2.0.5.22
 InternalName=InterSquish
 LegalCopyright=Ivan Uskov (2:5055/114@fidonet) Fyodor Ustinov (2:5020/79) Andrew Sakhno (2:457/79.11) Andrew Ivanov (2:5023/24.3586)
 LegalTrademarks=
@@ -228,8 +228,9 @@ Item28=
 Item29=
 
 [HistoryLists\hlDebugSourcePath]
-Count=1
-Item0=$(BCB)\Source\Indy\;C:\Program Files\Borland\CBuilder6\Source\Indy\
+Count=2
+Item0=$(BCB)\Source\Indy\
+Item1=$(BCB)\Source\Indy\;C:\Program Files\Borland\CBuilder6\Source\Indy\
 
 [HistoryLists\hlConditionals]
 Count=1

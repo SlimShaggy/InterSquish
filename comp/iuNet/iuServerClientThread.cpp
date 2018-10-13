@@ -300,12 +300,14 @@ unsigned char *Ptr=(unsigned char *)PlainText.c_str();
   while(*Ptr)
   {
 #if (__BORLANDC__ ==0x0530) || (__BORLANDC__ ==0x0540)
-    if(*Ptr>127)
+    if (*Ptr > 127 || *Ptr == 0x9 || *Ptr == 0x20 || *Ptr == 0x3D || *Ptr == 0x3F
+        || *Ptr == 0x5F)
       Result.sprintf("=%02.2X",*Ptr);
     else
       Result.sprintf("%c",*Ptr);
 #elif (__BORLANDC__ >=0x0550)
-    if(*Ptr>127)
+    if (*Ptr > 127 || *Ptr == 0x9 || *Ptr == 0x20 || *Ptr == 0x3D || *Ptr == 0x3F
+        || *Ptr == 0x5F)
       //Result.cat_sprintf("=%02.2X",*Ptr);
       Result+="="+IntToHex(*Ptr, 2);
     else
