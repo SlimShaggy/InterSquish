@@ -1,5 +1,8 @@
 InterSquish NNTP Server
 
+29.10.2018  Version 2.0.5.23
+            + UTF-8 support in subject lines
+
 14.10.2018  Version 2.0.5.22
             ! Fixed encoding tabs, spaces, =, ?, and _ characters in subject 
             lines

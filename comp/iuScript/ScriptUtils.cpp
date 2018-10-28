@@ -4,12 +4,10 @@
 #include <idcoder3to4.hpp>
 #pragma hdrstop
 
-#include "ScriptUtils.h"
-#include "transliterates.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 
-AnsiString __fastcall DecodeBase64New(AnsiString value)
+AnsiString __fastcall DecodeBase64Header(AnsiString value, int charsToSkip)
 {
     AnsiString result;
     AnsiString input;
@@ -25,7 +23,7 @@ AnsiString __fastcall DecodeBase64New(AnsiString value)
     for (int i = 0; i < stringList->Count; i++)
     {
         AnsiString encodedString=stringList->Strings[i];
-        input=encodedString.SubString(12,encodedString.Length()-13);
+        input=encodedString.SubString(charsToSkip + 1,encodedString.Length() - (charsToSkip + 2));
         decoder->CodeString(input);
         AnsiString decodedString=decoder->CompletedInput();
         result+=decodedString.SubString(3,decodedString.Length());
@@ -34,8 +32,5 @@ AnsiString __fastcall DecodeBase64New(AnsiString value)
     delete decoder;
     delete stringList;
 
-    KOI2OEM(result.c_str(),result.c_str());
-
     return result;
 }
-

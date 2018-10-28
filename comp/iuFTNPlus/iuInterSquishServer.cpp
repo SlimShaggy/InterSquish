@@ -1,5 +1,6 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
+#include <StrUtils.hpp>
 //#include <idcoder3to4.hpp>
 #pragma hdrstop
 
@@ -1216,13 +1217,17 @@ int iBeginFieldContent;
       }
       else if(IsField(asFieldLine,"Subject:"))
       {
-        if(asFieldContent.Length()>9 && asFieldContent.SubString(0,9)=="=?koi8-r?")
+        if(asFieldContent.Length()>11 && AnsiStartsText("=?koi8-r?B?", asFieldContent))
         {
-            asFieldContent=DecodeBase64New(asFieldContent);
-
-            //asFieldContent=DecodeBase64(asFieldContent.SubString(11,asFieldContent.Length()));
-
+            asFieldContent = DecodeBase64Header(asFieldContent, 11);
+            KOI2OEM(asFieldContent.c_str(),asFieldContent.c_str());
         }
+        else if (asFieldContent.Length()>10 && AnsiStartsText("=?utf-8?B?", asFieldContent))
+        {
+            asFieldContent = DecodeBase64Header(asFieldContent, 10);
+            AnsiToOem(Utf8ToAnsi(asFieldContent).c_str(),asFieldContent.c_str());
+        }
+
         if (asFieldContent.Length()>72)
         {
             Msg->Lines->Insert(0,"Subject: "+asFieldContent);
