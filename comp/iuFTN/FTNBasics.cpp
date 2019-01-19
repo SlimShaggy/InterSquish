@@ -3,6 +3,7 @@
 #pragma hdrstop
 
 #include "FTNBasics.h"
+#include "scriptUtils.h"
 #include <stdio.h>
 #include <log.h>
 //---------------------------------------------------------------------------
@@ -119,6 +120,7 @@ TraceS(__FUNC__);
   TraceS(__FUNC__);
     FUserName=value;
     FUserName.Delete(iPos,FUserName.Length());
+    FUserName = DecodeMimeHeader(FUserName);
     value.Delete(1,iPos);
     iPos=value.Pos(">");
     if(iPos)

@@ -1,7 +1,5 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
-#include <StrUtils.hpp>
-//#include <idcoder3to4.hpp>
 #pragma hdrstop
 
 #include <time.h>
@@ -1217,16 +1215,8 @@ int iBeginFieldContent;
       }
       else if(IsField(asFieldLine,"Subject:"))
       {
-        if(asFieldContent.Length()>11 && AnsiStartsText("=?koi8-r?B?", asFieldContent))
-        {
-            asFieldContent = DecodeBase64Header(asFieldContent, 11);
-            KOI2OEM(asFieldContent.c_str(),asFieldContent.c_str());
-        }
-        else if (asFieldContent.Length()>10 && AnsiStartsText("=?utf-8?B?", asFieldContent))
-        {
-            asFieldContent = DecodeBase64Header(asFieldContent, 10);
-            AnsiToOem(Utf8ToAnsi(asFieldContent).c_str(),asFieldContent.c_str());
-        }
+
+        asFieldContent = DecodeMimeHeader(asFieldContent);
 
         if (asFieldContent.Length()>72)
         {

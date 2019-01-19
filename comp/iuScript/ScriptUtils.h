@@ -4,6 +4,6 @@
 #define ScriptUtilsH
 //---------------------------------------------------------------------------
 
-AnsiString __fastcall DecodeBase64Header(AnsiString value, int charsToSkip);
+AnsiString __fastcall DecodeMimeHeader(AnsiString value);
 
 #endif
