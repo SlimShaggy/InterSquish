@@ -970,7 +970,7 @@ FCurrentArticleMessageId=MSGID2MessageId(Kludges.MSGID);
 
       FCurrentArticle+="Lines: "+AnsiString(slText->Count)+"\r\n";
       FCurrentArticle+="Xref: "+ClientSocket->LocalHost+" "+SelectedGroup->Tag+":"+FSquishBase->FieldByName("MsgNo")->AsString+"\r\n";
-//      FCurrentArticle+="Content-Type: text/plain; charset=koi8-r";
+      FCurrentArticle+="Content-Type: text/plain; charset=koi8-r\r\n";
       //FCurrentArticle+="X-FTN-MSGID: "+Kludges.MSGID+"\r\n";
       FCurrentArticle+=slPath->Text;
       /*
