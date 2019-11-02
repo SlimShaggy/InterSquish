@@ -1,5 +1,9 @@
 InterSquish NNTP Server
 
+02.11.2019  Version 2.0.5.24
+            + Quoted-Printable support in subject lines
+            + UTF-8 and KOI8-R support in FROM
+
 29.10.2018  Version 2.0.5.23
             + UTF-8 support in subject lines
 
