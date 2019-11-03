@@ -140,7 +140,7 @@ AutoIncBuild=0
 MajorVer=2
 MinorVer=0
 Release=5
-Build=24
+Build=25
 Debug=0
 PreRelease=0
 Special=0
@@ -152,7 +152,7 @@ CodePage=1251
 [Version Info Keys]
 CompanyName=SAND
 FileDescription=InterSquish NNTP/SMTP/POP3 Server-gate
-FileVersion=2.0.5.24
+FileVersion=2.0.5.25
 InternalName=InterSquish
 LegalCopyright=Ivan Uskov (2:5055/114@fidonet) Fyodor Ustinov (2:5020/79) Andrew Sakhno (2:457/79.11) Andrew Ivanov (2:5023/24.3586)
 LegalTrademarks=

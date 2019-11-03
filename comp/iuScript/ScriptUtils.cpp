@@ -1,6 +1,7 @@
 //---------------------------------------------------------------------------
 
 #include <vcl.h>
+#include <SysUtils.hpp>
 #include <StrUtils.hpp>
 #include <idcoder3to4.hpp>
 #include <idcodertext.hpp>
@@ -30,7 +31,7 @@ AnsiString __fastcall DecodeBase64Value(AnsiString value, int charsToSkip)
 AnsiString __fastcall DecodeQuotedPrintableValue(AnsiString value, int charsToSkip)
 {
     TIdQuotedPrintableDecoder *decoder = new TIdQuotedPrintableDecoder(NULL);
-    AnsiString result = DecodeValue(value, charsToSkip, decoder);
+    AnsiString result = DecodeValue(StringReplace(value, "_", "=20", TReplaceFlags() << rfReplaceAll), charsToSkip, decoder);
     delete decoder;
     return result;
 }
