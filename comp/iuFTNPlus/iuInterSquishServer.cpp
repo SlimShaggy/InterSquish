@@ -1167,7 +1167,9 @@ int iBeginFieldContent;
 
       if(IsField(asFieldLine,"MIME-Version:") || IsField(asFieldLine,"Content-Type:"))
       {
-        Msg->Kludges->KludgeByName("RFC-"+asFieldName)->AsString=asFieldContent;
+        if (!PlainFido) {
+          Msg->Kludges->KludgeByName("RFC-"+asFieldName)->AsString=asFieldContent;
+        }
         continue;
       }
 

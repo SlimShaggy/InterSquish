@@ -1,0 +1,15 @@
+{
+    "[bat]":{
+      "files.encoding": "cp866"
+    },
+    "[properties]":{
+      "files.encoding": "cp866"
+    },
+     "[cpp]":{
+      "files.encoding": "windows1251"
+    },
+     "[plaintext]":{
+      "files.encoding": "windows1251"
+    },
+    "C_Cpp.default.compilerPath": ""
+}
