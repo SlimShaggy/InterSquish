@@ -1,5 +1,8 @@
 InterSquish NNTP Server
 
+29.03.2026  Version 2.0.5.26
+            ! Fixed truncation of long subject lines
+
 04.11.2019  Version 2.0.5.25
             ! Fixed decoding spaces in RFC 2047 "Q"-encoded headers
 

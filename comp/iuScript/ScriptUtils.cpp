@@ -64,24 +64,40 @@ AnsiString __fastcall DecodeMimeHeader(AnsiString value)
         if(AnsiStartsText(Koi8BinaryHeader, encodedString))
         {
             decodedString = DecodeBase64Value(encodedString, Koi8BinaryHeader.Length());
-            KOI2OEM(decodedString.c_str(),decodedString.c_str());
+            char* buf = new char[decodedString.Length() + 1];
+            strcpy(buf, decodedString.c_str());
+            KOI2OEM(buf, buf);
+            decodedString = buf;
+            delete[] buf;
         }
         else if(AnsiStartsText(Koi8QPHeader, encodedString))
         {
             decodedString = DecodeQuotedPrintableValue(encodedString, Koi8QPHeader.Length());
-            KOI2OEM(decodedString.c_str(),decodedString.c_str());
+            char* buf = new char[decodedString.Length() + 1];
+            strcpy(buf, decodedString.c_str());
+            KOI2OEM(buf, buf);
+            decodedString = buf;
+            delete[] buf;
         }
         else if (AnsiStartsText(Utf8BinaryHeader, encodedString))
         {
             decodedString = DecodeBase64Value(encodedString, Utf8BinaryHeader.Length());
             decodedString = Utf8ToAnsi(decodedString);
-            AnsiToOem(decodedString.c_str(),decodedString.c_str());
+            char* buf = new char[decodedString.Length() + 1];
+            strcpy(buf, decodedString.c_str());
+            AnsiToOem(buf, buf);
+            decodedString = buf;
+            delete[] buf;
         }
         else if (AnsiStartsText(Utf8QPHeader, encodedString))
         {
             decodedString = DecodeQuotedPrintableValue(encodedString, Utf8QPHeader.Length());
             decodedString = Utf8ToAnsi(decodedString);
-            AnsiToOem(decodedString.c_str(),decodedString.c_str());
+            char* buf = new char[decodedString.Length() + 1];
+            strcpy(buf, decodedString.c_str());
+            AnsiToOem(buf, buf);
+            decodedString = buf;
+            delete[] buf;
         }
         else
         {
