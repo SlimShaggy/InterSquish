@@ -203,7 +203,6 @@ void __fastcall TiuCustomNNTPServerThread::SendArticleHeader(int ArticleNumber)
 {
 TraceS(__FUNC__);
 TArticleHeader AHeader;
-char cAnswer[1024];
   AHeader.iNumber=ArticleNumber;
   if(!PrepareHeader(AHeader))
     return; //нет такой статьи.
@@ -218,11 +217,12 @@ TraceS(__FUNC__);
     ReplaceBadSymbols(AHeader.asReference);
 
 TraceS(__FUNC__);
-    sprintf(cAnswer,"%d\t%s\t%s\t%s\t%s\t%s\t%d\t%d",
-    AHeader.iNumber,AHeader.asSubj.c_str(),AHeader.asFrom.c_str(),AHeader.asDate.c_str(),
-    AHeader.asMessage_ID.c_str(),AHeader.asReference.c_str(),AHeader.iSize,AHeader.iLines);
+    AnsiString asAnswer = AnsiString(AHeader.iNumber) + "\t" + AHeader.asSubj + "\t"
+      + AHeader.asFrom + "\t" + AHeader.asDate + "\t"
+      + AHeader.asMessage_ID + "\t" + AHeader.asReference + "\t"
+      + AnsiString(AHeader.iSize) + "\t" + AnsiString(AHeader.iLines);
 TraceS(__FUNC__);
-    WriteLn(AnsiString(cAnswer));
+    WriteLn(asAnswer);
 //    WriteLn(Format("%d\t%s\t%s\t%s\t%s\t%s\t%d\t%d",
 //    ARRAYOFCONST((AHeader.iNumber,AHeader.asSubj,AHeader.asFrom,AHeader.asDate,
 //    AHeader.asMessage_ID,AHeader.asReference,AHeader.iSize,AHeader.iLines))));

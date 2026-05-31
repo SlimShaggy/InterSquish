@@ -377,6 +377,9 @@ try
           FTranslitMode=2;
         else if(!AnsiCompareText(FUsersCfg->Users->Items[i]->CharsetName,"ANSI"))
           FTranslitMode=1;
+        else if(!AnsiCompareText(FUsersCfg->Users->Items[i]->CharsetName,"UTF8")
+             || !AnsiCompareText(FUsersCfg->Users->Items[i]->CharsetName,"UTF-8"))
+          FTranslitMode=3;
         else
           FTranslitMode=0;
         Result=true;
@@ -464,20 +467,15 @@ bool __fastcall TiuIssNNTPServerThread::PrepareHeader(TArticleHeader &AHeader)
   //if(Kludges.RELPYADDR!="")
   if (Kludges.REPLYADDR!="")
   {
-     if (Kludges.REPLYADDR.Pos("<") == 0 || Kludges.REPLYADDR.Pos(">") == 0)
+     int posLt = Kludges.REPLYADDR.Pos("<");
+     int posGt = Kludges.REPLYADDR.Pos(">");
+     if (posLt == 0 || posGt == 0 || posGt <= posLt)
      {
         AHeader.asFrom+=Kludges.REPLYADDR+">";
      } else
      {
-        char *Ptr = Kludges.REPLYADDR.c_str();
-        while (*Ptr != '<') Ptr++;
-        Ptr++;
-        while (*Ptr != '>')
-        {
-            AHeader.asFrom += *Ptr;
-            Ptr++;
-        }
-      }
+        AHeader.asFrom+=Kludges.REPLYADDR.SubString(posLt + 1, posGt - posLt - 1)+">";
+     }
   }else
   {
     AnsiString asFromAcc=FSquishBase->FieldByName("From")->AsString.Trim();
@@ -515,11 +513,14 @@ bool __fastcall TiuIssNNTPServerThread::PrepareHeader(TArticleHeader &AHeader)
         AnsiString realorigin;
         Allmsg=AnsiString(((TFTNBaseRecord*)(FSquishBase->ActiveRecordBuf))->Text);
         int pos=Allmsg.Pos("* Origin"); //выловить слово оригин
+        if(pos > 0)
+        {
         origin=Allmsg.SubString(pos,80); //выловили строку с оригином
         pos=origin.Pos("\r"); //нашли конец оригина
-        origin=origin.SubString(1,pos); //
-        int posend;
-        int posstart;
+        if(pos > 0)
+          origin=origin.SubString(1,pos);
+        int posend=0;
+        int posstart=0;
         for(int i=origin.Length();i>1;i--)
         {
             if(origin[i]==')') posend=i;
@@ -529,8 +530,12 @@ bool __fastcall TiuIssNNTPServerThread::PrepareHeader(TArticleHeader &AHeader)
                 break;
             }
         }
+        if(posstart > 0 && posend > posstart)
+        {
         realorigin=origin.SubString(posstart+1,posend-1-posstart);
         Kludges.KludgeByName("MSGID")->AsString=realorigin+" "+AnsiString("").sprintf(" %08.8x",time(NULL));
+        }
+        }
   }
 
 //  проверка валидности msgid
@@ -926,16 +931,12 @@ TStringList *slText=new TStringList();
       //if(Kludges.REPLYADDR!="")
       if (Kludges.REPLYADDR!="")
       {
-         if (Kludges.REPLYADDR.Pos("<") == 0 || Kludges.REPLYADDR.Pos(">") == 0) {
+         int posLt = Kludges.REPLYADDR.Pos("<");
+         int posGt = Kludges.REPLYADDR.Pos(">");
+         if (posLt == 0 || posGt == 0 || posGt <= posLt) {
             FCurrentArticle+=Kludges.REPLYADDR+">";
          } else {
-            char *Ptr = Kludges.REPLYADDR.c_str();
-            while (*Ptr != '<') Ptr++;
-            Ptr++;
-            while (*Ptr != '>') {
-               FCurrentArticle += *Ptr;
-               Ptr++;
-            }
+            FCurrentArticle+=Kludges.REPLYADDR.SubString(posLt + 1, posGt - posLt - 1)+">";
          }
       } else {
         AnsiString asFromAcc=FSquishBase->FieldByName("From")->AsString.Trim();
@@ -1293,6 +1294,14 @@ AnsiString asMsgBody;
         break;
     case 1://ANSI
         CharToOem(Body.c_str(),Body.c_str());
+        break;
+    case 3://UTF-8
+        {
+        AnsiString ansiBody = Utf8ToAnsi(Body);
+        Body = ansiBody;
+        Body.Unique();
+        CharToOem(Body.c_str(),Body.c_str());
+        }
         break;
     default://OEM
         break;
@@ -1709,6 +1718,14 @@ AnsiString asMsgBody;
     case 1://ANSI
         CharToOem(RfcMsg.c_str(),RfcMsg.c_str());
         break;
+    case 3://UTF-8
+        {
+        AnsiString ansiMsg = Utf8ToAnsi(RfcMsg);
+        RfcMsg = ansiMsg;
+        RfcMsg.Unique();
+        CharToOem(RfcMsg.c_str(),RfcMsg.c_str());
+        }
+        break;
     default://OEM
         break;
   }
@@ -1980,6 +1997,9 @@ bool Result;
           FTranslitMode=2;
       else if(!AnsiCompareText(UsersCfg->Users->Items[i]->CharsetName,"ANSI"))
           FTranslitMode=1;
+      else if(!AnsiCompareText(UsersCfg->Users->Items[i]->CharsetName,"UTF8")
+           || !AnsiCompareText(UsersCfg->Users->Items[i]->CharsetName,"UTF-8"))
+          FTranslitMode=3;
       else
           FTranslitMode=0;
       break;
@@ -2154,6 +2174,9 @@ void __fastcall TiuIssPOP3ServerThread::FindUser(void)
           FTranslitMode=2;
       else if(!AnsiCompareText(UsersCfg->Users->Items[i]->CharsetName,"ANSI"))
           FTranslitMode=1;
+      else if(!AnsiCompareText(UsersCfg->Users->Items[i]->CharsetName,"UTF8")
+           || !AnsiCompareText(UsersCfg->Users->Items[i]->CharsetName,"UTF-8"))
+          FTranslitMode=3;
       else
           FTranslitMode=0;
 
