@@ -377,6 +377,9 @@ try
           FTranslitMode=2;
         else if(!AnsiCompareText(FUsersCfg->Users->Items[i]->CharsetName,"ANSI"))
           FTranslitMode=1;
+        else if(!AnsiCompareText(FUsersCfg->Users->Items[i]->CharsetName,"UTF8")
+             || !AnsiCompareText(FUsersCfg->Users->Items[i]->CharsetName,"UTF-8"))
+          FTranslitMode=3;
         else
           FTranslitMode=0;
         Result=true;
@@ -464,20 +467,15 @@ bool __fastcall TiuIssNNTPServerThread::PrepareHeader(TArticleHeader &AHeader)
   //if(Kludges.RELPYADDR!="")
   if (Kludges.REPLYADDR!="")
   {
-     if (Kludges.REPLYADDR.Pos("<") == 0 || Kludges.REPLYADDR.Pos(">") == 0)
+     int posLt = Kludges.REPLYADDR.Pos("<");
+     int posGt = Kludges.REPLYADDR.Pos(">");
+     if (posLt == 0 || posGt == 0 || posGt <= posLt)
      {
         AHeader.asFrom+=Kludges.REPLYADDR+">";
      } else
      {
-        char *Ptr = Kludges.REPLYADDR.c_str();
-        while (*Ptr != '<') Ptr++;
-        Ptr++;
-        while (*Ptr != '>')
-        {
-            AHeader.asFrom += *Ptr;
-            Ptr++;
-        }
-      }
+        AHeader.asFrom+=Kludges.REPLYADDR.SubString(posLt + 1, posGt - posLt - 1)+">";
+     }
   }else
   {
     AnsiString asFromAcc=FSquishBase->FieldByName("From")->AsString.Trim();
@@ -515,11 +513,14 @@ bool __fastcall TiuIssNNTPServerThread::PrepareHeader(TArticleHeader &AHeader)
         AnsiString realorigin;
         Allmsg=AnsiString(((TFTNBaseRecord*)(FSquishBase->ActiveRecordBuf))->Text);
         int pos=Allmsg.Pos("* Origin"); //выловить слово оригин
+        if(pos > 0)
+        {
         origin=Allmsg.SubString(pos,80); //выловили строку с оригином
         pos=origin.Pos("\r"); //нашли конец оригина
-        origin=origin.SubString(1,pos); //
-        int posend;
-        int posstart;
+        if(pos > 0)
+          origin=origin.SubString(1,pos);
+        int posend=0;
+        int posstart=0;
         for(int i=origin.Length();i>1;i--)
         {
             if(origin[i]==')') posend=i;
@@ -529,8 +530,12 @@ bool __fastcall TiuIssNNTPServerThread::PrepareHeader(TArticleHeader &AHeader)
                 break;
             }
         }
+        if(posstart > 0 && posend > posstart)
+        {
         realorigin=origin.SubString(posstart+1,posend-1-posstart);
         Kludges.KludgeByName("MSGID")->AsString=realorigin+" "+AnsiString("").sprintf(" %08.8x",time(NULL));
+        }
+        }
   }
 
 //  проверка валидности msgid
@@ -571,11 +576,16 @@ AnsiString asOutString;
   for(int i=0;i<NewsList->Count;i++)
   {
     asOutString=((TAreaInfo*)NewsList->Objects[i])->Description;
-    asOutString.Unique();
+    {
+    char *buf = new char[asOutString.Length() + 1];
+    strcpy(buf, asOutString.c_str());
     if(ISS->DescriptionsInAnsi)
-      OemToChar(asOutString.c_str(),asOutString.c_str());
+      OemToChar(buf, buf);
     else
-      OEM2KOI(asOutString.c_str(),asOutString.c_str());
+      OEM2KOI(buf, buf);
+    asOutString = buf;
+    delete[] buf;
+    }
 
 //    asOutString=RecodeLine(asOutString);
 //asOutString=RecodeLine("Description");
@@ -909,6 +919,12 @@ TStringList *slText=new TStringList();
             break;
          }
       }
+      // Dot-stuffing per RFC 977: lines starting with '.' must be doubled
+      for (int i = 0; i < slText->Count; i++)
+      {
+          if (slText->Strings[i].Length() > 0 && slText->Strings[i][1] == '.')
+              slText->Strings[i] = "." + slText->Strings[i];
+      }
 /*
       Article+="From: "+FSquishBase->FieldByName("From")->AsString+" ("
         +FSquishBase->FieldByName("OrigZone")->AsString+":"
@@ -926,16 +942,12 @@ TStringList *slText=new TStringList();
       //if(Kludges.REPLYADDR!="")
       if (Kludges.REPLYADDR!="")
       {
-         if (Kludges.REPLYADDR.Pos("<") == 0 || Kludges.REPLYADDR.Pos(">") == 0) {
+         int posLt = Kludges.REPLYADDR.Pos("<");
+         int posGt = Kludges.REPLYADDR.Pos(">");
+         if (posLt == 0 || posGt == 0 || posGt <= posLt) {
             FCurrentArticle+=Kludges.REPLYADDR+">";
          } else {
-            char *Ptr = Kludges.REPLYADDR.c_str();
-            while (*Ptr != '<') Ptr++;
-            Ptr++;
-            while (*Ptr != '>') {
-               FCurrentArticle += *Ptr;
-               Ptr++;
-            }
+            FCurrentArticle+=Kludges.REPLYADDR.SubString(posLt + 1, posGt - posLt - 1)+">";
          }
       } else {
         AnsiString asFromAcc=FSquishBase->FieldByName("From")->AsString.Trim();
@@ -1272,7 +1284,6 @@ AnsiString asTemp;
 AnsiString asMsgBody;
 //int iLinesPos;
   TraceS(__FUNC__);
-  Body.Unique();
   if(lastTimeStamp==TimeStamp)
   {
         Sleep(1100);
@@ -1281,18 +1292,105 @@ AnsiString asMsgBody;
   //Sleep(1100);//dupes prevent;
   lastTimeStamp=TimeStamp;
 
+  // Parse RFC headers from the incoming message body so we can detect
+  // the source charset from the Content-Type header before any conversion.
+  TStringList *slRFCHeaderLines=new TStringList;
+  asMsgBody=SplitRfcMessage(Body, slRFCHeaderLines);
+
+  // Determine charset from Content-Type header's charset= parameter.
+  // Only fall back to FTranslitMode when no charset is specified.
+  int DetectedTranslitMode = -1;
+  for (int i = 0; i < slRFCHeaderLines->Count; i++)
+  {
+    AnsiString line = slRFCHeaderLines->Strings[i];
+    if (line.LowerCase().Pos("content-type:") == 1)
+    {
+      // The charset value may be on the same line or a continuation line;
+      // SplitRfcMessage already unfolds headers, so check this line and
+      // the immediately following lines while they start with whitespace.
+      AnsiString ctValue = line;
+      for (int j = i + 1; j < slRFCHeaderLines->Count; j++)
+      {
+        AnsiString cont = slRFCHeaderLines->Strings[j];
+        if (cont.Length() > 0 && (cont[1] == ' ' || cont[1] == '\t'))
+          ctValue = ctValue + " " + cont.Trim();
+        else
+          break;
+      }
+      AnsiString ctLower = ctValue.LowerCase();
+      int charsetPos = ctLower.Pos("charset=");
+      if (charsetPos > 0)
+      {
+        // Extract the charset value, stripping optional quotes and
+        // any trailing parameters separated by semicolons.
+        AnsiString charset = ctValue.SubString(charsetPos + 8,
+                               ctValue.Length() - charsetPos - 7).Trim();
+        if (charset.Length() > 0 && charset[1] == '"')
+          charset = charset.SubString(2, charset.Length() - 1);
+        int quoteEnd = charset.Pos("\"");
+        if (quoteEnd > 0)
+          charset = charset.SubString(1, quoteEnd - 1);
+        int semiPos = charset.Pos(";");
+        if (semiPos > 0)
+          charset = charset.SubString(1, semiPos - 1);
+        charset = charset.Trim().LowerCase();
+        if (charset == "koi8-r" || charset == "koi8")
+          DetectedTranslitMode = 0;
+        else if (charset == "windows-1251" || charset == "cp1251"
+              || charset == "ansi"         || charset == "iso-8859-5")
+          DetectedTranslitMode = 1;
+        else if (charset == "utf-8" || charset == "utf8")
+          DetectedTranslitMode = 3;
+        else if (charset == "oem" || charset == "cp866")
+          DetectedTranslitMode = 2;
+      }
+      break;
+    }
+  }
 #ifdef SHAREWARE
   if(ISS->Tag<18)
   {
 #endif
-//    KOI2OEM(Body.c_str(),Body.c_str());
-  switch(FTranslitMode)
+  // Use charset from Content-Type if found, otherwise fall back to
+  // the user-configured FTranslitMode.
+  int mode = (DetectedTranslitMode != -1) ? DetectedTranslitMode : FTranslitMode;
+  switch(mode)
   {
     case 0://KOI8
-        KOI2OEM(Body.c_str(),Body.c_str());
+        {
+        char *buf = new char[Body.Length() + 1];
+        strcpy(buf, Body.c_str());
+        KOI2OEM(buf, buf);
+        Body = buf;
+        delete[] buf;
+        }
         break;
     case 1://ANSI
-        CharToOem(Body.c_str(),Body.c_str());
+        {
+        char *buf = new char[Body.Length() + 1];
+        strcpy(buf, Body.c_str());
+        CharToOem(buf, buf);
+        Body = buf;
+        delete[] buf;
+        }
+        break;
+    case 3://UTF-8
+        {
+        AnsiString ansiBody = Utf8ToAnsi(Body);
+        // Replace Cyrillic angle quotes (0xAB, 0xBB in CP1251) with
+        // plain ASCII double-quote (0x22) before OEM conversion.
+        for (int qi = 1; qi <= ansiBody.Length(); qi++)
+        {
+          unsigned char qc = (unsigned char)ansiBody[qi];
+          if (qc == 0xAB || qc == 0xBB)
+            ansiBody[qi] = '"';
+        }
+        char *buf = new char[ansiBody.Length() + 1];
+        strcpy(buf, ansiBody.c_str());
+        CharToOem(buf, buf);
+        Body = buf;
+        delete[] buf;
+        }
         break;
     default://OEM
         break;
@@ -1300,9 +1398,8 @@ AnsiString asMsgBody;
 #ifdef SHAREWARE
   }
 #endif
-  N2H(Body.c_str(),Body.c_str());
-  TFTNMsg *Msg=new TFTNMsg(NULL);
-  TStringList *slRFCHeaderLines=new TStringList;
+  //N2H(Body.c_str(),Body.c_str());
+TFTNMsg *Msg=new TFTNMsg(NULL);
 
 
   Msg->Kludges->KludgeByName("AREA:")->AsString=this->SelectedGroup->getInternalName(NewsGroup.UpperCase(),NULL,UserInfo);
@@ -1699,20 +1796,49 @@ AnsiString asMsgBody;
     OutPacket->OrigAddr=TFTNAddress(ISS->PktOrigAddress).AsFTSStruct;
     OutPacket->DestAddr=TFTNAddress(ISS->FTNAddress).AsFTSStruct;
 
-    RfcMsg.Unique();
 //    KOI2OEM(RfcMsg.c_str(),RfcMsg.c_str());
   switch(FTranslitMode)
   {
     case 0://KOI8
-        KOI2OEM(RfcMsg.c_str(),RfcMsg.c_str());
+        {
+        char *buf = new char[RfcMsg.Length() + 1];
+        strcpy(buf, RfcMsg.c_str());
+        KOI2OEM(buf, buf);
+        RfcMsg = buf;
+        delete[] buf;
+        }
         break;
     case 1://ANSI
-        CharToOem(RfcMsg.c_str(),RfcMsg.c_str());
+        {
+        char *buf = new char[RfcMsg.Length() + 1];
+        strcpy(buf, RfcMsg.c_str());
+        CharToOem(buf, buf);
+        RfcMsg = buf;
+        delete[] buf;
+        }
+        break;
+    case 3://UTF-8
+        {
+        AnsiString ansiMsg = Utf8ToAnsi(RfcMsg);
+        // Replace Cyrillic angle quotes (0xAB, 0xBB in CP1251) with
+        // plain ASCII double-quote (0x22) before OEM conversion.
+        for (int qi = 1; qi <= ansiMsg.Length(); qi++)
+        {
+          unsigned char qc = (unsigned char)ansiMsg[qi];
+          if (qc == 0xAB || qc == 0xBB)
+            ansiMsg[qi] = '"';
+        }
+        char *buf = new char[ansiMsg.Length() + 1];
+        strcpy(buf, ansiMsg.c_str());
+        CharToOem(buf, buf);
+        RfcMsg = buf;
+        delete[] buf;
+        }
         break;
     default://OEM
         break;
   }
-    N2H(RfcMsg.c_str(),RfcMsg.c_str());
+    //N2H(RfcMsg.c_str(),RfcMsg.c_str());
 
     asMsgBody=SplitRfcMessage(RfcMsg, slRFCHeaderLines);
 
@@ -1980,6 +2106,9 @@ bool Result;
           FTranslitMode=2;
       else if(!AnsiCompareText(UsersCfg->Users->Items[i]->CharsetName,"ANSI"))
           FTranslitMode=1;
+      else if(!AnsiCompareText(UsersCfg->Users->Items[i]->CharsetName,"UTF8")
+           || !AnsiCompareText(UsersCfg->Users->Items[i]->CharsetName,"UTF-8"))
+          FTranslitMode=3;
       else
           FTranslitMode=0;
       break;
@@ -2154,6 +2283,9 @@ void __fastcall TiuIssPOP3ServerThread::FindUser(void)
           FTranslitMode=2;
       else if(!AnsiCompareText(UsersCfg->Users->Items[i]->CharsetName,"ANSI"))
           FTranslitMode=1;
+      else if(!AnsiCompareText(UsersCfg->Users->Items[i]->CharsetName,"UTF8")
+           || !AnsiCompareText(UsersCfg->Users->Items[i]->CharsetName,"UTF-8"))
+          FTranslitMode=3;
       else
           FTranslitMode=0;
 
