@@ -576,11 +576,16 @@ AnsiString asOutString;
   for(int i=0;i<NewsList->Count;i++)
   {
     asOutString=((TAreaInfo*)NewsList->Objects[i])->Description;
-    asOutString.Unique();
+    {
+    char *buf = new char[asOutString.Length() + 1];
+    strcpy(buf, asOutString.c_str());
     if(ISS->DescriptionsInAnsi)
-      OemToChar(asOutString.c_str(),asOutString.c_str());
+      OemToChar(buf, buf);
     else
-      OEM2KOI(asOutString.c_str(),asOutString.c_str());
+      OEM2KOI(buf, buf);
+    asOutString = buf;
+    delete[] buf;
+    }
 
 //    asOutString=RecodeLine(asOutString);
 //asOutString=RecodeLine("Description");
@@ -913,6 +918,12 @@ TStringList *slText=new TStringList();
          if (slText->Strings[i].Pos(" * Origin:")==1) {
             break;
          }
+      }
+      // Dot-stuffing per RFC 977: lines starting with '.' must be doubled
+      for (int i = 0; i < slText->Count; i++)
+      {
+          if (slText->Strings[i].Length() > 0 && slText->Strings[i][1] == '.')
+              slText->Strings[i] = "." + slText->Strings[i];
       }
 /*
       Article+="From: "+FSquishBase->FieldByName("From")->AsString+" ("
@@ -1273,7 +1284,6 @@ AnsiString asTemp;
 AnsiString asMsgBody;
 //int iLinesPos;
   TraceS(__FUNC__);
-  Body.Unique();
   if(lastTimeStamp==TimeStamp)
   {
         Sleep(1100);
@@ -1290,17 +1300,31 @@ AnsiString asMsgBody;
   switch(FTranslitMode)
   {
     case 0://KOI8
-        KOI2OEM(Body.c_str(),Body.c_str());
+        {
+        char *buf = new char[Body.Length() + 1];
+        strcpy(buf, Body.c_str());
+        KOI2OEM(buf, buf);
+        Body = buf;
+        delete[] buf;
+        }
         break;
     case 1://ANSI
-        CharToOem(Body.c_str(),Body.c_str());
+        {
+        char *buf = new char[Body.Length() + 1];
+        strcpy(buf, Body.c_str());
+        CharToOem(buf, buf);
+        Body = buf;
+        delete[] buf;
+        }
         break;
     case 3://UTF-8
         {
         AnsiString ansiBody = Utf8ToAnsi(Body);
-        Body = ansiBody;
-        Body.Unique();
-        CharToOem(Body.c_str(),Body.c_str());
+        char *buf = new char[ansiBody.Length() + 1];
+        strcpy(buf, ansiBody.c_str());
+        CharToOem(buf, buf);
+        Body = buf;
+        delete[] buf;
         }
         break;
     default://OEM
@@ -1309,7 +1333,7 @@ AnsiString asMsgBody;
 #ifdef SHAREWARE
   }
 #endif
-  N2H(Body.c_str(),Body.c_str());
+  //N2H(Body.c_str(),Body.c_str());
   TFTNMsg *Msg=new TFTNMsg(NULL);
   TStringList *slRFCHeaderLines=new TStringList;
 
@@ -1708,28 +1732,41 @@ AnsiString asMsgBody;
     OutPacket->OrigAddr=TFTNAddress(ISS->PktOrigAddress).AsFTSStruct;
     OutPacket->DestAddr=TFTNAddress(ISS->FTNAddress).AsFTSStruct;
 
-    RfcMsg.Unique();
 //    KOI2OEM(RfcMsg.c_str(),RfcMsg.c_str());
   switch(FTranslitMode)
   {
     case 0://KOI8
-        KOI2OEM(RfcMsg.c_str(),RfcMsg.c_str());
+        {
+        char *buf = new char[RfcMsg.Length() + 1];
+        strcpy(buf, RfcMsg.c_str());
+        KOI2OEM(buf, buf);
+        RfcMsg = buf;
+        delete[] buf;
+        }
         break;
     case 1://ANSI
-        CharToOem(RfcMsg.c_str(),RfcMsg.c_str());
+        {
+        char *buf = new char[RfcMsg.Length() + 1];
+        strcpy(buf, RfcMsg.c_str());
+        CharToOem(buf, buf);
+        RfcMsg = buf;
+        delete[] buf;
+        }
         break;
     case 3://UTF-8
         {
         AnsiString ansiMsg = Utf8ToAnsi(RfcMsg);
-        RfcMsg = ansiMsg;
-        RfcMsg.Unique();
-        CharToOem(RfcMsg.c_str(),RfcMsg.c_str());
+        char *buf = new char[ansiMsg.Length() + 1];
+        strcpy(buf, ansiMsg.c_str());
+        CharToOem(buf, buf);
+        RfcMsg = buf;
+        delete[] buf;
         }
         break;
     default://OEM
         break;
   }
-    N2H(RfcMsg.c_str(),RfcMsg.c_str());
+    //N2H(RfcMsg.c_str(),RfcMsg.c_str());
 
     asMsgBody=SplitRfcMessage(RfcMsg, slRFCHeaderLines);
 
