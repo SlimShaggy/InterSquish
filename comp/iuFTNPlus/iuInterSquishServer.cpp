@@ -1292,28 +1292,67 @@ AnsiString asMsgBody;
   //Sleep(1100);//dupes prevent;
   lastTimeStamp=TimeStamp;
 
-  // Determine charset from Content-Type header if present
+  // Parse RFC headers from the incoming message body so we can detect
+  // the source charset from the Content-Type header before any conversion.
+  TStringList *slRFCHeaderLines=new TStringList;
+  asMsgBody=SplitRfcMessage(Body, slRFCHeaderLines);
+
+  // Determine charset from Content-Type header's charset= parameter.
+  // Only fall back to FTranslitMode when no charset is specified.
   int DetectedTranslitMode = -1;
-  for (int i = 0; i < slRFCHeaderLines->Count; i++) {
+  for (int i = 0; i < slRFCHeaderLines->Count; i++)
+  {
     AnsiString line = slRFCHeaderLines->Strings[i];
-    if (line.LowerCase().Pos("content-type:") == 1) {
-      int charsetPos = line.LowerCase().Pos("charset=");
-      if (charsetPos > 0) {
-        AnsiString charset = line.SubString(charsetPos + 8, line.Length() - charsetPos - 7).Trim();
-        charset = charset.LowerCase();
-        if (charset.Pos(";") > 0) charset = charset.SubString(1, charset.Pos(";") - 1).Trim();
-        if (charset == "koi8-r" || charset == "koi8") DetectedTranslitMode = 0;
-        else if (charset == "windows-1251" || charset == "cp1251" || charset == "ansi" || charset == "iso-8859-5") DetectedTranslitMode = 1;
-        else if (charset == "utf-8" || charset == "utf8") DetectedTranslitMode = 3;
-        else if (charset == "oem" || charset == "cp866") DetectedTranslitMode = 2;
-        break;
+    if (line.LowerCase().Pos("content-type:") == 1)
+    {
+      // The charset value may be on the same line or a continuation line;
+      // SplitRfcMessage already unfolds headers, so check this line and
+      // the immediately following lines while they start with whitespace.
+      AnsiString ctValue = line;
+      for (int j = i + 1; j < slRFCHeaderLines->Count; j++)
+      {
+        AnsiString cont = slRFCHeaderLines->Strings[j];
+        if (cont.Length() > 0 && (cont[1] == ' ' || cont[1] == '\t'))
+          ctValue = ctValue + " " + cont.Trim();
+        else
+          break;
       }
+      AnsiString ctLower = ctValue.LowerCase();
+      int charsetPos = ctLower.Pos("charset=");
+      if (charsetPos > 0)
+      {
+        // Extract the charset value, stripping optional quotes and
+        // any trailing parameters separated by semicolons.
+        AnsiString charset = ctValue.SubString(charsetPos + 8,
+                               ctValue.Length() - charsetPos - 7).Trim();
+        if (charset.Length() > 0 && charset[1] == '"')
+          charset = charset.SubString(2, charset.Length() - 1);
+        int quoteEnd = charset.Pos("\"");
+        if (quoteEnd > 0)
+          charset = charset.SubString(1, quoteEnd - 1);
+        int semiPos = charset.Pos(";");
+        if (semiPos > 0)
+          charset = charset.SubString(1, semiPos - 1);
+        charset = charset.Trim().LowerCase();
+        if (charset == "koi8-r" || charset == "koi8")
+          DetectedTranslitMode = 0;
+        else if (charset == "windows-1251" || charset == "cp1251"
+              || charset == "ansi"         || charset == "iso-8859-5")
+          DetectedTranslitMode = 1;
+        else if (charset == "utf-8" || charset == "utf8")
+          DetectedTranslitMode = 3;
+        else if (charset == "oem" || charset == "cp866")
+          DetectedTranslitMode = 2;
+      }
+      break;
     }
   }
 #ifdef SHAREWARE
   if(ISS->Tag<18)
   {
 #endif
+  // Use charset from Content-Type if found, otherwise fall back to
+  // the user-configured FTranslitMode.
   int mode = (DetectedTranslitMode != -1) ? DetectedTranslitMode : FTranslitMode;
   switch(mode)
   {
@@ -1352,8 +1391,7 @@ AnsiString asMsgBody;
   }
 #endif
   //N2H(Body.c_str(),Body.c_str());
-  TFTNMsg *Msg=new TFTNMsg(NULL);
-  TStringList *slRFCHeaderLines=new TStringList;
+TFTNMsg *Msg=new TFTNMsg(NULL);
 
 
   Msg->Kludges->KludgeByName("AREA:")->AsString=this->SelectedGroup->getInternalName(NewsGroup.UpperCase(),NULL,UserInfo);
