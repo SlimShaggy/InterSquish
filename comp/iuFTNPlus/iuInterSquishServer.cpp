@@ -1292,12 +1292,30 @@ AnsiString asMsgBody;
   //Sleep(1100);//dupes prevent;
   lastTimeStamp=TimeStamp;
 
+  // Determine charset from Content-Type header if present
+  int DetectedTranslitMode = -1;
+  for (int i = 0; i < slRFCHeaderLines->Count; i++) {
+    AnsiString line = slRFCHeaderLines->Strings[i];
+    if (line.LowerCase().Pos("content-type:") == 1) {
+      int charsetPos = line.LowerCase().Pos("charset=");
+      if (charsetPos > 0) {
+        AnsiString charset = line.SubString(charsetPos + 8, line.Length() - charsetPos - 7).Trim();
+        charset = charset.LowerCase();
+        if (charset.Pos(";") > 0) charset = charset.SubString(1, charset.Pos(";") - 1).Trim();
+        if (charset == "koi8-r" || charset == "koi8") DetectedTranslitMode = 0;
+        else if (charset == "windows-1251" || charset == "cp1251" || charset == "ansi" || charset == "iso-8859-5") DetectedTranslitMode = 1;
+        else if (charset == "utf-8" || charset == "utf8") DetectedTranslitMode = 3;
+        else if (charset == "oem" || charset == "cp866") DetectedTranslitMode = 2;
+        break;
+      }
+    }
+  }
 #ifdef SHAREWARE
   if(ISS->Tag<18)
   {
 #endif
-//    KOI2OEM(Body.c_str(),Body.c_str());
-  switch(FTranslitMode)
+  int mode = (DetectedTranslitMode != -1) ? DetectedTranslitMode : FTranslitMode;
+  switch(mode)
   {
     case 0://KOI8
         {
