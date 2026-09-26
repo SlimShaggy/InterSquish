@@ -76,6 +76,7 @@ protected:
   void __fastcall DoOutboundLogging(void);
   void __fastcall Log(AnsiString LogLine);
   AnsiString __fastcall RecodeLine(AnsiString PlainText);
+  AnsiString __fastcall RecodeLine(AnsiString PlainText, AnsiString Charset);
   AnsiString __fastcall SplitRfcMessage(AnsiString RfcMessage, TStringList *HeaderLines);
 public:
 	__fastcall TiuServerClientThread(bool CreateSuspended, TServerClientWinSocket* ASocket);

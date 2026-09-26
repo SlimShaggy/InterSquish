@@ -102,6 +102,9 @@ class PACKAGE TiuIssNNTPServerThread : public TiuCustomNNTPServerThread
   TiuIssNNTPServer * __fastcall GetISS(void){ return (TiuIssNNTPServer *)Server;};
   AnsiString __fastcall TryFoundTo(AnsiString Area, AnsiString MsgID);
   int FTranslitMode;
+  AnsiString __fastcall OutCharsetName(void);
+  AnsiString __fastcall ToOutCharset(AnsiString S);
+  AnsiString __fastcall EncodeHeader(AnsiString S);
 protected:
 
   TAreaInfo * __fastcall GetAreaInfo(int Index);

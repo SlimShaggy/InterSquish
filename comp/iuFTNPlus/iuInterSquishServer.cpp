@@ -412,11 +412,35 @@ void __fastcall TiuIssNNTPServerThread::Transliterate(TObject* Sender,char* Src,
         OEM2KOI(Src,Dest);
         break;
     case 1://ANSI
+    case 3://UTF-8: здесь в ANSI, в UTF-8 позже в ToOutCharset (буферы фиксированного размера)
         OemToChar(Src,Dest);
         break;
     default://OEM
       strcpy(Dest,Src);
   }
+}
+//---------------------------------------------------------------------------
+AnsiString __fastcall TiuIssNNTPServerThread::OutCharsetName(void)
+{
+  switch(FTranslitMode)
+  {
+    case 0:  return "koi8-r";
+    case 1:  return "windows-1251";
+    case 3:  return "utf-8";
+    default: return "cp866";
+  }
+}
+//---------------------------------------------------------------------------
+AnsiString __fastcall TiuIssNNTPServerThread::ToOutCharset(AnsiString S)
+{
+  if(FTranslitMode==3)
+    return AnsiToUtf8(S);
+  return S;
+}
+//---------------------------------------------------------------------------
+AnsiString __fastcall TiuIssNNTPServerThread::EncodeHeader(AnsiString S)
+{
+  return RecodeLine(ToOutCharset(S), OutCharsetName());
 }
 //---------------------------------------------------------------------------
 bool __fastcall TiuIssNNTPServerThread::FindArticle(DWORD ANumber)
@@ -462,19 +486,18 @@ bool __fastcall TiuIssNNTPServerThread::PrepareHeader(TArticleHeader &AHeader)
     return Result;
   AnsiString KludgesLine=AnsiString(((TFTNBaseRecord*)(FSquishBase->ActiveRecordBuf))->Kludges);
   TKludges Kludges(KludgesLine);
-  AHeader.asSubj=RecodeLine(FSquishBase->FieldByName("Subj")->AsString);
-  AHeader.asFrom="\"" + RecodeLine(FSquishBase->FieldByName("From")->AsString)+"\" <";
-  //if(Kludges.RELPYADDR!="")
+  AHeader.asSubj=EncodeHeader(FSquishBase->FieldByName("Subj")->AsString);
+  AHeader.asFrom="\"" + EncodeHeader(FSquishBase->FieldByName("From")->AsString)+"\" <";
   if (Kludges.REPLYADDR!="")
   {
      int posLt = Kludges.REPLYADDR.Pos("<");
      int posGt = Kludges.REPLYADDR.Pos(">");
      if (posLt == 0 || posGt == 0 || posGt <= posLt)
      {
-        AHeader.asFrom+=Kludges.REPLYADDR+">";
+        AHeader.asFrom+=ToOutCharset(Kludges.REPLYADDR)+">";
      } else
      {
-        AHeader.asFrom+=Kludges.REPLYADDR.SubString(posLt + 1, posGt - posLt - 1)+">";
+        AHeader.asFrom+=ToOutCharset(Kludges.REPLYADDR.SubString(posLt + 1, posGt - posLt - 1))+">";
      }
   }else
   {
@@ -482,7 +505,7 @@ bool __fastcall TiuIssNNTPServerThread::PrepareHeader(TArticleHeader &AHeader)
     if(Kludges.KludgeByName("RFC-From:")->AsString !="") //есть постинг через гейт
     {
         asFromAcc=Kludges.KludgeByName("RFC-From:")->AsString.Trim();
-        AHeader.asFrom=asFromAcc;
+        AHeader.asFrom=ToOutCharset(asFromAcc);
     }else
     {
         for(char *Ptr=asFromAcc.c_str();*Ptr;Ptr++)
@@ -579,11 +602,11 @@ AnsiString asOutString;
     {
     char *buf = new char[asOutString.Length() + 1];
     strcpy(buf, asOutString.c_str());
-    if(ISS->DescriptionsInAnsi)
+    if(ISS->DescriptionsInAnsi || FTranslitMode==3)
       OemToChar(buf, buf);
     else
       OEM2KOI(buf, buf);
-    asOutString = buf;
+    asOutString = ToOutCharset(buf);
     delete[] buf;
     }
 
@@ -866,6 +889,14 @@ TStringList *slText=new TStringList();
         for(int i=0;i<FtnKludges->KludgeList->Count;i++)
         {
           KludgeName=FtnKludges->KludgeList->Items[i]->Name;
+          // MIME-заголовки формируются ниже в соответствии с выходной кодировкой
+          asTemp=KludgeName;
+          if(asTemp!="" && asTemp[asTemp.Length()]==':')
+              asTemp=asTemp.SubString(1,asTemp.Length()-1);
+          if(!AnsiCompareText(asTemp,"RFC-MIME-Version")
+              || !AnsiCompareText(asTemp,"RFC-Content-Type")
+              || !AnsiCompareText(asTemp,"RFC-Content-Transfer-Encoding"))
+              continue;
           if(KludgeName!="" && KludgeName.Pos("RFC-")!=0
               && AnsiCompareText(KludgeName,"RFC-Newsgroups:")
               && AnsiCompareText(KludgeName,"RFC-Date:")
@@ -938,16 +969,16 @@ TStringList *slText=new TStringList();
       }else  FCurrentArticle+="Path: "+ClientSocket->LocalHost+"!not-for-mail\r\n";
 
       FCurrentArticle+="Distribution: fido7"+AnsiString("\r\n");
-      FCurrentArticle+="From: \""+RecodeLine(FSquishBase->FieldByName("From")->AsString)+"\" <";
+      FCurrentArticle+="From: \""+EncodeHeader(FSquishBase->FieldByName("From")->AsString)+"\" <";
       //if(Kludges.REPLYADDR!="")
       if (Kludges.REPLYADDR!="")
       {
          int posLt = Kludges.REPLYADDR.Pos("<");
          int posGt = Kludges.REPLYADDR.Pos(">");
          if (posLt == 0 || posGt == 0 || posGt <= posLt) {
-            FCurrentArticle+=Kludges.REPLYADDR+">";
+            FCurrentArticle+=ToOutCharset(Kludges.REPLYADDR)+">";
          } else {
-            FCurrentArticle+=Kludges.REPLYADDR.SubString(posLt + 1, posGt - posLt - 1)+">";
+            FCurrentArticle+=ToOutCharset(Kludges.REPLYADDR.SubString(posLt + 1, posGt - posLt - 1))+">";
          }
       } else {
         AnsiString asFromAcc=FSquishBase->FieldByName("From")->AsString.Trim();
@@ -955,7 +986,7 @@ TStringList *slText=new TStringList();
         if(Kludges.KludgeByName("RFC-From:")->AsString !="") //есть постинг через гейт
         {
             asFromAcc=Kludges.KludgeByName("RFC-From:")->AsString.Trim();
-            FCurrentArticle="From: "+asFromAcc;
+            FCurrentArticle+="From: "+ToOutCharset(asFromAcc);
         }else
         {
             for(char *Ptr=asFromAcc.c_str();*Ptr;Ptr++)
@@ -969,9 +1000,9 @@ TStringList *slText=new TStringList();
       }
         TraceS(__FUNC__);
         FCurrentArticle+="\r\n";
-      FCurrentArticle+="X-Comment-To: "+RecodeLine(FSquishBase->FieldByName("To")->AsString)+"\r\n";
+      FCurrentArticle+="X-Comment-To: "+EncodeHeader(FSquishBase->FieldByName("To")->AsString)+"\r\n";
       FCurrentArticle+="Newsgroups: "+SelectedGroup->Tag+"\r\n";
-      FCurrentArticle+="Subject: "+RecodeLine(FSquishBase->FieldByName("Subj")->AsString)+"\r\n";
+      FCurrentArticle+="Subject: "+EncodeHeader(FSquishBase->FieldByName("Subj")->AsString)+"\r\n";
 FCurrentArticleMessageId=MSGID2MessageId(Kludges.MSGID);
       FCurrentArticle+="Message-ID: "+FCurrentArticleMessageId+"\r\n";
       FCurrentArticle+="Date: "+FSquishBase->FieldByName("FTSC_date")->AsString+"\r\n";
@@ -982,9 +1013,11 @@ FCurrentArticleMessageId=MSGID2MessageId(Kludges.MSGID);
 
       FCurrentArticle+="Lines: "+AnsiString(slText->Count)+"\r\n";
       FCurrentArticle+="Xref: "+ClientSocket->LocalHost+" "+SelectedGroup->Tag+":"+FSquishBase->FieldByName("MsgNo")->AsString+"\r\n";
-//      FCurrentArticle+="Content-Type: text/plain; charset=koi8-r";
+      FCurrentArticle+="MIME-Version: 1.0\r\n";
+      FCurrentArticle+="Content-Type: text/plain; charset="+OutCharsetName()+"\r\n";
+      FCurrentArticle+="Content-Transfer-Encoding: 8bit\r\n";
       //FCurrentArticle+="X-FTN-MSGID: "+Kludges.MSGID+"\r\n";
-      FCurrentArticle+=slPath->Text;
+      FCurrentArticle+=ToOutCharset(slPath->Text);
       /*
       удалить из остальных клуджей клудж path
       */
@@ -994,9 +1027,9 @@ FCurrentArticleMessageId=MSGID2MessageId(Kludges.MSGID);
       {
         if(slRFCKluges->Strings[0].LowerCase().Pos("path")>0) slRFCKluges->Delete(0); //удалить path: он-по-идее идет первым в списке
       }
-      FCurrentArticle+=slRFCKluges->Text;
+      FCurrentArticle+=ToOutCharset(slRFCKluges->Text);
     FCurrentArticleHeader=FCurrentArticle+"\r\n.";
-    FCurrentArticleBody=slText->Text+"\r\n.";
+    FCurrentArticleBody=ToOutCharset(slText->Text)+"\r\n.";
       FCurrentArticle+="\r\n"+FCurrentArticleBody;
   TraceS(__FUNC__);
   }

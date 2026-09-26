@@ -281,6 +281,11 @@ TraceS(__FUNC__);
 //---------------------------------------------------------------------------
 AnsiString __fastcall TiuServerClientThread::RecodeLine(AnsiString PlainText)
 {
+  return RecodeLine(PlainText, "koi8-r");
+}
+//---------------------------------------------------------------------------
+AnsiString __fastcall TiuServerClientThread::RecodeLine(AnsiString PlainText, AnsiString Charset)
+{
 TraceS(__FUNC__);
   if((FHeadersTypeCode==htcPlain)||(PlainText==""))
     return PlainText;
@@ -294,7 +299,7 @@ unsigned char *Ptr=(unsigned char *)PlainText.c_str();
       return PlainText;
   }
   Ptr=(unsigned char *)PlainText.c_str();//Опять становимся в начало строки
-  AnsiString Result("=?koi8-r?Q?");
+  AnsiString Result("=?"+Charset+"?Q?");
 
 
   while(*Ptr)
