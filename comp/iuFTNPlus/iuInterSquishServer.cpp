@@ -1409,7 +1409,12 @@ AnsiString asMsgBody;
         break;
     case 3://UTF-8
         {
-        AnsiString ansiBody = Utf8ToAnsi(Body);
+        // Replace Unicode non-breaking hyphen (U+2011, UTF-8 0xE2 0x80 0x91)
+        // with a plain ASCII hyphen before charset conversion, since CP1251
+        // has no representation for it.
+        AnsiString utf8Body = StringReplace(Body, AnsiString("\xE2\x80\x91"),
+                                "-", TReplaceFlags() << rfReplaceAll);
+        AnsiString ansiBody = Utf8ToAnsi(utf8Body);
         // Replace Cyrillic angle quotes (0xAB, 0xBB in CP1251) with
         // plain ASCII double-quote (0x22) before OEM conversion.
         for (int qi = 1; qi <= ansiBody.Length(); qi++)
@@ -1418,6 +1423,9 @@ AnsiString asMsgBody;
           if (qc == 0xAB || qc == 0xBB)
             ansiBody[qi] = '"';
         }
+        // Replace Unicode horizontal ellipsis (0x85 in CP1251) with "...".
+        ansiBody = StringReplace(ansiBody, AnsiString((char)0x85), "...",
+                     TReplaceFlags() << rfReplaceAll);
         char *buf = new char[ansiBody.Length() + 1];
         strcpy(buf, ansiBody.c_str());
         CharToOem(buf, buf);
@@ -1852,7 +1860,12 @@ AnsiString asMsgBody;
         break;
     case 3://UTF-8
         {
-        AnsiString ansiMsg = Utf8ToAnsi(RfcMsg);
+        // Replace Unicode non-breaking hyphen (U+2011, UTF-8 0xE2 0x80 0x91)
+        // with a plain ASCII hyphen before charset conversion, since CP1251
+        // has no representation for it.
+        AnsiString utf8Msg = StringReplace(RfcMsg, AnsiString("\xE2\x80\x91"),
+                                "-", TReplaceFlags() << rfReplaceAll);
+        AnsiString ansiMsg = Utf8ToAnsi(utf8Msg);
         // Replace Cyrillic angle quotes (0xAB, 0xBB in CP1251) with
         // plain ASCII double-quote (0x22) before OEM conversion.
         for (int qi = 1; qi <= ansiMsg.Length(); qi++)
@@ -1861,6 +1874,9 @@ AnsiString asMsgBody;
           if (qc == 0xAB || qc == 0xBB)
             ansiMsg[qi] = '"';
         }
+        // Replace Unicode horizontal ellipsis (0x85 in CP1251) with "...".
+        ansiMsg = StringReplace(ansiMsg, AnsiString((char)0x85), "...",
+                     TReplaceFlags() << rfReplaceAll);
         char *buf = new char[ansiMsg.Length() + 1];
         strcpy(buf, ansiMsg.c_str());
         CharToOem(buf, buf);
