@@ -36,6 +36,27 @@ AnsiString __fastcall DecodeQuotedPrintableValue(AnsiString value, int charsToSk
     return result;
 }
 
+// Преобразует необработанную UTF-8 строку заголовка в Ansi (CP1251),
+// заменяя знаки препинания, которые иначе были бы потеряны или испорчены
+// при последующем преобразовании в OEM: неразрывный дефис Unicode (U+2011,
+// не представленный в CP1251) заменяется обычным дефисом, кириллические
+// угловые кавычки - обычными двойными кавычками, а многоточие - на "...".
+AnsiString __fastcall NormalizeUtf8Punctuation(AnsiString utf8Value)
+{
+    utf8Value = StringReplace(utf8Value, AnsiString("\xE2\x80\x91"), "-",
+                  TReplaceFlags() << rfReplaceAll);
+    AnsiString ansiValue = Utf8ToAnsi(utf8Value);
+    for (int qi = 1; qi <= ansiValue.Length(); qi++)
+    {
+        unsigned char qc = (unsigned char)ansiValue[qi];
+        if (qc == 0xAB || qc == 0xBB)
+            ansiValue[qi] = '"';
+    }
+    ansiValue = StringReplace(ansiValue, AnsiString((char)0x85), "...",
+                  TReplaceFlags() << rfReplaceAll);
+    return ansiValue;
+}
+
 AnsiString __fastcall DecodeMimeHeader(AnsiString value)
 {
     const AnsiString Koi8BinaryHeader = "=?koi8-r?B?";
@@ -82,7 +103,7 @@ AnsiString __fastcall DecodeMimeHeader(AnsiString value)
         else if (AnsiStartsText(Utf8BinaryHeader, encodedString))
         {
             decodedString = DecodeBase64Value(encodedString, Utf8BinaryHeader.Length());
-            decodedString = Utf8ToAnsi(decodedString);
+            decodedString = NormalizeUtf8Punctuation(decodedString);
             char* buf = new char[decodedString.Length() + 1];
             strcpy(buf, decodedString.c_str());
             AnsiToOem(buf, buf);
@@ -92,7 +113,7 @@ AnsiString __fastcall DecodeMimeHeader(AnsiString value)
         else if (AnsiStartsText(Utf8QPHeader, encodedString))
         {
             decodedString = DecodeQuotedPrintableValue(encodedString, Utf8QPHeader.Length());
-            decodedString = Utf8ToAnsi(decodedString);
+            decodedString = NormalizeUtf8Punctuation(decodedString);
             char* buf = new char[decodedString.Length() + 1];
             strcpy(buf, decodedString.c_str());
             AnsiToOem(buf, buf);

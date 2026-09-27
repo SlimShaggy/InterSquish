@@ -18,7 +18,7 @@ This is a maintenance fork of an old (pre-2009) SourceForge project (`intersquis
 
 ## Source encoding — read before editing any `.cpp`/`.h`/`.txt` file
 
-C++ and plaintext source files in this repo are encoded in **Windows-1251 (cp1251)**, not UTF-8 (see `.vscode/settings.json`: `"[cpp]"`/`"[plaintext]"` → `files.encoding: windows1251`; `.bat`/config files use `cp866`). Most files contain Russian comments/strings/doc text in this encoding.
+C++ and plaintext source files in this repo are encoded in **Windows-1251 (cp1251)**, not UTF-8 (see `.vscode/settings.json`: `"[cpp]"`/`"[plaintext]"` → `files.encoding: windows1251`; `.bat`/config files use `cp866`). Most files contain Russian comments/strings/doc text in this encoding. New comments added to source files must be in Russian as well.
 
 Standard UTF-8-aware text edit tools will misinterpret or corrupt the Cyrillic bytes. When editing these files, use a byte-safe approach (e.g. a small script that reads/writes the file treating it as raw bytes/`latin1` rather than decoding as UTF-8), especially when touching lines containing Cyrillic text. Verify by re-reading the raw bytes after editing rather than trusting a UTF-8 render.
 
