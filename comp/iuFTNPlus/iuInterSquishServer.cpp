@@ -1409,15 +1409,7 @@ AnsiString asMsgBody;
         break;
     case 3://UTF-8
         {
-        AnsiString ansiBody = Utf8ToAnsi(Body);
-        // Replace Cyrillic angle quotes (0xAB, 0xBB in CP1251) with
-        // plain ASCII double-quote (0x22) before OEM conversion.
-        for (int qi = 1; qi <= ansiBody.Length(); qi++)
-        {
-          unsigned char qc = (unsigned char)ansiBody[qi];
-          if (qc == 0xAB || qc == 0xBB)
-            ansiBody[qi] = '"';
-        }
+        AnsiString ansiBody = NormalizeUtf8Punctuation(Body);
         char *buf = new char[ansiBody.Length() + 1];
         strcpy(buf, ansiBody.c_str());
         CharToOem(buf, buf);
@@ -1852,15 +1844,7 @@ AnsiString asMsgBody;
         break;
     case 3://UTF-8
         {
-        AnsiString ansiMsg = Utf8ToAnsi(RfcMsg);
-        // Replace Cyrillic angle quotes (0xAB, 0xBB in CP1251) with
-        // plain ASCII double-quote (0x22) before OEM conversion.
-        for (int qi = 1; qi <= ansiMsg.Length(); qi++)
-        {
-          unsigned char qc = (unsigned char)ansiMsg[qi];
-          if (qc == 0xAB || qc == 0xBB)
-            ansiMsg[qi] = '"';
-        }
+        AnsiString ansiMsg = NormalizeUtf8Punctuation(RfcMsg);
         char *buf = new char[ansiMsg.Length() + 1];
         strcpy(buf, ansiMsg.c_str());
         CharToOem(buf, buf);

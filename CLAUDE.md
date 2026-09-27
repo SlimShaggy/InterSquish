@@ -18,7 +18,7 @@ This is a maintenance fork of an old (pre-2009) SourceForge project (`intersquis
 
 ## Source encoding — read before editing any `.cpp`/`.h`/`.txt` file
 
-C++ and plaintext source files in this repo are encoded in **Windows-1251 (cp1251)**, not UTF-8 (see `.vscode/settings.json`: `"[cpp]"`/`"[plaintext]"` → `files.encoding: windows1251`; `.bat`/config files use `cp866`). Most files contain Russian comments/strings/doc text in this encoding.
+C++ and plaintext source files in this repo are encoded in **Windows-1251 (cp1251)**, not UTF-8 (see `.vscode/settings.json`: `"[cpp]"`/`"[plaintext]"` → `files.encoding: windows1251`; `.bat`/config files use `cp866`). Most files contain Russian comments/strings/doc text in this encoding. New comments added to source files must be in Russian as well.
 
 Standard UTF-8-aware text edit tools will misinterpret or corrupt the Cyrillic bytes. When editing these files, use a byte-safe approach (e.g. a small script that reads/writes the file treating it as raw bytes/`latin1` rather than decoding as UTF-8), especially when touching lines containing Cyrillic text. Verify by re-reading the raw bytes after editing rather than trusting a UTF-8 render.
 
@@ -47,4 +47,4 @@ Standard UTF-8-aware text edit tools will misinterpret or corrupt the Cyrillic b
 Incoming FTN mail/echomail lands as a `.PKT` (read via `FTNPKT`) or directly in a Squish/JAM base (read via `FTNDataSet`). The NNTP server thread (`TiuIssNNTPServerThread`) surfaces base articles as newsgroup content; posting an NNTP article builds a `.PKT` that gets picked up by the external tosser. Netmail flows the same way through the SMTP (inbound Internet mail → outbound `.PKT`) and POP3 (FTN netmail → mailbox read) server threads. Config for which FTN areas map to which newsgroups, and which users/addresses are known, comes from `TSquishCfg`/`TCustomUsersCfg` (`comp/iuFTN/Cfg.cpp`), loaded once at startup by `isInit.cpp`.
 
 ### Version/changelog
-Release version and changelog live in `Projects/InterSquish/DOC/RUS/history.txt` (Russian) / `DOC/ENG/HISTORY.TXT`, using `*`/`-`/`+`/`!` flags per README §"History flags" (rewrite/removed/added/fixed). Bump the version and add an entry here alongside any user-visible fix, matching existing entry style — this repo's commit messages also tend to be short, changelog-style descriptions of a single fix (often in Russian).
+Release version and changelog live in `Projects/InterSquish/DOC/RUS/history.txt` (Russian) / `DOC/ENG/HISTORY.TXT`, using `*`/`-`/`+`/`!` flags per README §"History flags" (rewrite/removed/added/fixed). DO NOT bump the version and add entries here unless asked! This repo's commit messages also tend to be short, changelog-style descriptions of a single fix (often in Russian).
