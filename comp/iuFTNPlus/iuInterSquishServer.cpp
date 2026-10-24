@@ -1254,7 +1254,7 @@ int iBeginFieldContent;
       }
       else if(((Msg->ToName=="") || (Msg->ToName=="All")) && IsField(asFieldLine,"X-Comment-To:"))
       {
-        Msg->ToName=asFieldContent;
+        Msg->ToName=DecodeMimeHeader(asFieldContent);
       }
       else if(IsField(asFieldLine,"X-FTN-Origin:"))
       {
