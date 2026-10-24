@@ -24,13 +24,12 @@ __fastcall TiuExeVersionInfo::TiuExeVersionInfo(void)
       if(dwpTranslation)
         FTranslationString+=IntToHex((int)(MAKELONG(HIWORD(*dwpTranslation), LOWORD(*dwpTranslation))), 8)+"\\";
       //--------FileVersion
-        FFileVersion= GetVerValue("FileVersion");
+      // FileVersion IDE всегда формирует из номеров версии, суффикс (напр. -beta2) можно задать только в ProductVersion
+        FFileVersion= GetVerValue("ProductVersion");
+        if(FFileVersion== "")
+          FFileVersion= GetVerValue("FileVersion");
 //        if(FFileVersion== "")
 //          FFileVersion=LongVersionToString(FileLongVersion);
-      //--------Суффикс версии (напр. beta2) из ключа SpecialBuild
-        AnsiString SpecialBuild=GetVerValue("SpecialBuild");
-        if(SpecialBuild!="")
-          FFileVersion+="-"+SpecialBuild;
       //--------
         FInternalName=GetVerValue("InternalName");
     }
