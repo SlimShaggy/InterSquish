@@ -23,10 +23,13 @@ __fastcall TiuExeVersionInfo::TiuExeVersionInfo(void)
       VerQueryValue(FBuffer, "\\VarFileInfo\\Translation", (void **)&dwpTranslation, &Len);
       if(dwpTranslation)
         FTranslationString+=IntToHex((int)(MAKELONG(HIWORD(*dwpTranslation), LOWORD(*dwpTranslation))), 8)+"\\";
-      //--------FileVersion
-        FFileVersion= GetVerValue("FileVersion");
-//        if(FFileVersion== "")
-//          FFileVersion=LongVersionToString(FileLongVersion);
+      //--------ProductVersion
+      // FileVersion IDE всегда формирует из номеров версии, суффикс (напр. -beta2) можно задать только в ProductVersion
+        FProductVersion= GetVerValue("ProductVersion");
+        if(FProductVersion== "")
+          FProductVersion= GetVerValue("FileVersion");
+//        if(FProductVersion== "")
+//          FProductVersion=LongVersionToString(FileLongVersion);
       //--------
         FInternalName=GetVerValue("InternalName");
     }
@@ -50,9 +53,9 @@ AnsiString Result = "";
   return Result;
 }
 //---------------------------------------------------------------------------
-AnsiString __fastcall TiuExeVersionInfo::GetFileVersion(void)
+AnsiString __fastcall TiuExeVersionInfo::GetProductVersion(void)
 {
-  return FFileVersion;
+  return FProductVersion;
 }
 //---------------------------------------------------------------------------
 AnsiString __fastcall TiuExeVersionInfo::GetInternalName(void)
