@@ -67,7 +67,7 @@ TraceS("enter create form");
   IssNNTP->Open();
   IssSMTP->Open();
   IssPOP3->Open();
-  Caption="InterSquish "+VI_THIS_EXE.FileVersion;
+  Caption="InterSquish "+VI_THIS_EXE.ProductVersion;
 TraceS("leave create form");
 }
 //---------------------------------------------------------------------------
@@ -303,7 +303,7 @@ HICON __fastcall TfDisplay::IconHandle(void)
 PSTR __fastcall TfDisplay::TipText(void)
 {
 static char buf[48];
-  AnsiString tmp="InterSquish "+VI_THIS_EXE.FileVersion;
+  AnsiString tmp="InterSquish "+VI_THIS_EXE.ProductVersion;
   strncpy(buf,tmp.c_str(),40);
   return buf;
 }

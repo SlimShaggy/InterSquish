@@ -1476,9 +1476,9 @@ TFTNMsg *Msg=new TFTNMsg(NULL);
 
   Msg->OrigDateTime=PostDateTime;
 //#ifdef SHAREWARE
-//  Msg->Kludges->KludgeByName("PID:")->AsString=VI_THIS_EXE.InternalName+" "+VI_THIS_EXE.FileVersion+Fcs;
+//  Msg->Kludges->KludgeByName("PID:")->AsString=VI_THIS_EXE.InternalName+" "+VI_THIS_EXE.ProductVersion+Fcs;
 //#else
-  Msg->Kludges->KludgeByName("PID:")->AsString=VI_THIS_EXE.InternalName+" "+VI_THIS_EXE.FileVersion+"Free";
+  Msg->Kludges->KludgeByName("PID:")->AsString=VI_THIS_EXE.InternalName+" "+VI_THIS_EXE.ProductVersion+" Free";
 //#endif
   Msg->Kludges->KludgeByName("CHRS:")->AsString="CP866 2";
   Msg->Kludges->KludgeByName("TZUTC:")->AsString=LocalTZUTC();
@@ -1746,9 +1746,9 @@ static DWORD lastTimeStamp;
       Msg->DestAddr=*ReciptAddress;
       Msg->OrigDateTime=PostDateTime;
 #ifdef SHAREWARE
-      Msg->Kludges->KludgeByName("PID:")->AsString=VI_THIS_EXE.InternalName+" "+VI_THIS_EXE.FileVersion+Fcs;
+      Msg->Kludges->KludgeByName("PID:")->AsString=VI_THIS_EXE.InternalName+" "+VI_THIS_EXE.ProductVersion+Fcs;
 #else
-      Msg->Kludges->KludgeByName("PID:")->AsString=VI_THIS_EXE.InternalName+" "+VI_THIS_EXE.FileVersion+"Free";
+      Msg->Kludges->KludgeByName("PID:")->AsString=VI_THIS_EXE.InternalName+" "+VI_THIS_EXE.ProductVersion+" Free";
 #endif
       Msg->Kludges->KludgeByName("CHRS:")->AsString="CP866 2";
       Msg->Kludges->KludgeByName("TZUTC:")->AsString=LocalTZUTC();
@@ -1823,7 +1823,7 @@ static DWORD lastTimeStamp;
        DecodeTime(PostDateTime,hour,min,sec,msec);
         asViaLine.sprintf("%s @%04.4u%02.2u%02.2u.%02.2u%02.2u%02.2u.UTC%+d %s %s",
          ISS->PktOrigAddress.c_str(),year,mon,day,hour,min,sec,-FUTC,
-         VI_THIS_EXE.InternalName.c_str(),VI_THIS_EXE.FileVersion.c_str());
+         VI_THIS_EXE.InternalName.c_str(),VI_THIS_EXE.ProductVersion.c_str());
         Msg->Vias->Add(new TKludge("Via",asViaLine));
       }
       if(lastTimeStamp==TimeStamp)
@@ -1957,7 +1957,7 @@ AnsiString asMsgBody;
 
       Msg->DestAddr=*FReciptAddreses->Items[i];
       Msg->OrigDateTime=PostDateTime;
-      Msg->Kludges->KludgeByName("PID:")->AsString=VI_THIS_EXE.InternalName+" "+VI_THIS_EXE.FileVersion;
+      Msg->Kludges->KludgeByName("PID:")->AsString=VI_THIS_EXE.InternalName+" "+VI_THIS_EXE.ProductVersion;
       Msg->ToName="Sysop";
       Msg->Header->wAttr=0;
     Msg->Header->Attr.Local=true;
@@ -1985,7 +1985,7 @@ AnsiString asMsgBody;
       if(ISS->TearLine!="")
         Msg->Tearline=ISS->TearLine;
       else
-        Msg->Tearline="InterSquish NNTP Server/FTN Gate v."+VI_THIS_EXE.FileVersion;
+        Msg->Tearline="InterSquish NNTP Server/FTN Gate v."+VI_THIS_EXE.ProductVersion;
       if(ISS->Origin!="")
         Msg->Origin=ISS->Origin;
       {
@@ -1995,7 +1995,7 @@ AnsiString asMsgBody;
        DecodeTime(PostDateTime,hour,min,sec,msec);
         asTemp.sprintf("%s @%04.4u%02.2u%02.2u.%02.2u%02.2u%02.2u.UTC%+d %s %s",
          ISS->PktOrigAddress.c_str(),year,mon,day,hour,min,sec,-FUTC,
-         VI_THIS_EXE.InternalName.c_str(),VI_THIS_EXE.FileVersion.c_str());
+         VI_THIS_EXE.InternalName.c_str(),VI_THIS_EXE.ProductVersion.c_str());
         Msg->Vias->Add(new TKludge("Via",asTemp));
       }
       OutPacket->Messages->Add(Msg);
@@ -2045,7 +2045,7 @@ TFTNMsg *Msg;
 
       Msg->DestAddr=*FReciptAddreses->Items[i];
       Msg->OrigDateTime=PostDateTime;
-      Msg->Kludges->KludgeByName("PID:")->AsString=VI_THIS_EXE.InternalName+" "+VI_THIS_EXE.FileVersion;
+      Msg->Kludges->KludgeByName("PID:")->AsString=VI_THIS_EXE.InternalName+" "+VI_THIS_EXE.ProductVersion;
       Msg->ToName="Sysop";
       Msg->Header->wAttr=0;
     Msg->Header->Attr.Local=true;
@@ -2073,7 +2073,7 @@ TFTNMsg *Msg;
       if(ISS->TearLine!="")
         Msg->Tearline=ISS->TearLine;
       else
-        Msg->Tearline="InterSquish NNTP Server/FTN Gate v."+VI_THIS_EXE.FileVersion;
+        Msg->Tearline="InterSquish NNTP Server/FTN Gate v."+VI_THIS_EXE.ProductVersion;
       if(ISS->Origin!="")
         Msg->Origin=ISS->Origin;
       {
@@ -2083,7 +2083,7 @@ TFTNMsg *Msg;
        DecodeTime(PostDateTime,hour,min,sec,msec);
         asTemp.sprintf("%s @%04.4u%02.2u%02.2u.%02.2u%02.2u%02.2u.UTC%+d %s %s",
          ISS->PktOrigAddress.c_str(),year,mon,day,hour,min,sec,-FUTC,
-         VI_THIS_EXE.InternalName.c_str(),VI_THIS_EXE.FileVersion.c_str());
+         VI_THIS_EXE.InternalName.c_str(),VI_THIS_EXE.ProductVersion.c_str());
         Msg->Vias->Add(new TKludge("Via",asTemp));
       }
       OutPacket->Messages->Add(Msg);

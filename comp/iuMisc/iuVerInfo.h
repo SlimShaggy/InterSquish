@@ -53,7 +53,7 @@ private:
 	unsigned long FHandle;
 //----------------------------------------
   AnsiString FTranslationString;
-  AnsiString FFileVersion;
+  AnsiString FProductVersion;
   AnsiString FInternalName;
 
 //----------------------------------------
@@ -65,7 +65,6 @@ private:
 	AnsiString __fastcall GetComments(void);
 	AnsiString __fastcall GetCompanyName(void);
 	AnsiString __fastcall GetFileDescription(void);
-	AnsiString __fastcall GetFileVersion(void);
 	int __fastcall GetVersionNum(void);
 	AnsiString __fastcall GetInternalName(void);
 	AnsiString __fastcall GetLegalCopyright(void);
@@ -97,12 +96,11 @@ public:
 //	__property AnsiString Comments = {read=GetComments};
 //	__property AnsiString CompanyName = {read=GetCompanyName};
 //	__property AnsiString FileDescription = {read=GetFileDescription};
-	__property AnsiString FileVersion = {read=GetFileVersion};
+	__property AnsiString ProductVersion = {read=GetProductVersion};
 	__property AnsiString InternalName = {read=GetInternalName};
 //	__property AnsiString LegalCopyright = {read=GetLegalCopyright};
 //	__property AnsiString LegalTrademarks = {read=GetLegalTrademarks};
 //	__property AnsiString OriginalFilename = {read=GetOriginalFilename};
-//	__property AnsiString ProductVersion = {read=GetProductVersion};
 //	__property AnsiString ProductName = {read=GetProductName};
 //	__property AnsiString SpecialBuild = {read=GetSpecialBuild};
 //	__property AnsiString PrivateBuild = {read=GetPrivateBuild};
