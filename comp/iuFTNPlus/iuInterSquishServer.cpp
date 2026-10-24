@@ -412,9 +412,9 @@ void __fastcall TiuIssNNTPServerThread::Transliterate(TObject* Sender,char* Src,
         OEM2KOI(Src,Dest);
         break;
     case 1://ANSI
-    case 3://UTF-8: здесь в ANSI, в UTF-8 позже в ToOutCharset (буферы фиксированного размера)
         OemToChar(Src,Dest);
         break;
+    case 3://UTF-8: здесь оставляем OEM, в UTF-8 позже в ToOutCharset (буферы фиксированного размера)
     default://OEM
       strcpy(Dest,Src);
   }
@@ -433,9 +433,29 @@ AnsiString __fastcall TiuIssNNTPServerThread::OutCharsetName(void)
 //---------------------------------------------------------------------------
 AnsiString __fastcall TiuIssNNTPServerThread::ToOutCharset(AnsiString S)
 {
-  if(FTranslitMode==3)
-    return AnsiToUtf8(S);
-  return S;
+  // Для UTF-8 перекодируем напрямую из CP866: через CP1251 теряется псевдографика
+  if(FTranslitMode!=3 || S=="")
+    return S;
+  int wLen=MultiByteToWideChar(866,0,S.c_str(),S.Length(),NULL,0);
+  if(wLen<=0)
+    return S;
+  wchar_t *wBuf=new wchar_t[wLen];
+  AnsiString Result;
+  try
+  {
+    MultiByteToWideChar(866,0,S.c_str(),S.Length(),wBuf,wLen);
+    int uLen=WideCharToMultiByte(CP_UTF8,0,wBuf,wLen,NULL,0,NULL,NULL);
+    if(uLen>0)
+    {
+      Result.SetLength(uLen);
+      WideCharToMultiByte(CP_UTF8,0,wBuf,wLen,Result.c_str(),uLen,NULL,NULL);
+    }
+  }
+  __finally
+  {
+    delete[] wBuf;
+  }
+  return Result;
 }
 //---------------------------------------------------------------------------
 AnsiString __fastcall TiuIssNNTPServerThread::EncodeHeader(AnsiString S)
@@ -606,10 +626,13 @@ AnsiString asOutString;
     {
     char *buf = new char[asOutString.Length() + 1];
     strcpy(buf, asOutString.c_str());
-    if(ISS->DescriptionsInAnsi || FTranslitMode==3)
-      OemToChar(buf, buf);
-    else
-      OEM2KOI(buf, buf);
+    if(FTranslitMode!=3)//для UTF-8 перекодирует ToOutCharset
+    {
+      if(ISS->DescriptionsInAnsi)
+        OemToChar(buf, buf);
+      else
+        OEM2KOI(buf, buf);
+    }
     asOutString = ToOutCharset(buf);
     delete[] buf;
     }
