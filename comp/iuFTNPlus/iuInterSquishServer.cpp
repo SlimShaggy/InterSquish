@@ -1448,6 +1448,7 @@ TFTNMsg *Msg=new TFTNMsg(NULL);
 //#else
   Msg->Kludges->KludgeByName("PID:")->AsString=VI_THIS_EXE.InternalName+" "+VI_THIS_EXE.FileVersion+"Free";
 //#endif
+  Msg->Kludges->KludgeByName("CHRS:")->AsString="CP866 2";
   Msg->Kludges->KludgeByName("NNTP-Posting-Host:")->AsString=ClientSocket->LocalHost;
   Msg->ToName="All";
   Msg->Header->wAttr=0;
@@ -1716,6 +1717,7 @@ static DWORD lastTimeStamp;
 #else
       Msg->Kludges->KludgeByName("PID:")->AsString=VI_THIS_EXE.InternalName+" "+VI_THIS_EXE.FileVersion+"Free";
 #endif
+      Msg->Kludges->KludgeByName("CHRS:")->AsString="CP866 2";
       //Msg->ToName="Sysop";
       Msg->Header->wAttr=0;
     Msg->Header->Attr.Local=true;
