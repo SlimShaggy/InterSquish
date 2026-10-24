@@ -27,6 +27,10 @@ __fastcall TiuExeVersionInfo::TiuExeVersionInfo(void)
         FFileVersion= GetVerValue("FileVersion");
 //        if(FFileVersion== "")
 //          FFileVersion=LongVersionToString(FileLongVersion);
+      //--------Суффикс версии (напр. beta2) из ключа SpecialBuild
+        AnsiString SpecialBuild=GetVerValue("SpecialBuild");
+        if(SpecialBuild!="")
+          FFileVersion+="-"+SpecialBuild;
       //--------
         FInternalName=GetVerValue("InternalName");
     }
