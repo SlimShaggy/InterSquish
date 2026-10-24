@@ -86,6 +86,8 @@ public:
 //---------------------------------------------------------------------------
 AnsiString  PACKAGE __fastcall MSGID2MessageId(AnsiString MSGID);
 AnsiString  PACKAGE __fastcall ExtractFTNAddr(AnsiString MSGID);
+AnsiString  PACKAGE __fastcall TZUTC2RFCZone(AnsiString TZUTC);
+AnsiString  PACKAGE __fastcall LocalTZUTC(void);
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------

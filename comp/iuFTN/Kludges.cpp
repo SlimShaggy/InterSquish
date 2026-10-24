@@ -88,6 +88,42 @@ AnsiString asResult;
   return asResult;
 }
 //---------------------------------------------------------------------------
+// Значение кладжа TZUTC (FTS-4008) -> зона RFC 822 (+hhmm/-hhmm), при ошибке - пустая строка
+AnsiString __fastcall TZUTC2RFCZone(AnsiString TZUTC)
+{
+AnsiString asZone=TZUTC.Trim();
+char cSign='+';
+  if(asZone!="" && (asZone[1]=='+' || asZone[1]=='-'))
+  {
+    cSign=asZone[1];
+    asZone.Delete(1,1);
+  }
+  if(asZone.Length()!=4)
+    return "";
+  for(int i=1;i<=4;i++)
+    if(!isdigit((unsigned char)asZone[i]))
+      return "";
+  return AnsiString(cSign)+asZone;
+}
+//---------------------------------------------------------------------------
+// Текущее смещение локального времени от UTC в формате кладжа TZUTC (FTS-4008)
+AnsiString __fastcall LocalTZUTC(void)
+{
+TIME_ZONE_INFORMATION tzInfo;
+AnsiString asResult;
+  long lBias;
+  DWORD dwTZId=GetTimeZoneInformation(&tzInfo);
+  lBias=tzInfo.Bias; // Bias = UTC - местное время, в минутах
+  if(dwTZId==TIME_ZONE_ID_DAYLIGHT)
+    lBias+=tzInfo.DaylightBias;
+  else if(dwTZId==TIME_ZONE_ID_STANDARD)
+    lBias+=tzInfo.StandardBias;
+  int iOffs=(int)-lBias;
+  int iAbsOffs=iOffs<0 ? -iOffs : iOffs;
+  asResult.sprintf("%s%02d%02d",iOffs<0 ? "-" : "",iAbsOffs/60,iAbsOffs%60);
+  return asResult;
+}
+//---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 __fastcall TKludge::TKludge(AnsiString KludgeLine)

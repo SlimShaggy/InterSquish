@@ -529,6 +529,10 @@ bool __fastcall TiuIssNNTPServerThread::PrepareHeader(TArticleHeader &AHeader)
     FSquishBase->FieldByName("TimeWritten")->AsDateTime;
     AHeader.asDate=FormatDateTime("dd mmm yy  hh:nn:ss",DateTime);
   }
+  // часовой пояс из кладжа TZUTC
+  AnsiString asZone=TZUTC2RFCZone(Kludges.KludgeByName("TZUTC")->AsString);
+  if(asZone!="")
+    AHeader.asDate+=" "+asZone;
   TraceS(__FUNC__);
   if(Kludges.MSGID=="") //пустой msgid - вырезать из origin
   {
@@ -1005,7 +1009,12 @@ TStringList *slText=new TStringList();
       FCurrentArticle+="Subject: "+EncodeHeader(FSquishBase->FieldByName("Subj")->AsString)+"\r\n";
 FCurrentArticleMessageId=MSGID2MessageId(Kludges.MSGID);
       FCurrentArticle+="Message-ID: "+FCurrentArticleMessageId+"\r\n";
-      FCurrentArticle+="Date: "+FSquishBase->FieldByName("FTSC_date")->AsString+"\r\n";
+      FCurrentArticle+="Date: "+FSquishBase->FieldByName("FTSC_date")->AsString;
+      // часовой пояс из кладжа TZUTC
+      AnsiString asZone=TZUTC2RFCZone(Kludges.KludgeByName("TZUTC")->AsString);
+      if(asZone!="")
+        FCurrentArticle+=" "+asZone;
+      FCurrentArticle+="\r\n";
 
       AnsiString asReference=Kludges.REPLY;
       if(asReference!="")
@@ -1449,6 +1458,7 @@ TFTNMsg *Msg=new TFTNMsg(NULL);
   Msg->Kludges->KludgeByName("PID:")->AsString=VI_THIS_EXE.InternalName+" "+VI_THIS_EXE.FileVersion+"Free";
 //#endif
   Msg->Kludges->KludgeByName("CHRS:")->AsString="CP866 2";
+  Msg->Kludges->KludgeByName("TZUTC:")->AsString=LocalTZUTC();
   Msg->Kludges->KludgeByName("NNTP-Posting-Host:")->AsString=ClientSocket->LocalHost;
   Msg->ToName="All";
   Msg->Header->wAttr=0;
@@ -1718,6 +1728,7 @@ static DWORD lastTimeStamp;
       Msg->Kludges->KludgeByName("PID:")->AsString=VI_THIS_EXE.InternalName+" "+VI_THIS_EXE.FileVersion+"Free";
 #endif
       Msg->Kludges->KludgeByName("CHRS:")->AsString="CP866 2";
+      Msg->Kludges->KludgeByName("TZUTC:")->AsString=LocalTZUTC();
       //Msg->ToName="Sysop";
       Msg->Header->wAttr=0;
     Msg->Header->Attr.Local=true;
@@ -2502,7 +2513,12 @@ bool IsAttach;
           RMsg+="Subject: "+RecodeLine(FMsgBase->FieldByName("Subj")->AsString)+"\r\n";
         }
         RMsg+="Message-ID: "+MSGID2MessageId(Kludges.MSGID)+"\r\n";
-        RMsg+="Date: "+FMsgBase->FieldByName("FTSC_date")->AsString+"\r\n";
+        RMsg+="Date: "+FMsgBase->FieldByName("FTSC_date")->AsString;
+        // часовой пояс из кладжа TZUTC
+        AnsiString asZone=TZUTC2RFCZone(Kludges.KludgeByName("TZUTC")->AsString);
+        if(asZone!="")
+          RMsg+=" "+asZone;
+        RMsg+="\r\n";
 
         AnsiString asReference=Kludges.REPLY;
         if(asReference!="")

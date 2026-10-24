@@ -1915,6 +1915,12 @@ TraceS(__FUNC__);
       case JAMSFLD_FLAGS:
         break;
       case JAMSFLD_TZUTCINFO:
+        {
+          AnsiString asKludgeLine(SubField->Buffer,SubField->DatLen);
+          asKludgeLine="\x1TZUTC: "+asKludgeLine;
+          TKludge *Kludge=new TKludge(asKludgeLine);
+          Kludges.Add(Kludge);
+        }
         break;
     }
     offset+=SubField->DatLen+sizeof(JAMBINSUBFIELD);
