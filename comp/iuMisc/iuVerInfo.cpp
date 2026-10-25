@@ -24,7 +24,7 @@ __fastcall TiuExeVersionInfo::TiuExeVersionInfo(void)
       if(dwpTranslation)
         FTranslationString+=IntToHex((int)(MAKELONG(HIWORD(*dwpTranslation), LOWORD(*dwpTranslation))), 8)+"\\";
       //--------ProductVersion
-      // FileVersion IDE всегда формирует из номеров версии, суффикс (напр. -beta2) можно задать только в ProductVersion
+      // FileVersion IDE всегда формирует из номеров версии, суффикс (напр. -beta) можно задать только в ProductVersion
         FProductVersion= GetVerValue("ProductVersion");
         if(FProductVersion== "")
           FProductVersion= GetVerValue("FileVersion");
