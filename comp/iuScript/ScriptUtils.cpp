@@ -36,11 +36,36 @@ AnsiString __fastcall DecodeQuotedPrintableValue(AnsiString value, int charsToSk
     return result;
 }
 
+struct TEmojiMap
+{
+    unsigned int Code;
+    const char *Text;
+};
+
+static const TEmojiMap EmojiMap[] = {
+    {0x1F642, ":)"},   {0x1F60A, ":)"},   {0x263A,  ":)"},   {0x1F609, ";)"},
+    {0x1F600, ":-D"},  {0x1F601, ":-D"},  {0x1F603, ":-D"},  {0x1F604, ":-D"},
+    {0x1F606, ":-D"},  {0x1F602, ":-D"},  {0x1F923, ":-D"},  {0x1F641, ":("},
+    {0x2639,  ":("},   {0x1F61E, ":("},   {0x1F622, ":'("},  {0x1F62D, ":'("},
+    {0x1F61B, ":P"},   {0x1F61C, ";P"},   {0x1F61D, ":P"},   {0x1F62E, ":O"},
+    {0x1F60E, "8-)"},  {0x1F610, ":|"},   {0x1F44D, "(+)"},  {0x1F44E, "(-)"},
+    {0x2764,  "<3"}
+};
+
+static void TrimTrailingSpaces(AnsiString &s)
+{
+    int n = s.Length();
+    while (n > 0 && s[n] == ' ')
+        n--;
+    s.SetLength(n);
+}
+
 // Преобразует UTF-8 строку в Ansi (CP_ACP). В отличие от Utf8ToAnsi из VCL,
 // которая при встрече 4-байтной последовательности (например, эмодзи) или
 // любого некорректного байта возвращает пустую строку целиком, здесь
-// некорректные последовательности пропускаются/заменяются, а каждый символ
-// вне BMP (суррогатная пара) заменяется одним знаком '?'.
+// известные эмодзи заменяются ASCII-смайликами (см. EmojiMap), а остальные
+// непредставимые символы (в том числе суррогатные пары, модификаторы
+// U+FE0F и т.п.) отбрасываются вместе с пробелами перед концом строки.
 static AnsiString Utf8ToAnsiLenient(AnsiString utf8Value)
 {
     if (utf8Value == "")
@@ -53,24 +78,48 @@ static AnsiString Utf8ToAnsiLenient(AnsiString utf8Value)
     try
     {
         MultiByteToWideChar(CP_UTF8, 0, utf8Value.c_str(), utf8Value.Length(), wBuf, wLen);
-        int j = 0;
+        bool dropped = false;
         for (int i = 0; i < wLen; i++)
         {
-            if (wBuf[i] >= 0xD800 && wBuf[i] <= 0xDBFF && i + 1 < wLen
+            unsigned int code = wBuf[i];
+            if (code >= 0xD800 && code <= 0xDBFF && i + 1 < wLen
                 && wBuf[i + 1] >= 0xDC00 && wBuf[i + 1] <= 0xDFFF)
             {
-                wBuf[j++] = L'?';
+                code = 0x10000 + ((code - 0xD800) << 10) + (wBuf[i + 1] - 0xDC00);
                 i++;
             }
-            else
-                wBuf[j++] = wBuf[i];
+            const char *emoticon = NULL;
+            for (int k = 0; k < (int)(sizeof(EmojiMap) / sizeof(EmojiMap[0])); k++)
+            {
+                if (EmojiMap[k].Code == code)
+                {
+                    emoticon = EmojiMap[k].Text;
+                    break;
+                }
+            }
+            if (emoticon)
+            {
+                result += emoticon;
+                dropped = false;
+                continue;
+            }
+            char aBuf[8];
+            BOOL usedDefault = FALSE;
+            int aLen = 0;
+            if (code < 0x10000)
+                aLen = WideCharToMultiByte(CP_ACP, 0, &wBuf[i], 1, aBuf, sizeof(aBuf), NULL, &usedDefault);
+            if (aLen <= 0 || usedDefault)
+            {
+                dropped = true;
+                continue;
+            }
+            if (dropped && (aBuf[0] == '\r' || aBuf[0] == '\n'))
+                TrimTrailingSpaces(result);
+            dropped = false;
+            result += AnsiString(aBuf, aLen);
         }
-        int aLen = WideCharToMultiByte(CP_ACP, 0, wBuf, j, NULL, 0, NULL, NULL);
-        if (aLen > 0)
-        {
-            result.SetLength(aLen);
-            WideCharToMultiByte(CP_ACP, 0, wBuf, j, result.c_str(), aLen, NULL, NULL);
-        }
+        if (dropped)
+            TrimTrailingSpaces(result);
     }
     __finally
     {
