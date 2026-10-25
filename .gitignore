@@ -68,3 +68,5 @@ __recovery/
 # Logs
 *.log
 /Projects/InterSquish/IS.exe
+Projects/InterSquish/iss.zip
+/Projects/InterSquish/iss-*.zip
