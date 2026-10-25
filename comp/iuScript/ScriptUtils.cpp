@@ -36,6 +36,49 @@ AnsiString __fastcall DecodeQuotedPrintableValue(AnsiString value, int charsToSk
     return result;
 }
 
+// ѕреобразует UTF-8 строку в Ansi (CP_ACP). ¬ отличие от Utf8ToAnsi из VCL,
+// котора€ при встрече 4-байтной последовательности (например, эмодзи) или
+// любого некорректного байта возвращает пустую строку целиком, здесь
+// некорректные последовательности пропускаютс€/замен€ютс€, а каждый символ
+// вне BMP (суррогатна€ пара) замен€етс€ одним знаком '?'.
+static AnsiString Utf8ToAnsiLenient(AnsiString utf8Value)
+{
+    if (utf8Value == "")
+        return utf8Value;
+    int wLen = MultiByteToWideChar(CP_UTF8, 0, utf8Value.c_str(), utf8Value.Length(), NULL, 0);
+    if (wLen <= 0)
+        return "";
+    wchar_t *wBuf = new wchar_t[wLen];
+    AnsiString result;
+    try
+    {
+        MultiByteToWideChar(CP_UTF8, 0, utf8Value.c_str(), utf8Value.Length(), wBuf, wLen);
+        int j = 0;
+        for (int i = 0; i < wLen; i++)
+        {
+            if (wBuf[i] >= 0xD800 && wBuf[i] <= 0xDBFF && i + 1 < wLen
+                && wBuf[i + 1] >= 0xDC00 && wBuf[i + 1] <= 0xDFFF)
+            {
+                wBuf[j++] = L'?';
+                i++;
+            }
+            else
+                wBuf[j++] = wBuf[i];
+        }
+        int aLen = WideCharToMultiByte(CP_ACP, 0, wBuf, j, NULL, 0, NULL, NULL);
+        if (aLen > 0)
+        {
+            result.SetLength(aLen);
+            WideCharToMultiByte(CP_ACP, 0, wBuf, j, result.c_str(), aLen, NULL, NULL);
+        }
+    }
+    __finally
+    {
+        delete[] wBuf;
+    }
+    return result;
+}
+
 // ѕреобразует необработанную UTF-8 строку заголовка в Ansi (CP1251),
 // замен€€ знаки препинани€, которые иначе были бы потер€ны или испорчены
 // при последующем преобразовании в OEM: неразрывный дефис Unicode (U+2011,
@@ -45,7 +88,7 @@ AnsiString __fastcall NormalizeUtf8Punctuation(AnsiString utf8Value)
 {
     utf8Value = StringReplace(utf8Value, AnsiString("\xE2\x80\x91"), "-",
                   TReplaceFlags() << rfReplaceAll);
-    AnsiString ansiValue = Utf8ToAnsi(utf8Value);
+    AnsiString ansiValue = Utf8ToAnsiLenient(utf8Value);
     for (int qi = 1; qi <= ansiValue.Length(); qi++)
     {
         unsigned char qc = (unsigned char)ansiValue[qi];
