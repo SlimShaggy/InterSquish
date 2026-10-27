@@ -308,7 +308,10 @@ try
       if(FSquishCfg->EchoAreas)
         for(int i=0;i<FSquishCfg->EchoAreas->Count;i++)
         {
-          if(!FSquishCfg->EchoAreas->Items[i]->IsPassthru)
+          TAreaInfo *Area=FSquishCfg->EchoAreas->Items[i];
+          //passthru-области показываем, если тоссер хранит их базу (PurgePassThrough в ParToss)
+          if(!Area->IsPassthru || (!Area->Path.IsEmpty() &&
+             (FileExists(Area->Path+".sqd") || FileExists(Area->Path+".jhr"))))
           {
             outAreaName=FSquishCfg->EchoAreas->Items[i]->Tag;
             outAreaName=SelectedGroup->getExternalName(outAreaName,FSquishCfg->EchoAreas->Items[i]->Group);
