@@ -1379,11 +1379,22 @@ TraceS(__FUNC__);
       try
       {
         FileSeek(iSQD,(__int64)FIndexes[MsgNum].ofs,0);
-        FileRead(iSQD,&SquishRecord->SqHdr,FBaseHeader.sz_sqhdr);
+        // Читаем не больше sizeof(SQHDR): поле sz_sqhdr берётся из файла базы
+        FileRead(iSQD,&SquishRecord->SqHdr,min((int)FBaseHeader.sz_sqhdr,(int)sizeof(SQHDR)));
+        FileSeek(iSQD,(__int64)FIndexes[MsgNum].ofs+FBaseHeader.sz_sqhdr,0);
         FileRead(iSQD,SqMsgHeader,sizeof(TSqMsgHeader));
         if (strlen(SqMsgHeader->from)==0 && strlen(SqMsgHeader->to)==0)
         {
             //FileClose(iSQD);
+            return false;
+        }
+        // Проверяем заголовок фрейма: битые длины (например, отрицательный msg_length)
+        // приводили к чтению текста за пределы буфера и порче кучи
+        DWORD dwSQDSize=GetFileSize((void *)iSQD,NULL);
+        if(SquishRecord->SqHdr.msg_length<sizeof(TSqMsgHeader)
+          || SquishRecord->SqHdr.clen>SquishRecord->SqHdr.msg_length-sizeof(TSqMsgHeader)
+          || (__int64)(DWORD)FIndexes[MsgNum].ofs+FBaseHeader.sz_sqhdr+SquishRecord->SqHdr.msg_length>(__int64)dwSQDSize)
+        {
             return false;
         }
 TraceS(__FUNC__);
@@ -1834,8 +1845,11 @@ void __fastcall TJAMBase::ProcessSubfields(void *Subfields,int Length,TJAMRecord
 int offset=0;
 JAMSUBFIELDptr SubField=(JAMSUBFIELDptr) Subfields;
 TraceS(__FUNC__);
-  while(offset<Length)
+  while(offset+(int)sizeof(JAMBINSUBFIELD)<=Length)
   {
+    // Сабфилд не должен выходить за конец буфера
+    if(SubField->DatLen>(DWORD)(Length-offset-(int)sizeof(JAMBINSUBFIELD)))
+      break;
     switch(SubField->LoID)
     {
       case JAMSFLD_OADDRESS:
@@ -1953,6 +1967,9 @@ TraceS(__FUNC__);
 //      ZeroMemory(JAMRecord,sizeof(TJAMRecord));
         FileSeek(iJHR,(__int64)FIndexes[MsgNum].offset,0);
         Result=FileRead(iJHR,JAMHeader,sizeof(JAMHDR))==sizeof(JAMHDR);
+        // Длина сабфилдов из битого заголовка не может превышать размер .JHR
+        if(Result && JAMHeader->SubfieldLen>GetFileSize((void *)iJHR,NULL))
+          Result=false;
         if(Result)
         {
           JAMRecord->MsgNo=MsgNum+1;
@@ -2000,6 +2017,9 @@ TraceS(__FUNC__);
     AnsiString asKludhes=Kludges.Body;
       try
       {
+        // Текст не может выходить за конец .JDT - иначе считаем его пустым
+        if((__int64)JAMHeader->TxtOffset+JAMHeader->TxtLen>(__int64)GetFileSize((void *)iJDT,NULL))
+          JAMHeader->TxtLen=0;
         int iTextLength=JAMHeader->TxtLen+1;
         int iKludgesLength=asKludhes.Length()+1;
 
