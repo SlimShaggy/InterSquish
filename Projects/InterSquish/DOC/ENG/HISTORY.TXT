@@ -1,5 +1,14 @@
 InterSquish NNTP Server
 
+28.10.2026  Version 2.0.5.28
+            + UTF-8 encoding support in NNTP messages served to the user (added &UTF8 flag in users.cfg)
+            + TZUTC kludge support
+            + CHRS kludge is now set in outgoing messages
+            + Support for the X-Comment-To header in RFC 2047 encoding
+            + Emoji in NNTP messages posted by the user are replaced with ASCII smileys
+            + Passthrough areas are now shown if the tosser keeps their base (PurgePassThrough mode support in ParToss)
+            ! Fixed gateway crash caused by a corrupted message base file
+
 12.06.2026  Version 2.0.5.27
             + UTF-8 NNTP message support
             - Cyrillic Í no longer replaced with Latin H
